@@ -9,21 +9,21 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 
 ' ■ 関数の存在チェック
-Function FunctionExists(sheetCodeName As String, funcName As String) As Boolean
+Function FunctionExists(strSheetCodeName As String, strFuncName As String) As Boolean
     
     ' 変数定義
-    Dim exists As Boolean
+    Dim blnExists As Boolean
     
     ' テストモードで呼び出してみることで存在を確認
     On Error Resume Next
     Dim test As Variant
-    test = Application.Run(sheetCodeName & "." & funcName, True)
-    exists = (Err.Number = 0)
+    test = Application.Run(strSheetCodeName & "." & strFuncName, True)
+    blnExists = (Err.Number = 0)
     Err.Clear
     On Error GoTo 0
     
     ' 結果をセット
-    FunctionExists = exists
+    FunctionExists = blnExists
 
 End Function
 
@@ -32,27 +32,30 @@ End Function
 Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
 
     ' 変数定義
-    Dim ws As Worksheet           ' ワークシート
-    Dim current_ws As Worksheet   ' アクティブなワークシート
-    Dim hasError As Boolean       ' エラー有無
-    Dim result As VbMsgBoxResult  ' メッセージボックス選択結果
-    Dim functionResult As Variant ' 関数戻り値
-    Dim sheetCodeName As String   ' ワークシートのコードネーム
+    Dim ws As Worksheet              ' ワークシート
+    Dim wsCurrent As Worksheet       ' アクティブなワークシート
+    Dim blnHasError As Boolean       ' エラー有無
+    Dim msgResult As VbMsgBoxResult  ' メッセージボックス選択結果
+    Dim varFunctionResult As Variant ' 関数戻り値
+    Dim strSheetCodeName As String   ' ワークシートのコードネーム
+    Dim intSheetCount As Integer
 
-    Set current_ws = ActiveSheet
+    ' アクティブなシートを取得
+    Set wsCurrent = ActiveSheet
 
-    hasError = False
+    intSheetCount = 0
+    blnHasError = False
 
     ' すべてのシートをループ
     For Each ws In ThisWorkbook.Sheets
         ' シート名が "WBS" で始まるか確認
-        If Left(ws.Name, 3) = "WBS" And ws.CodeName = current_ws.CodeName Then
+        If Left(ws.Name, 3) = "WBS" And ws.CodeName = wsCurrent.CodeName Then
         
             ' シートの CodeName を取得
-            sheetCodeName = ws.CodeName
+            strSheetCodeName = ws.CodeName
             
             ' PrepareForProcessing が存在するか確認して実行（引数 False）
-            If FunctionExists(sheetCodeName, "PrepareForProcessing") Then
+            If FunctionExists(strSheetCodeName, "PrepareForProcessing") Then
             
                 Application.ScreenUpdating = False
                 Application.Calculation = xlCalculationManual
@@ -67,12 +70,12 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
             End If
                         
             ' HasErrors が存在するか確認して実行（引数 False）
-            If FunctionExists(sheetCodeName, "HasErrors") Then
+            If FunctionExists(strSheetCodeName, "HasErrors") Then
                 ' CallByName を使って関数を実行し、戻り値を取得
-                functionResult = CallByName(ws, "HasErrors", VbMethod, False)
+                varFunctionResult = CallByName(ws, "HasErrors", VbMethod, False)
                 ' 関数が正しく実行され、戻り値が取得できた場合
-                If functionResult Then
-                    hasError = True
+                If varFunctionResult Then
+                    blnHasError = True
                 End If
             End If
             
@@ -80,12 +83,12 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
     Next ws
 
     ' エラーがある場合は確認メッセージを出す
-    If hasError Then
+    If blnHasError Then
         ' 保存するか確認
-        result = MsgBox("エラーがありますが保存しますか？", vbExclamation + vbYesNo, "エラーチェック")
+        msgResult = MsgBox("エラーがありますが保存しますか？", vbExclamation + vbYesNo, "エラーチェック")
 
         ' 「No」を押したら保存をキャンセル
-        If result = vbNo Then
+        If msgResult = vbNo Then
             Cancel = True
         End If
     End If
