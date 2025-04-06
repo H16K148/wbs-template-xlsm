@@ -26,28 +26,30 @@ Attribute VB_Exposed = True
 ' ¡ ’è”’è‹`
 
 ' —ñ’è‹`
-Private Const lngCOL_KEY  As Long = 1             '  A—ñFKEY ƒJƒ‰ƒ€
-Private Const lngCOL_ERR  As Long = 2             '  B—ñFERROR î•ñ‚ªo—Í‚³‚ê‚éƒJƒ‰ƒ€
-Private Const lngCOL_CHK  As Long = 3             '  C—ñFƒ`ƒFƒbƒNƒ{ƒbƒNƒX‚ÌƒJƒ‰ƒ€
-Private Const lngCOL_OPT  As Long = 4             '  D—ñFƒIƒvƒVƒ‡ƒ“ƒ{ƒbƒNƒX‚ÌƒJƒ‰ƒ€
-Private Const lngCOL_L1   As Long = 5             '  E—ñFL1 ”Ô†‚ğ“ü—Í‚·‚éƒJƒ‰ƒ€
-Private Const lngCOL_L2   As Long = 6             '  F—ñFL2 ”Ô†‚ğ“ü—Í‚·‚éƒJƒ‰ƒ€
-Private Const lngCOL_L3   As Long = 7             '  G—ñFL3 ”Ô†‚ğ“ü—Í‚·‚éƒJƒ‰ƒ€
-Private Const lngCOL_L4   As Long = 8             '  H—ñFL4 ”Ô†‚ğ“ü—Í‚·‚éƒJƒ‰ƒ€
-Private Const lngCOL_L5   As Long = 9             '  I—ñFL5 ”Ô†‚ğ“ü—Í‚·‚éƒJƒ‰ƒ€
-Private Const lngCOL_TASK As Long = 10            '  J—ñFTASK ”Ô†‚ğ“ü—Í‚·‚éƒJƒ‰ƒ€
-Private Const lngCOL_WBS_IDX As Long = 11         '  K—ñFWBS_IDX‚ğ•\¦‚·‚éƒJƒ‰ƒ€i•’i‚Í”ñ•\¦j
-Private Const lngCOL_WBS_ID As Long = 12          '  L—ñFWBS_ID‚ğ•\¦‚·‚éƒJƒ‰ƒ€
-Private Const lngCOL_EFF_PROG As Long = 20        '  T—ñFH”i’»—¦‚ÌƒJƒ‰ƒ€
-Private Const lngCOL_TASK_PROG As Long = 21       '  U—ñF€–ÚÁ‰»—¦‚ÌƒJƒ‰ƒ€
-Private Const lngCOL_TASK_WGT As Long = 22        '  V—ñF€–Ú‰Ád‚ÌƒJƒ‰ƒ€
-Private Const lngCOL_WBS_STATUS As Long = 23      '  W—ñFWBSƒXƒe[ƒ^ƒX‚ÌƒJƒ‰ƒ€
-Private Const lngCOL_TEAM_SLCT As Long = 24       '  X—ñF‘gD‘I‘ğ‚ÌƒJƒ‰ƒ€
-Private Const lngCOL_PERSON_SLCT As Long = 25     '  Y—ñF’S“–‘I‘ğ‚ÌƒJƒ‰ƒ€
-Private Const lngCOL_PLANNED_EFF As Long = 27     ' AA—ñF—\’èH”‚ÌƒJƒ‰ƒ€
-Private Const lngCOL_LAST As Long = 34            ' AH—ñFiƒf[ƒ^‚ÌjÅIƒJƒ‰ƒ€
-Private Const lngCOL_DEFINE_TEAM As Long = 36     ' AJ—ñF‘gD‚ğ’è‹`‚·‚éƒJƒ‰ƒ€
-Private Const lngCOL_DEFINE_PERSON As Long = 37   ' AK—ñF’S“–‚ğ’è‹`‚·‚éƒJƒ‰ƒ€
+Private Const lngCOL_KEY  As Long = 1                  '  A—ñFKEY ƒJƒ‰ƒ€
+Private Const lngCOL_ERR  As Long = 2                  '  B—ñFERROR î•ñ‚ªo—Í‚³‚ê‚éƒJƒ‰ƒ€
+Private Const lngCOL_CHK  As Long = 3                  '  C—ñFƒ`ƒFƒbƒNƒ{ƒbƒNƒX‚ÌƒJƒ‰ƒ€
+Private Const lngCOL_OPT  As Long = 4                  '  D—ñFƒIƒvƒVƒ‡ƒ“ƒ{ƒbƒNƒX‚ÌƒJƒ‰ƒ€
+Private Const lngCOL_L1   As Long = 5                  '  E—ñFL1 ”Ô†‚ğ“ü—Í‚·‚éƒJƒ‰ƒ€
+Private Const lngCOL_L2   As Long = 6                  '  F—ñFL2 ”Ô†‚ğ“ü—Í‚·‚éƒJƒ‰ƒ€
+Private Const lngCOL_L3   As Long = 7                  '  G—ñFL3 ”Ô†‚ğ“ü—Í‚·‚éƒJƒ‰ƒ€
+Private Const lngCOL_L4   As Long = 8                  '  H—ñFL4 ”Ô†‚ğ“ü—Í‚·‚éƒJƒ‰ƒ€
+Private Const lngCOL_L5   As Long = 9                  '  I—ñFL5 ”Ô†‚ğ“ü—Í‚·‚éƒJƒ‰ƒ€
+Private Const lngCOL_TASK As Long = 10                 '  J—ñFTASK ”Ô†‚ğ“ü—Í‚·‚éƒJƒ‰ƒ€
+Private Const lngCOL_WBS_IDX As Long = 11              '  K—ñFWBS_IDX‚ğ•\¦‚·‚éƒJƒ‰ƒ€i•’i‚Í”ñ•\¦j
+Private Const lngCOL_WBS_ID As Long = 12               '  L—ñFWBS_ID‚ğ•\¦‚·‚éƒJƒ‰ƒ€
+Private Const lngCOL_EFFORT_PROG As Long = 20          '  T—ñFH”i’»—¦‚ÌƒJƒ‰ƒ€
+Private Const lngCOL_TASK_PROG As Long = 21            '  U—ñF€–ÚÁ‰»—¦‚ÌƒJƒ‰ƒ€
+Private Const lngCOL_TASK_WGT As Long = 22             '  V—ñF€–Ú‰Ád‚ÌƒJƒ‰ƒ€
+Private Const lngCOL_WBS_STATUS As Long = 23           '  W—ñFWBSƒXƒe[ƒ^ƒX‚ÌƒJƒ‰ƒ€
+Private Const lngCOL_TEAM_SLCT As Long = 24            '  X—ñF‘gD‘I‘ğ‚ÌƒJƒ‰ƒ€
+Private Const lngCOL_PERSON_SLCT As Long = 25          '  Y—ñF’S“–‘I‘ğ‚ÌƒJƒ‰ƒ€
+Private Const lngCOL_PLANNED_EFF As Long = 27          ' AA—ñF—\’èH”‚ÌƒJƒ‰ƒ€
+Private Const lngCOL_ACTUAL_REMAINING_EFF As Long = 30 ' AD—ñFÀÑcH”‚ÌƒJƒ‰ƒ€
+Private Const lngCOL_ACTUAL_COMPLETED_EFF As Long = 31 ' AE—ñFÀÑÏH”‚ÌƒJƒ‰ƒ€
+Private Const lngCOL_LAST As Long = 34                 ' AH—ñFiƒf[ƒ^‚ÌjÅIƒJƒ‰ƒ€
+Private Const lngCOL_DEFINE_TEAM As Long = 36          ' AJ—ñF‘gD‚ğ’è‹`‚·‚éƒJƒ‰ƒ€
+Private Const lngCOL_DEFINE_PERSON As Long = 37        ' AK—ñF’S“–‚ğ’è‹`‚·‚éƒJƒ‰ƒ€
 
 ' s’è‹`
 Private Const lngROW_CTRL1 As Long = 3            ' ƒRƒ“ƒgƒ[ƒ‹‚ğ”z’u‚·‚és
@@ -57,6 +59,7 @@ Private Const strNAME_OPT_GROUPBOX1 As String = "OptionGroupBox_1"   ' ƒIƒvƒVƒ‡ƒ
 Private Const strNAME_EXE_COMBOBOX1 As String = "ExecuteComboBox_1"  '
 Private Const strNAME_EXE_BUTTON1   As String = "ExecuteButton_1"    '
 Private Const strNAME_RESET_BUTTON As String = "ResetButton_1"      '
+Private Const strNAME_RECALCULATE_BUTTON As String = "RecalculateButton_1"
 Private Const strNAME_PREFIX_CHK As String = "CheckBox_"
 Private Const strNAME_PREFIX_OPT As String = "OptionButton_"
 
@@ -64,6 +67,7 @@ Private Const strNAME_PREFIX_OPT As String = "OptionButton_"
 Private Const dblSHAPE_MARGIN As Double = 0.2
 Private Const intEXE_COMBOBOX_WIDTH = 500
 Private Const intRESET_BUTTON_WIDTH = 55
+Private Const intRECALCULATE_BUTTON_WIDTH = 55
 
 
 ' ¡ —ñ”Ô†‚ğ—ñ•¶š—ñ‚É•ÏŠ·‚·‚é
@@ -471,6 +475,7 @@ Private Sub SetFormulaForWbsIdx()
                   "IF(I" & r & "="""","".---"", ""."" & TEXT(I" & r & ",""000""))," & _
                   "IF(J" & r & "="""","".---"", ""."" & TEXT(J" & r & ",""000"")))))"
         ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+        ws.Range(strTargetColLetter & r).NumberFormat = "General"
         ws.Range(strTargetColLetter & r).formula = strFormula
     Next r
     
@@ -514,6 +519,7 @@ Private Sub SetFormulaForWbsId()
                   "IF(I" & r & "="""","""","".""&I" & r & " ), " & _
                   "IF(J" & r & "="""","""","".T""&J" & r & " ))))"
         ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+        ws.Range(strTargetColLetter & r).NumberFormat = "General"
         ws.Range(strTargetColLetter & r).formula = strFormula
     Next r
     
@@ -573,6 +579,7 @@ Public Sub PrepareForProcessing(Optional ByVal blnCheckOnly As Boolean = False)
     Dim shpExeComboBox As Shape
     Dim shpExeButton As Shape
     Dim shpResetButton As Shape
+    Dim shpRecalculateButton As Shape
     ' - ƒIƒvƒVƒ‡ƒ“ƒOƒ‹[ƒvƒ{ƒbƒNƒX‚ÌˆÊ’u‚ÆƒTƒCƒY‚ğŒvZ‚·‚é‚½‚ß‚Ì•Ï”
     Dim dblOptGroupBoxLeft As Double
     Dim dblOptGroupBoxTop As Double
@@ -593,6 +600,11 @@ Public Sub PrepareForProcessing(Optional ByVal blnCheckOnly As Boolean = False)
     Dim dblResetButtonTop As Double
     Dim dblResetButtonWidth As Double
     Dim dblResetButtonHeight As Double
+    ' - ÄŒvZƒ{ƒ^ƒ“‚ÌˆÊ’u‚ÆƒTƒCƒY‚ğŒvZ‚·‚é‚½‚ß‚Ì•Ï”
+    Dim dblRecalculateButtonLeft As Double
+    Dim dblRecalculateButtonTop As Double
+    Dim dblRecalculateButtonWidth As Double
+    Dim dblRecalculateButtonHeight As Double
     ' ˆê•Ï”’è‹`
     Dim r As Long
     Dim chkBox As Shape, optBtn As Shape
@@ -654,14 +666,15 @@ Public Sub PrepareForProcessing(Optional ByVal blnCheckOnly As Boolean = False)
         .AddItem "yOPTz ‘I‘ğ‚µ‚½ŠK‘w”Ô†‚Ì––”ö‚ğ{‚P"
         .AddItem "yOPTz ‘I‘ğ‚µ‚½ŠK‘w”Ô†‚Ì––”ö‚ğ|‚P"
         .AddItem "yCHKz ƒ`ƒFƒbƒN‚µ‚½‚Q‰ÓŠ‚ÌŠK‘w”Ô†‚Ì––”ö”Ô†‚ğŒğŠ·@¦ ƒ`ƒFƒbƒN‚ª“¯ŠK‘w‚Å‚ ‚éŠK‘ws‚Ì‚Q‰ÓŠ‚Å‚È‚©‚Á‚½ê‡‚Í•s‰Â ¦"
-        .AddItem "yCHKz ƒ`ƒFƒbƒN‚µ‚½ƒ^ƒXƒNs‚ğíœ@¦ ŠK‘ws‚Í•s‰Â ¦"
-        .AddItem "yCHKz ƒ`ƒFƒbƒN‚µ‚½ŠK‘ws‚ğíœ@¦ ƒ^ƒXƒN‚ª‚ ‚éê‡‚âqŠK‘w‚ª‚ ‚éê‡‚Í•s‰Â ¦"
+        .AddItem "yCHKz ƒ`ƒFƒbƒN‚µ‚½s‚ğíœ@¦ qŠK‘w‚âqƒ^ƒXƒN‚ª‚ ‚éê‡‚Í•s‰Â ¦"
         .AddItem "ŠK‘w”Ô†‚ğƒ\[ƒg"
-        .AddItem "€–ÚÁ‰»—¦A—\’èH”‚ğWŒv"
         .AddItem "L2ˆÈ‰º‚ğ”ñ•\¦"
         .AddItem "L3ˆÈ‰º‚ğ”ñ•\¦"
         .AddItem "L4ˆÈ‰º‚ğ”ñ•\¦"
         .AddItem "‚·‚×‚Ä‚ğÄ•\¦"
+    End With
+    With ws.DropDowns(strNAME_EXE_COMBOBOX1)
+        .ListIndex = 1
     End With
     colControlNames.Add shpExeComboBox.Name
     
@@ -706,8 +719,30 @@ Public Sub PrepareForProcessing(Optional ByVal blnCheckOnly As Boolean = False)
     With ws.Buttons(strNAME_RESET_BUTTON)
         .Characters.Text = "ƒŠƒZƒbƒg"
     End With
-    shpResetButton.OnAction = ws.CodeName & ".PrepareForProcessing"
+    shpResetButton.OnAction = ws.CodeName & ".PrepareSheet"
     colControlNames.Add shpResetButton.Name
+
+    ' ÄŒvZƒ{ƒ^ƒ“‚ÌˆÊ’u‚ÆƒTƒCƒY‚ğŒvZ
+    dblRecalculateButtonLeft = ws.Cells(lngROW_CTRL1, lngCOL_L1).Left + intEXE_COMBOBOX_WIDTH + intRESET_BUTTON_WIDTH
+    dblRecalculateButtonTop = ws.Cells(lngROW_CTRL1, lngCOL_TASK_WGT).Top + dblSHAPE_MARGIN
+    dblRecalculateButtonWidth = intRECALCULATE_BUTTON_WIDTH
+    dblRecalculateButtonHeight = ws.Cells(lngROW_CTRL1, lngCOL_TASK_WGT).Height - (dblSHAPE_MARGIN * 2)
+    ' “¯‚¶–¼‘O‚ÌÄŒvZƒ{ƒ^ƒ“‚ª‘¶İ‚·‚é‚©Šm”F
+    On Error Resume Next
+    Set shpRecalculateButton = ws.Shapes(strNAME_RECALCULATE_BUTTON)
+    On Error GoTo 0
+    ' ÄŒvZƒ{ƒ^ƒ“‚ª‘¶İ‚·‚éê‡Aíœ
+    If Not shpRecalculateButton Is Nothing Then
+        shpRecalculateButton.Delete
+    End If
+    ' ÄŒvZƒ{ƒ^ƒ“‚ğV‚½‚Éì¬iƒTƒCƒY‚ª•Ï‚í‚é‰Â”\«‚ª‚ ‚é‚½‚ßA–ˆ‰ñAì‚è’¼‚·j
+    Set shpRecalculateButton = ws.Shapes.AddFormControl(xlButtonControl, dblRecalculateButtonLeft, dblRecalculateButtonTop, dblRecalculateButtonWidth, dblRecalculateButtonHeight)
+    shpRecalculateButton.Name = strNAME_RECALCULATE_BUTTON
+    With ws.Buttons(strNAME_RECALCULATE_BUTTON)
+        .Characters.Text = "ÄŒvZ"
+    End With
+    shpRecalculateButton.OnAction = ws.CodeName & ".RecalculateSheet"
+    colControlNames.Add shpRecalculateButton.Name
 
     ' ”®‚ğƒZƒbƒg
     For r = lngStartRow To lngEndRow
@@ -742,21 +777,6 @@ Public Sub PrepareForProcessing(Optional ByVal blnCheckOnly As Boolean = False)
     ' “ü—ÍŒó•âiƒvƒ‹ƒ_ƒEƒ“‚ğİ’èj‚Ìİ’è
     SetDropDownListResponsiblePerson
     SetDropDownListResponsibleTeam
-    
-    ' WŒv®‚Ì‘}“ü
-    SetFormulaForPlannedEffort
-    SetFormulaForTaskProgressRate
-    SetFormulaForWbsId
-    SetFormulaForWbsIdx
-    
-    ' ®‚Ìƒ}ƒjƒ…ƒAƒ‹XVAˆê“I©“®ŒvZ‚ğs‚¤
-    If Application.Calculation = xlCalculationManual Then
-        Application.Calculation = xlCalculationAutomatic
-        Application.Calculation = xlCalculationManual
-    End If
-    
-    ' ®‚ğ’l‚É•ÏŠ·
-    ConvertFormulasToValues
     
     ' ƒGƒ‰[ƒ`ƒFƒbƒN
     CheckErrors
@@ -812,12 +832,19 @@ Public Sub ExeButtonClick()
             Application.Calculation = xlCalculationAutomatic
             Application.EnableEvents = True
         Case 4
-            MsgBox "–¢À‘•‚Å‚·6B"
+            Application.ScreenUpdating = False
+            Application.Calculation = xlCalculationManual
+            Application.EnableEvents = False
+        
+            SwapCheckedLastLevel
+            PrepareForProcessing
+            
+            Application.ScreenUpdating = True
+            Application.Calculation = xlCalculationAutomatic
+            Application.EnableEvents = True
         Case 5
             MsgBox "–¢À‘•‚Å‚·7B"
         Case 6
-            MsgBox "–¢À‘•‚Å‚·8B"
-        Case 7
             Application.ScreenUpdating = False
             Application.Calculation = xlCalculationManual
             Application.EnableEvents = False
@@ -828,25 +855,46 @@ Public Sub ExeButtonClick()
             Application.ScreenUpdating = True
             Application.Calculation = xlCalculationAutomatic
             Application.EnableEvents = True
+        Case 7
+            Application.ScreenUpdating = False
+            Application.Calculation = xlCalculationManual
+            Application.EnableEvents = False
+            
+            HideLowerThanL2
+            
+            Application.ScreenUpdating = True
+            Application.Calculation = xlCalculationAutomatic
+            Application.EnableEvents = True
         Case 8
             Application.ScreenUpdating = False
             Application.Calculation = xlCalculationManual
             Application.EnableEvents = False
-        
-            SetFormulaForPlannedEffort
-            SetFormulaForTaskProgressRate
+            
+            HideLowerThanL3
             
             Application.ScreenUpdating = True
             Application.Calculation = xlCalculationAutomatic
             Application.EnableEvents = True
         Case 9
-            HideLowerThanL2
-        Case 10
-            HideLowerThanL3
-        Case 11
+            Application.ScreenUpdating = False
+            Application.Calculation = xlCalculationManual
+            Application.EnableEvents = False
+            
             HideLowerThanL4
-        Case 12
+            
+            Application.ScreenUpdating = True
+            Application.Calculation = xlCalculationAutomatic
+            Application.EnableEvents = True
+        Case 10
+            Application.ScreenUpdating = False
+            Application.Calculation = xlCalculationManual
+            Application.EnableEvents = False
+            
             UnhideAllLevels
+            
+            Application.ScreenUpdating = True
+            Application.Calculation = xlCalculationAutomatic
+            Application.EnableEvents = True
         Case Else
             MsgBox "€–Ú‚ª‘I‘ğ‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB"
     End Select
@@ -1083,6 +1131,15 @@ Private Sub SetFormulaForPlannedEffort()
     ' ŠJns‚ÆI—¹s‚ªŒ©‚Â‚©‚ç‚È‚¯‚ê‚ÎI—¹
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
     
+    ' ƒ‰ƒxƒ‹•¶š—ñ–‘O—pˆÓ
+    strColLabelPlannedEffort = ConvertColNumberToLetter(lngCOL_PLANNED_EFF)
+    strColLabelL1 = ConvertColNumberToLetter(lngCOL_L1)
+    strColLabelL2 = ConvertColNumberToLetter(lngCOL_L2)
+    strColLabelL3 = ConvertColNumberToLetter(lngCOL_L3)
+    strColLabelL4 = ConvertColNumberToLetter(lngCOL_L4)
+    strColLabelL5 = ConvertColNumberToLetter(lngCOL_L5)
+    strColLabelTask = ConvertColNumberToLetter(lngCOL_TASK)
+    
     ' ‚·‚×‚Ä‚Ìƒ^ƒXƒN‚ÆŠK‘w‚ÌƒL[‚ğì¬
     For r = lngStartRow To lngEndRow
         
@@ -1105,16 +1162,6 @@ Private Sub SetFormulaForPlannedEffort()
         
         ' ƒ^ƒXƒNs‚Å‚È‚¢ê‡‚É®‚ğƒZƒbƒg
         If Not isTask Then
-        
-            ' ƒ‰ƒxƒ‹•¶š—ñ–‘O—pˆÓ
-            strColLabelPlannedEffort = ConvertColNumberToLetter(lngCOL_PLANNED_EFF)
-            strColLabelL1 = ConvertColNumberToLetter(lngCOL_L1)
-            strColLabelL2 = ConvertColNumberToLetter(lngCOL_L2)
-            strColLabelL3 = ConvertColNumberToLetter(lngCOL_L3)
-            strColLabelL4 = ConvertColNumberToLetter(lngCOL_L4)
-            strColLabelL5 = ConvertColNumberToLetter(lngCOL_L5)
-            strColLabelTask = ConvertColNumberToLetter(lngCOL_TASK)
-            
             ' L5ŠK‘w‚Ì”®‚ğƒZƒbƒg
             If level = 5 Then
                 ' ”®‚ğì¬
@@ -1228,8 +1275,8 @@ Private Sub SetFormulaForPlannedEffort()
 End Sub
 
 
-' ¡ ƒ^ƒXƒNi’»—¦‚ğWŒv‚·‚é®‚ğƒZƒbƒg
-Private Sub SetFormulaForTaskProgressRate()
+' ¡ ÀÑcH”‚ğWŒv‚·‚é®‚ğƒZƒbƒg
+Private Sub SetFormulaForActualRemainingEffort()
 
     ' Œ»İ‚ÌƒV[ƒg‚ğæ“¾
     Dim ws As Worksheet
@@ -1237,7 +1284,7 @@ Private Sub SetFormulaForTaskProgressRate()
 
     ' •Ï”’è‹`
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
-    Dim strColLabelTaskProg As String, strColLabelTaskWeight As String, strColLabelTask As String
+    Dim strColLabelActualRemainingEffort As String, strColLabelTask As String
     Dim strColLabelL1 As String, strColLabelL2 As String, strColLabelL3 As String, strColLabelL4 As String, strColLabelL5 As String
     Dim strBoolArrayH As String, strBoolArrayT As String
     Dim strFormula As String
@@ -1252,6 +1299,355 @@ Private Sub SetFormulaForTaskProgressRate()
 
     ' ŠJns‚ÆI—¹s‚ªŒ©‚Â‚©‚ç‚È‚¯‚ê‚ÎI—¹
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' ƒ‰ƒxƒ‹•¶š—ñ–‘O—pˆÓ
+    strColLabelActualRemainingEffort = ConvertColNumberToLetter(lngCOL_ACTUAL_REMAINING_EFF)
+    strColLabelL1 = ConvertColNumberToLetter(lngCOL_L1)
+    strColLabelL2 = ConvertColNumberToLetter(lngCOL_L2)
+    strColLabelL3 = ConvertColNumberToLetter(lngCOL_L3)
+    strColLabelL4 = ConvertColNumberToLetter(lngCOL_L4)
+    strColLabelL5 = ConvertColNumberToLetter(lngCOL_L5)
+    strColLabelTask = ConvertColNumberToLetter(lngCOL_TASK)
+    
+    ' ‚·‚×‚Ä‚Ìƒ^ƒXƒN‚ÆŠK‘w‚ÌƒL[‚ğì¬
+    For r = lngStartRow To lngEndRow
+        
+        ' ‰Šú‰»
+        level = 5
+        isTask = False
+        
+        ' ŠK‘wƒŒƒxƒ‹‚Ì”»’è
+        For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
+            val = ws.Cells(r, levelCol).Value
+            If Not IsNumeric(val) Or val = "" Then
+                level = level - 1
+            Else
+                Exit For
+            End If
+        Next levelCol
+        
+        ' ƒ^ƒXƒN‚©‚Ç‚¤‚©‚Ì”»’è
+        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).Value) Or ws.Cells(r, lngCOL_TASK).Value <> ""
+        
+        ' ƒ^ƒXƒNs‚Å‚È‚¢ê‡‚É®‚ğƒZƒbƒg
+        If Not isTask Then
+            ' L5ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 5 Then
+                ' ”®‚ğì¬
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "=" & strColLabelL5 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelActualRemainingEffort & r).formula = strFormula
+            End If
+            
+            ' L4ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 4 Then
+                ' ”®‚ğì¬
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "))*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelActualRemainingEffort & r).formula = strFormula
+            End If
+            
+            ' L3ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 3 Then
+                ' ”®‚ğì¬
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "))*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelActualRemainingEffort & r).formula = strFormula
+            End If
+            
+            ' L2ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 2 Then
+                ' ”®‚ğì¬
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "))*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelActualRemainingEffort & r).formula = strFormula
+            End If
+            
+            ' L1ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 1 Then
+                ' ”®‚ğì¬
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "))*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelActualRemainingEffort & r).formula = strFormula
+            End If
+        End If
+    Next r
+    
+    ' L1 ‚ğWŒv‚·‚é”®‚ğƒZƒbƒg
+    strBoolArrayH = "(ISNUMBER(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "))*" & _
+                   "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+    strFormula = "=SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayH & ",0))"
+    ws.Range(strColLabelActualRemainingEffort & lngEndRow + 2).formula = strFormula
+    
+End Sub
+
+
+' ¡ ÀÑÏH”‚ğWŒv‚·‚é®‚ğƒZƒbƒg
+Private Sub SetFormulaForActualCompletedEffort()
+
+    ' Œ»İ‚ÌƒV[ƒg‚ğæ“¾
+    Dim ws As Worksheet
+    Set ws = Me
+
+    ' •Ï”’è‹`
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim strColLabelActualCompletedEffort As String, strColLabelTask As String
+    Dim strColLabelL1 As String, strColLabelL2 As String, strColLabelL3 As String, strColLabelL4 As String, strColLabelL5 As String
+    Dim strBoolArrayH As String, strBoolArrayT As String
+    Dim strFormula As String
+    ' ˆê•Ï”’è‹`
+    Dim r As Long, levelCol As Integer, level As Integer, isTask As Boolean
+    Dim val As Variant
+    
+    ' ŠJns‚ÆI—¹s‚ğæ“¾
+    varRangeRows = FindDataRangeRows()
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' ŠJns‚ÆI—¹s‚ªŒ©‚Â‚©‚ç‚È‚¯‚ê‚ÎI—¹
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' ƒ‰ƒxƒ‹•¶š—ñ–‘O—pˆÓ
+    strColLabelActualCompletedEffort = ConvertColNumberToLetter(lngCOL_ACTUAL_COMPLETED_EFF)
+    strColLabelL1 = ConvertColNumberToLetter(lngCOL_L1)
+    strColLabelL2 = ConvertColNumberToLetter(lngCOL_L2)
+    strColLabelL3 = ConvertColNumberToLetter(lngCOL_L3)
+    strColLabelL4 = ConvertColNumberToLetter(lngCOL_L4)
+    strColLabelL5 = ConvertColNumberToLetter(lngCOL_L5)
+    strColLabelTask = ConvertColNumberToLetter(lngCOL_TASK)
+    
+    ' ‚·‚×‚Ä‚Ìƒ^ƒXƒN‚ÆŠK‘w‚ÌƒL[‚ğì¬
+    For r = lngStartRow To lngEndRow
+        
+        ' ‰Šú‰»
+        level = 5
+        isTask = False
+        
+        ' ŠK‘wƒŒƒxƒ‹‚Ì”»’è
+        For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
+            val = ws.Cells(r, levelCol).Value
+            If Not IsNumeric(val) Or val = "" Then
+                level = level - 1
+            Else
+                Exit For
+            End If
+        Next levelCol
+        
+        ' ƒ^ƒXƒN‚©‚Ç‚¤‚©‚Ì”»’è
+        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).Value) Or ws.Cells(r, lngCOL_TASK).Value <> ""
+        
+        ' ƒ^ƒXƒNs‚Å‚È‚¢ê‡‚É®‚ğƒZƒbƒg
+        If Not isTask Then
+            ' L5ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 5 Then
+                ' ”®‚ğì¬
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "=" & strColLabelL5 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelActualCompletedEffort & r).formula = strFormula
+            End If
+            
+            ' L4ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 4 Then
+                ' ”®‚ğì¬
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "))*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelActualCompletedEffort & r).formula = strFormula
+            End If
+            
+            ' L3ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 3 Then
+                ' ”®‚ğì¬
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "))*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelActualCompletedEffort & r).formula = strFormula
+            End If
+            
+            ' L2ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 2 Then
+                ' ”®‚ğì¬
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "))*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelActualCompletedEffort & r).formula = strFormula
+            End If
+            
+            ' L1ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 1 Then
+                ' ”®‚ğì¬
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "))*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelActualCompletedEffort & r).formula = strFormula
+            End If
+        End If
+    Next r
+    
+    ' L1 ‚ğWŒv‚·‚é”®‚ğƒZƒbƒg
+    strBoolArrayH = "(ISNUMBER(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "))*" & _
+                   "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+    strFormula = "=SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayH & ",0))"
+    ws.Range(strColLabelActualCompletedEffort & lngEndRow + 2).formula = strFormula
+    
+End Sub
+
+
+' ¡ ƒ^ƒXƒNi’»—¦‚ğWŒv‚·‚é®‚ğƒZƒbƒg
+Private Sub SetFormulaForTaskProgressRate()
+
+    ' Œ»İ‚ÌƒV[ƒg‚ğæ“¾
+    Dim ws As Worksheet
+    Set ws = Me
+
+    ' •Ï”’è‹`
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim strColLabelTaskProg As String, strColLabelTaskWeight As String, strColLabelTask As String
+    Dim strColLabelL1 As String, strColLabelL2 As String, strColLabelL3 As String, strColLabelL4 As String, strColLabelL5 As String
+    Dim strBoolArrayH As String, strBoolArrayT As String
+    Dim strSumWeightH As String, strSumWeightT As String
+    Dim strFormula As String
+    ' ˆê•Ï”’è‹`
+    Dim r As Long, levelCol As Integer, level As Integer, isTask As Boolean
+    Dim val As Variant
+    
+    ' ŠJns‚ÆI—¹s‚ğæ“¾
+    varRangeRows = FindDataRangeRows()
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' ŠJns‚ÆI—¹s‚ªŒ©‚Â‚©‚ç‚È‚¯‚ê‚ÎI—¹
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' ƒ‰ƒxƒ‹•¶š—ñ–‘O—pˆÓ
+    strColLabelTaskProg = ConvertColNumberToLetter(lngCOL_TASK_PROG)
+    strColLabelTaskWeight = ConvertColNumberToLetter(lngCOL_TASK_WGT)
+    strColLabelL1 = ConvertColNumberToLetter(lngCOL_L1)
+    strColLabelL2 = ConvertColNumberToLetter(lngCOL_L2)
+    strColLabelL3 = ConvertColNumberToLetter(lngCOL_L3)
+    strColLabelL4 = ConvertColNumberToLetter(lngCOL_L4)
+    strColLabelL5 = ConvertColNumberToLetter(lngCOL_L5)
+    strColLabelTask = ConvertColNumberToLetter(lngCOL_TASK)
     
     ' ‚·‚×‚Ä‚Ìƒ^ƒXƒN‚ÆŠK‘w‚ÌƒL[‚ğì¬
     For r = lngStartRow To lngEndRow
@@ -1276,16 +1672,6 @@ Private Sub SetFormulaForTaskProgressRate()
         ' ƒ^ƒXƒNs‚Å‚È‚¢ê‡‚É®‚ğƒZƒbƒg
         If Not isTask Then
         
-            ' ƒ‰ƒxƒ‹•¶š—ñ–‘O—pˆÓ
-            strColLabelTaskProg = ConvertColNumberToLetter(lngCOL_TASK_PROG)
-            strColLabelTaskWeight = ConvertColNumberToLetter(lngCOL_TASK_WGT)
-            strColLabelL1 = ConvertColNumberToLetter(lngCOL_L1)
-            strColLabelL2 = ConvertColNumberToLetter(lngCOL_L2)
-            strColLabelL3 = ConvertColNumberToLetter(lngCOL_L3)
-            strColLabelL4 = ConvertColNumberToLetter(lngCOL_L4)
-            strColLabelL5 = ConvertColNumberToLetter(lngCOL_L5)
-            strColLabelTask = ConvertColNumberToLetter(lngCOL_TASK)
-            
             ' L5ŠK‘w‚Ì”®‚ğƒZƒbƒg
             If level = 5 Then
                 ' ”®‚ğì¬
@@ -1295,10 +1681,15 @@ Private Sub SetFormulaForTaskProgressRate()
                           "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
                           "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "=" & strColLabelL5 & r & ")*" & _
                           "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strSumWeightT = "SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' strFormula = "=SUM(FILTER(" & strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow & _
+                '           "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "" & _
+                '           "/SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0)))" & _
+                '           "," & strBoolArrayT & ",0))"
                 strFormula = "=SUM(FILTER(" & strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow & _
-                          "*(COUNT(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0))" & _
-                          "/SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0)))" & _
-                          "," & strBoolArrayT & ",0))"
+                          "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & ")" & _
+                          "," & strBoolArrayT & ",0))" & _
+                          "/IF(" & strSumWeightT & "=0,1," & strSumWeightT & ")"
                 ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
                 ws.Range(strColLabelTaskProg & r).formula = strFormula
             End If
@@ -1318,14 +1709,15 @@ Private Sub SetFormulaForTaskProgressRate()
                           "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
                           "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
                           "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strSumWeightH = "SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0))"
+                strSumWeightT = "SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0))"
                 strFormula = "=(SUM(FILTER(" & strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow & _
-                          "*(COUNT(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0))" & _
-                          "/SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0)))" & _
+                          "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & ")" & _
                           "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow & _
-                          "*(COUNT(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0))" & _
-                          "/SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0)))" & _
-                          "," & strBoolArrayT & ",0)))/2"
+                          "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & ")" & _
+                          "," & strBoolArrayT & ",0)))" & _
+                          "/IF(" & strSumWeightH & "+" & strSumWeightT & "=0,1," & strSumWeightH & "+" & strSumWeightT & ")"
                 ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
                 ws.Range(strColLabelTaskProg & r).formula = strFormula
             End If
@@ -1345,14 +1737,15 @@ Private Sub SetFormulaForTaskProgressRate()
                           "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
                           "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
                           "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strSumWeightH = "SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0))"
+                strSumWeightT = "SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0))"
                 strFormula = "=(SUM(FILTER(" & strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow & _
-                          "*(COUNT(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0))" & _
-                          "/SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0)))" & _
+                          "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & ")" & _
                           "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow & _
-                          "*(COUNT(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0))" & _
-                          "/SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0)))" & _
-                          "," & strBoolArrayT & ",0)))/2"
+                          "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & ")" & _
+                          "," & strBoolArrayT & ",0)))" & _
+                          "/IF(" & strSumWeightH & "+" & strSumWeightT & "=0,1," & strSumWeightH & "+" & strSumWeightT & ")"
                 ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
                 ws.Range(strColLabelTaskProg & r).formula = strFormula
             End If
@@ -1372,14 +1765,15 @@ Private Sub SetFormulaForTaskProgressRate()
                           "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
                           "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
                           "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strSumWeightH = "SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0))"
+                strSumWeightT = "SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0))"
                 strFormula = "=(SUM(FILTER(" & strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow & _
-                          "*(COUNT(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0))" & _
-                          "/SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0)))" & _
+                          "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & ")" & _
                           "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow & _
-                          "*(COUNT(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0))" & _
-                          "/SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0)))" & _
-                          "," & strBoolArrayT & ",0)))/2"
+                          "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & ")" & _
+                          "," & strBoolArrayT & ",0)))" & _
+                          "/IF(" & strSumWeightH & "+" & strSumWeightT & "=0,1," & strSumWeightH & "+" & strSumWeightT & ")"
                 ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
                 ws.Range(strColLabelTaskProg & r).formula = strFormula
             End If
@@ -1399,14 +1793,15 @@ Private Sub SetFormulaForTaskProgressRate()
                           "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
                           "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
                           "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strSumWeightH = "SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0))"
+                strSumWeightT = "SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0))"
                 strFormula = "=(SUM(FILTER(" & strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow & _
-                          "*(COUNT(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0))" & _
-                          "/SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0)))" & _
+                          "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & ")" & _
                           "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow & _
-                          "*(COUNT(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0))" & _
-                          "/SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0)))" & _
-                          "," & strBoolArrayT & ",0)))/2"
+                          "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & ")" & _
+                          "," & strBoolArrayT & ",0)))" & _
+                          "/IF(" & strSumWeightH & "+" & strSumWeightT & "=0,1," & strSumWeightH & "+" & strSumWeightT & ")"
                 ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
                 ws.Range(strColLabelTaskProg & r).formula = strFormula
             End If
@@ -1420,11 +1815,219 @@ Private Sub SetFormulaForTaskProgressRate()
                    "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
                    "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
                    "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+    strSumWeightH = "SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0))"
     strFormula = "=SUM(FILTER(" & strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow & _
-              "*(COUNT(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0))" & _
-              "/SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayH & ",0)))" & _
-              "," & strBoolArrayH & ",0))"
+              "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & ")" & _
+              "," & strBoolArrayH & ",0))" & _
+              "/IF(" & strSumWeightH & "=0,1," & strSumWeightH & ")"
     ws.Range(strColLabelTaskProg & lngEndRow + 2).formula = strFormula
+    
+End Sub
+
+
+' ¡ H”i’»—¦‚ğWŒv‚·‚é®‚ğƒZƒbƒg
+Private Sub SetFormulaForEffortProgressRate()
+
+    ' Œ»İ‚ÌƒV[ƒg‚ğæ“¾
+    Dim ws As Worksheet
+    Set ws = Me
+
+    ' •Ï”’è‹`
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim strColLabelEffortProg As String, strColLabelActualRemainingEffort As String, strColLabelActualCompletedEffort As String
+    Dim strColLabelTask As String
+    Dim strColLabelL1 As String, strColLabelL2 As String, strColLabelL3 As String, strColLabelL4 As String, strColLabelL5 As String
+    Dim strBoolArrayH As String, strBoolArrayT As String
+    Dim strCountH As String, strCountT As String
+    Dim strFormula As String
+    ' ˆê•Ï”’è‹`
+    Dim r As Long, levelCol As Integer, level As Integer, isTask As Boolean
+    Dim val As Variant
+    
+    ' ŠJns‚ÆI—¹s‚ğæ“¾
+    varRangeRows = FindDataRangeRows()
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' ŠJns‚ÆI—¹s‚ªŒ©‚Â‚©‚ç‚È‚¯‚ê‚ÎI—¹
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' ƒ‰ƒxƒ‹•¶š—ñ–‘O—pˆÓ
+    strColLabelEffortProg = ConvertColNumberToLetter(lngCOL_EFFORT_PROG)
+    strColLabelActualRemainingEffort = ConvertColNumberToLetter(lngCOL_ACTUAL_REMAINING_EFF)
+    strColLabelActualCompletedEffort = ConvertColNumberToLetter(lngCOL_ACTUAL_COMPLETED_EFF)
+    strColLabelL1 = ConvertColNumberToLetter(lngCOL_L1)
+    strColLabelL2 = ConvertColNumberToLetter(lngCOL_L2)
+    strColLabelL3 = ConvertColNumberToLetter(lngCOL_L3)
+    strColLabelL4 = ConvertColNumberToLetter(lngCOL_L4)
+    strColLabelL5 = ConvertColNumberToLetter(lngCOL_L5)
+    strColLabelTask = ConvertColNumberToLetter(lngCOL_TASK)
+        
+    ' ‚·‚×‚Ä‚Ìƒ^ƒXƒN‚ÆŠK‘w‚ÌƒL[‚ğì¬
+    For r = lngStartRow To lngEndRow
+        
+        ' ‰Šú‰»
+        level = 5
+        isTask = False
+        
+        ' ŠK‘wƒŒƒxƒ‹‚Ì”»’è
+        For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
+            val = ws.Cells(r, levelCol).Value
+            If Not IsNumeric(val) Or val = "" Then
+                level = level - 1
+            Else
+                Exit For
+            End If
+        Next levelCol
+        
+        ' ƒ^ƒXƒN‚©‚Ç‚¤‚©‚Ì”»’è
+        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).Value) Or ws.Cells(r, lngCOL_TASK).Value <> ""
+        
+        ' ®‚ğƒZƒbƒg
+        If isTask Then
+            ' # ƒ^ƒXƒNs‚Ìˆ— #
+            strFormula = "=" & strColLabelActualCompletedEffort & r & _
+            "/IF(" & strColLabelActualRemainingEffort & r & "+" & strColLabelActualCompletedEffort & r & "=0," & _
+            "1," & strColLabelActualRemainingEffort & r & "+" & strColLabelActualCompletedEffort & r & ")"
+            ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+            ws.Range(strColLabelEffortProg & r).formula = strFormula
+        Else
+            ' # ƒ^ƒXƒNsˆÈŠO‚Ìˆ— #
+            ' L5ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 5 Then
+                ' ”®‚ğì¬
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "=" & strColLabelL5 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strCountT = "IFERROR(COUNT(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & "," & strBoolArrayT & ")),0)"
+                strFormula = "=SUM(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & _
+                          "," & strBoolArrayT & ",0))" & _
+                          "/IF(" & strCountT & "=0,1," & strCountT & ")"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelEffortProg & r).formula = strFormula
+            End If
+            
+            ' L4ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 4 Then
+                ' ”®‚ğì¬
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "))*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strCountH = "IFERROR(COUNT(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & "," & strBoolArrayH & ")),0)"
+                strCountT = "IFERROR(COUNT(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & "," & strBoolArrayT & ")),0)"
+                strFormula = "=(SUM(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & _
+                          "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & _
+                          "," & strBoolArrayT & ",0)))" & _
+                          "/IF(" & strCountH & "+" & strCountT & "=0,1," & strCountH & "+" & strCountT & ")"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelEffortProg & r).formula = strFormula
+            End If
+            
+            ' L3ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 3 Then
+                ' ”®‚ğì¬
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "))*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strCountH = "IFERROR(COUNT(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & "," & strBoolArrayH & ")),0)"
+                strCountT = "IFERROR(COUNT(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & "," & strBoolArrayT & ")),0)"
+                strFormula = "=(SUM(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & _
+                          "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & _
+                          "," & strBoolArrayT & ",0)))" & _
+                          "/IF(" & strCountH & "+" & strCountT & "=0,1," & strCountH & "+" & strCountT & ")"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelEffortProg & r).formula = strFormula
+            End If
+            
+            ' L2ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 2 Then
+                ' ”®‚ğì¬
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "))*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strCountH = "IFERROR(COUNT(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & "," & strBoolArrayH & ")),0)"
+                strCountT = "IFERROR(COUNT(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & "," & strBoolArrayT & ")),0)"
+                strFormula = "=(SUM(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & _
+                          "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & _
+                          "," & strBoolArrayT & ",0)))" & _
+                          "/IF(" & strCountH & "+" & strCountT & "=0,1," & strCountH & "+" & strCountT & ")"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelEffortProg & r).formula = strFormula
+            End If
+            
+            ' L1ŠK‘w‚Ì”®‚ğƒZƒbƒg
+            If level = 1 Then
+                ' ”®‚ğì¬
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "))*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strCountH = "IFERROR(COUNT(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & "," & strBoolArrayH & ")),0)"
+                strCountT = "IFERROR(COUNT(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & "," & strBoolArrayT & ")),0)"
+                strFormula = "=(SUM(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & _
+                          "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & _
+                          "," & strBoolArrayT & ",0)))" & _
+                          "/IF(" & strCountH & "+" & strCountT & "=0,1," & strCountH & "+" & strCountT & ")"
+                ' w’è‚³‚ê‚½—ñ‚ÌƒZƒ‹‚É”®‚ğƒZƒbƒg
+                ws.Range(strColLabelEffortProg & r).formula = strFormula
+            End If
+        End If
+    Next r
+    
+    ' L1 ‚ğWŒv‚·‚é”®‚ğƒZƒbƒg
+    strBoolArrayH = "(ISNUMBER(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "))*" & _
+                   "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+    strCountH = "IFERROR(COUNT(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & "," & strBoolArrayH & ")),0)"
+    strFormula = "=SUM(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & _
+              "," & strBoolArrayH & ",0))" & _
+                          "/IF(" & strCountH & "=0,1," & strCountH & ")"
+    ws.Range(strColLabelEffortProg & lngEndRow + 2).formula = strFormula
     
 End Sub
 
@@ -1478,17 +2081,9 @@ Private Sub HideLowerThanL2()
         
     Next r
     
-    ' ˆê‹C‚É”ñ•\¦‚Æ‚·‚é
+    ' ”ñ•\¦‚É‚·‚é
     If Not rngToHide Is Nothing Then
-        Application.ScreenUpdating = False
-        Application.Calculation = xlCalculationManual
-        Application.EnableEvents = False
-        
         rngToHide.EntireRow.Hidden = True
-    
-        Application.ScreenUpdating = True
-        Application.Calculation = xlCalculationAutomatic
-        Application.EnableEvents = True
     End If
 
 End Sub
@@ -1543,17 +2138,9 @@ Private Sub HideLowerThanL3()
         
     Next r
     
-    ' ˆê‹C‚É”ñ•\¦‚Æ‚·‚é
+    ' ”ñ•\¦‚É‚·‚é
     If Not rngToHide Is Nothing Then
-        Application.ScreenUpdating = False
-        Application.Calculation = xlCalculationManual
-        Application.EnableEvents = False
-        
         rngToHide.EntireRow.Hidden = True
-        
-        Application.ScreenUpdating = True
-        Application.Calculation = xlCalculationAutomatic
-        Application.EnableEvents = True
     End If
 
 End Sub
@@ -1575,7 +2162,7 @@ Private Sub HideLowerThanL4()
     
     ' ŠJns‚ÆI—¹s‚ğæ“¾
     varRangeRows = FindDataRangeRows()
-    startRow = varRangeRows(0)
+    lngStartRow = varRangeRows(0)
     lngEndRow = varRangeRows(1)
 
     ' ŠJns‚ÆI—¹s‚ªŒ©‚Â‚©‚ç‚È‚¯‚ê‚ÎI—¹
@@ -1608,17 +2195,9 @@ Private Sub HideLowerThanL4()
         
     Next r
     
-    ' ˆê‹C‚É”ñ•\¦‚Æ‚·‚é
+    ' ”ñ•\¦‚É‚·‚é
     If Not rngToHide Is Nothing Then
-        Application.ScreenUpdating = False
-        Application.Calculation = xlCalculationManual
-        Application.EnableEvents = False
-
         rngToHide.EntireRow.Hidden = True
-    
-        Application.ScreenUpdating = True
-        Application.Calculation = xlCalculationAutomatic
-        Application.EnableEvents = True
     End If
 
 End Sub
@@ -1656,18 +2235,9 @@ Private Sub UnhideAllLevels()
         
     Next r
     
-    ' ˆê‹C‚ÉÄ•\¦‚Æ‚·‚é
+    ' Ä•\¦‚·‚é
     If Not rngToHide Is Nothing Then
-        Application.ScreenUpdating = False
-        Application.Calculation = xlCalculationManual
-        Application.EnableEvents = False
-        
         rngToHide.EntireRow.Hidden = False
-        PrepareForProcessing
-        
-        Application.ScreenUpdating = True
-        Application.Calculation = xlCalculationAutomatic
-        Application.EnableEvents = True
     End If
 
 End Sub
@@ -1785,12 +2355,14 @@ Private Sub InsertRowAboveSelection()
     ' s‚ğ’Ç‰Á
     lngSelectedRow = GetCheckedOptSingleRow()
     If lngSelectedRow <> 0 Then
+        ' s‚ğ’Ç‰Á
         ws.Rows(lngSelectedRow).Insert Shift:=xlDown
+        ' ‘gDE’S“–’è‹`—ñ‚Ì‹ó‚Å‚È‚¢ƒZƒ‹‚ğã‚ÉƒVƒtƒg
+        Call ShiftUpNonEmptyCells(lngCOL_DEFINE_TEAM, lngStartRow)
+        Call ShiftUpNonEmptyCells(lngCOL_DEFINE_PERSON, lngStartRow)
+    Else
+        MsgBox "‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢iOPT)B", vbExclamation, "’Ê’m"
     End If
-    
-    ' ‘gDE’S“–’è‹`—ñ‚Ì‹ó‚Å‚È‚¢ƒZƒ‹‚ğã‚ÉƒVƒtƒg
-    Call ShiftUpNonEmptyCells(lngCOL_DEFINE_TEAM, lngStartRow)
-    Call ShiftUpNonEmptyCells(lngCOL_DEFINE_PERSON, lngStartRow)
 
 End Sub
 
@@ -1826,6 +2398,13 @@ Private Sub IncrementSelectedLastLevel()
     
     ' ‘I‘ğ‚µ‚½s‚Ì”Ô†‚ğæ“¾
     lngSelectedRow = GetCheckedOptSingleRow()
+    
+    ' ƒK[ƒhğŒi–¢‘I‘ğ‚Ìê‡‚ÍAƒƒbƒZ[ƒW‚ğo‚µ‚ÄI—¹j
+    If lngSelectedRow = 0 Then
+        MsgBox "‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢iOPT)B", vbExclamation, "’Ê’m"
+        Exit Sub
+    End If
+    
     varL1 = ws.Cells(lngSelectedRow, lngCOL_L1).Value
     varL2 = ws.Cells(lngSelectedRow, lngCOL_L2).Value
     varL3 = ws.Cells(lngSelectedRow, lngCOL_L3).Value
@@ -2138,6 +2717,13 @@ Private Sub DecrementSelectedLastLevel()
     
     ' ‘I‘ğ‚µ‚½s‚Ì”Ô†‚ğæ“¾
     lngSelectedRow = GetCheckedOptSingleRow()
+    
+    ' ƒK[ƒhğŒi–¢‘I‘ğ‚Ìê‡‚ÍAƒƒbƒZ[ƒW‚ğo‚µ‚ÄI—¹j
+    If lngSelectedRow = 0 Then
+        MsgBox "‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢iOPT)B", vbExclamation, "’Ê’m"
+        Exit Sub
+    End If
+    
     varL1 = ws.Cells(lngSelectedRow, lngCOL_L1).Value
     varL2 = ws.Cells(lngSelectedRow, lngCOL_L2).Value
     varL3 = ws.Cells(lngSelectedRow, lngCOL_L3).Value
@@ -2422,7 +3008,194 @@ Private Sub SwapCheckedLastLevel()
     
     ' •Ï”’è‹`
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim colCheckedRows As Collection
+    Dim lngRow1 As Long, intRowLevel1 As Integer, blnIsTask1 As Boolean, varRow1Id As Variant
+    Dim varRow1L1 As Variant, varRow1L2 As Variant, varRow1L3 As Variant, varRow1L4 As Variant, varRow1L5 As Variant, varRow1Task As Variant
+    Dim lngRow2 As Long, intRowLevel2 As Integer, blnIsTask2 As Boolean, varRow2Id As Variant
+    Dim varRow2L1 As Variant, varRow2L2 As Variant, varRow2L3 As Variant, varRow2L4 As Variant, varRow2L5 As Variant, varRow2Task As Variant
+    ' ˆê•Ï”’è‹`
+    Dim r As Long, levelCol As Integer, level As Integer, isTask As Boolean
+    Dim val As Variant
+    Dim tmpL1 As Variant, tmpL2 As Variant, tmpL3 As Variant, tmpL4 As Variant, tmpL5 As Variant, tmpTask As Variant
     
+    ' ƒ`ƒFƒbƒN‚³‚ê‚Ä‚¢‚és”Ô†‚ğæ“¾
+    Set colCheckedRows = GetCheckedChkMultpleiRows()
+    
+    ' ƒK[ƒhğŒiƒ`ƒFƒbƒN‚ª‚Q‚Â‚Å‚È‚©‚Á‚½ê‡‚ÍI—¹j
+    If colCheckedRows.Count <> 2 Then
+        MsgBox "ŒğŠ·‚µ‚½‚¢‚Q‚Â‚ğƒ`ƒFƒbƒN‚µ‚Ä‚­‚¾‚³‚¢iCHK)B" & vbCrLf & "i" & colCheckedRows.Count & " ‰ÓŠ‚ª‘I‘ğ‚³‚ê‚Ä‚¢‚Ü‚·j", vbExclamation, "’Ê’m"
+        Exit Sub
+    End If
+    
+    ' ‘ÎÛƒŒƒR[ƒh‚P‚ğ’Šo
+    lngRow1 = colCheckedRows.Item(1)
+    intRowLevel1 = 5
+    blnIsTask1 = Not IsEmpty(ws.Cells(lngRow1, lngCOL_TASK).Value) Or ws.Cells(lngRow1, lngCOL_TASK).Value <> ""
+    For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
+        val = ws.Cells(lngRow1, levelCol).Value
+        If Not IsNumeric(val) Or val = "" Then
+            intRowLevel1 = intRowLevel1 - 1
+        Else
+            Exit For
+        End If
+    Next levelCol
+    varRow1L1 = ws.Cells(lngRow1, lngCOL_L1).Value
+    varRow1L2 = ws.Cells(lngRow1, lngCOL_L2).Value
+    varRow1L3 = ws.Cells(lngRow1, lngCOL_L3).Value
+    varRow1L4 = ws.Cells(lngRow1, lngCOL_L4).Value
+    varRow1L5 = ws.Cells(lngRow1, lngCOL_L5).Value
+    varRow1Task = ws.Cells(lngRow1, lngCOL_TASK).Value
+    varRow1Id = ws.Cells(lngRow1, lngCOL_WBS_ID).Value
+    
+    
+    ' ‘ÎÛƒŒƒR[ƒh‚Q‚ğ’Šo
+    lngRow2 = colCheckedRows.Item(2)
+    intRowLevel2 = 5
+    blnIsTask2 = Not IsEmpty(ws.Cells(lngRow2, lngCOL_TASK).Value) Or ws.Cells(lngRow2, lngCOL_TASK).Value <> ""
+    For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
+        val = ws.Cells(lngRow2, levelCol).Value
+        If Not IsNumeric(val) Or val = "" Then
+            intRowLevel2 = intRowLevel2 - 1
+        Else
+            Exit For
+        End If
+    Next levelCol
+    varRow2L1 = ws.Cells(lngRow2, lngCOL_L1).Value
+    varRow2L2 = ws.Cells(lngRow2, lngCOL_L2).Value
+    varRow2L3 = ws.Cells(lngRow2, lngCOL_L3).Value
+    varRow2L4 = ws.Cells(lngRow2, lngCOL_L4).Value
+    varRow2L5 = ws.Cells(lngRow2, lngCOL_L5).Value
+    varRow2Task = ws.Cells(lngRow2, lngCOL_TASK).Value
+    varRow2Id = ws.Cells(lngRow2, lngCOL_WBS_ID).Value
+    
+    ' ƒK[ƒhğŒi‚Q‚Â‚ÌŠK‘w‹y‚Ñƒ^ƒXƒN‚©”Û‚©‚ªˆê’v‚µ‚È‚¢ê‡AI—¹j
+    If (intRowLevel1 <> intRowLevel2) Or (blnIsTask1 <> blnIsTask2) Then
+        MsgBox "ŒğŠ·Œó•â‚ÌŠK‘w‚¨‚æ‚Ñƒ^ƒXƒN‚©‚Ç‚¤‚©‚ªˆê’v‚µ‚Ü‚¹‚ñiCHK)B" & vbCrLf & _
+        vbCrLf & "ƒ`ƒFƒbƒN1: ŠK‘w=" & intRowLevel1 & ", ƒ^ƒXƒN=" & blnIsTask1 & _
+        vbCrLf & "ƒ`ƒFƒbƒN2: ŠK‘w=" & intRowLevel2 & ", ƒ^ƒXƒN=" & blnIsTask2 & _
+        "", vbExclamation, "’Ê’m"
+        Exit Sub
+    End If
+    
+    ' ƒK[ƒhğŒi‚Q‚Â‚Ì––”ö”Ô†ˆÈŠO‚ÌŠK‘w”Ô†‚ªˆê’v‚µ‚È‚¢ê‡AI—¹j
+    If blnIsTask1 = True Then
+        If varRow1L1 <> varRow2L1 Or varRow1L2 <> varRow2L2 Or varRow1L3 <> varRow2L3 Or varRow1L4 <> varRow2L4 Or varRow1L5 <> varRow2L5 Then
+            MsgBox "ŒğŠ·Œó•â‚Ì––”ö”Ô†ˆÈŠO‚ÌŠK‘w”Ô†‚ªˆê’v‚µ‚Ü‚¹‚ñiCHK)B" & vbCrLf & _
+            vbCrLf & "ƒ`ƒFƒbƒN1: " & varRow1Id & _
+            vbCrLf & "ƒ`ƒFƒbƒN2: " & varRow2Id & _
+            "", vbExclamation, "’Ê’m"
+            Exit Sub
+        End If
+    ElseIf intRowLevel1 = 5 Then
+        If varRow1L1 <> varRow2L1 Or varRow1L2 <> varRow2L2 Or varRow1L3 <> varRow2L3 Or varRow1L4 <> varRow2L4 Then
+            MsgBox "ŒğŠ·Œó•â‚Ì––”ö”Ô†ˆÈŠO‚ÌŠK‘w”Ô†‚ªˆê’v‚µ‚Ü‚¹‚ñiCHK)B" & vbCrLf & _
+            vbCrLf & "ƒ`ƒFƒbƒN1: " & varRow1Id & _
+            vbCrLf & "ƒ`ƒFƒbƒN2: " & varRow2Id & _
+            "", vbExclamation, "’Ê’m"
+            Exit Sub
+        End If
+    ElseIf intRowLevel1 = 4 Then
+        If varRow1L1 <> varRow2L1 Or varRow1L2 <> varRow2L2 Or varRow1L3 <> varRow2L3 Then
+            MsgBox "ŒğŠ·Œó•â‚Ì––”ö”Ô†ˆÈŠO‚ÌŠK‘w”Ô†‚ªˆê’v‚µ‚Ü‚¹‚ñiCHK)B" & vbCrLf & _
+            vbCrLf & "ƒ`ƒFƒbƒN1: " & varRow1Id & _
+            vbCrLf & "ƒ`ƒFƒbƒN2: " & varRow2Id & _
+            "", vbExclamation, "’Ê’m"
+            Exit Sub
+        End If
+    ElseIf intRowLevel1 = 3 Then
+        If varRow1L1 <> varRow2L1 Or varRow1L2 <> varRow2L2 Then
+            MsgBox "ŒğŠ·Œó•â‚Ì––”ö”Ô†ˆÈŠO‚ÌŠK‘w”Ô†‚ªˆê’v‚µ‚Ü‚¹‚ñiCHK)B" & vbCrLf & _
+            vbCrLf & "ƒ`ƒFƒbƒN1: " & varRow1Id & _
+            vbCrLf & "ƒ`ƒFƒbƒN2: " & varRow2Id & _
+            "", vbExclamation, "’Ê’m"
+            Exit Sub
+        End If
+    ElseIf intRowLevel1 = 2 Then
+        If varRow1L1 <> varRow2L1 Then
+            MsgBox "ŒğŠ·Œó•â‚Ì––”ö”Ô†ˆÈŠO‚ÌŠK‘w”Ô†‚ªˆê’v‚µ‚Ü‚¹‚ñiCHK)B" & vbCrLf & _
+            vbCrLf & "ƒ`ƒFƒbƒN1: " & varRow1Id & _
+            vbCrLf & "ƒ`ƒFƒbƒN2: " & varRow2Id & _
+            "", vbExclamation, "’Ê’m"
+            Exit Sub
+        End If
+    End If
+    
+    ' ŠJns‚ÆI—¹s‚ğæ“¾
+    varRangeRows = FindDataRangeRows()
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' ŠJns‚ÆI—¹s‚ªŒ©‚Â‚©‚ç‚È‚¯‚ê‚ÎI—¹
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' ‚·‚×‚Ä‚Ìƒ^ƒXƒN‚ÆŠK‘w‚ÌƒL[‚ğì¬
+    For r = lngStartRow To lngEndRow
+        
+        ' ‰Šú‰»
+        level = 5
+        isTask = False
+        
+        ' ŠK‘wƒŒƒxƒ‹‚Ì”»’è
+        For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
+            val = ws.Cells(r, levelCol).Value
+            If Not IsNumeric(val) Or val = "" Then
+                level = level - 1
+            Else
+                Exit For
+            End If
+        Next levelCol
+        
+        ' Œ»İ‚Ìs‚É‚¨‚¯‚éŠeƒJƒ‰ƒ€‚Ì’l‚ğæ“¾
+        tmpL1 = ws.Cells(r, lngCOL_L1).Value
+        tmpL2 = ws.Cells(r, lngCOL_L2).Value
+        tmpL3 = ws.Cells(r, lngCOL_L3).Value
+        tmpL4 = ws.Cells(r, lngCOL_L4).Value
+        tmpL5 = ws.Cells(r, lngCOL_L5).Value
+        tmpTask = ws.Cells(r, lngCOL_TASK).Value
+        
+        ' ƒ^ƒXƒN‚©‚Ç‚¤‚©‚Ì”»’è
+        isTask = Not IsEmpty(tmpTask) Or tmpTask <> ""
+        
+        ' ŒğŠ·‚ğÀs
+        If isTask = True And isTask = blnIsTask1 Then
+            If tmpL1 = varRow1L1 And tmpL2 = varRow1L2 And tmpL3 = varRow1L3 And tmpL4 = varRow1L4 And tmpL5 = varRow1L5 And tmpTask = varRow1Task Then
+                ws.Cells(r, lngCOL_TASK).Value = varRow2Task
+            ElseIf tmpL1 = varRow2L1 And tmpL2 = varRow2L2 And tmpL3 = varRow2L3 And tmpL4 = varRow2L4 And tmpL5 = varRow2L5 And tmpTask = varRow2Task Then
+                ws.Cells(r, lngCOL_TASK).Value = varRow1Task
+            End If
+        ElseIf intRowLevel1 = 5 Then
+            If tmpL1 = varRow1L1 And tmpL2 = varRow1L2 And tmpL3 = varRow1L3 And tmpL4 = varRow1L4 And tmpL5 = varRow1L5 Then
+                ws.Cells(r, lngCOL_L5).Value = varRow2L5
+            ElseIf tmpL1 = varRow2L1 And tmpL2 = varRow2L2 And tmpL3 = varRow2L3 And tmpL4 = varRow2L4 And tmpL5 = varRow2L5 Then
+                ws.Cells(r, lngCOL_L5).Value = varRow1L5
+            End If
+        ElseIf intRowLevel1 = 4 Then
+            If tmpL1 = varRow1L1 And tmpL2 = varRow1L2 And tmpL3 = varRow1L3 And tmpL4 = varRow1L4 Then
+                ws.Cells(r, lngCOL_L4).Value = varRow2L4
+            ElseIf tmpL1 = varRow2L1 And tmpL2 = varRow2L2 And tmpL3 = varRow2L3 And tmpL4 = varRow2L4 Then
+                ws.Cells(r, lngCOL_L4).Value = varRow1L4
+            End If
+        ElseIf intRowLevel1 = 3 Then
+            If tmpL1 = varRow1L1 And tmpL2 = varRow1L2 And tmpL3 = varRow1L3 Then
+                ws.Cells(r, lngCOL_L3).Value = varRow2L3
+            ElseIf tmpL1 = varRow2L1 And tmpL2 = varRow2L2 And tmpL3 = varRow2L3 Then
+                ws.Cells(r, lngCOL_L3).Value = varRow1L3
+            End If
+        ElseIf intRowLevel1 = 2 Then
+            If tmpL1 = varRow1L1 And tmpL2 = varRow1L2 Then
+                ws.Cells(r, lngCOL_L2).Value = varRow2L2
+            ElseIf tmpL1 = varRow2L1 And tmpL2 = varRow2L2 Then
+                ws.Cells(r, lngCOL_L2).Value = varRow1L2
+            End If
+        ElseIf intRowLevel1 = 1 Then
+            If tmpL1 = varRow1L1 Then
+                ws.Cells(r, lngCOL_L1).Value = varRow2L1
+            ElseIf tmpL1 = varRow2L1 Then
+                ws.Cells(r, lngCOL_L1).Value = varRow1L1
+            End If
+        End If
+    
+    Next r
     
 End Sub
 
@@ -2436,11 +3209,17 @@ Private Sub ConvertFormulasToValues()
 
     ' •Ï”’è‹`
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
-    Dim strColLabelPlannedEffort As String, strColLabelTaskProg As String
-    Dim strColLabelWbsId As String, strColLabelWbsIdx As String
+    Dim strColLabelActualRemainingEffort As String
+    Dim strColLabelActualCompletedEffort As String
+    Dim strColLabelPlannedEffort As String
+    Dim strColLabelEffortProg As String
+    Dim strColLabelTaskProg As String
+    Dim strColLabelWbsId As String
+    Dim strColLabelWbsIdx As String
     ' ˆê•Ï”’è‹`
     Dim r As Long, levelCol As Integer, level As Integer, isTask As Boolean
     Dim val As Variant
+    Dim tmpString As String
     
     ' ŠJns‚ÆI—¹s‚ğæ“¾
     varRangeRows = FindDataRangeRows()
@@ -2451,7 +3230,10 @@ Private Sub ConvertFormulasToValues()
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
     
     ' ƒ‰ƒxƒ‹•¶š—ñ–‘O—pˆÓ
+    strColLabelActualRemainingEffort = ConvertColNumberToLetter(lngCOL_ACTUAL_REMAINING_EFF)
+    strColLabelActualCompletedEffort = ConvertColNumberToLetter(lngCOL_ACTUAL_COMPLETED_EFF)
     strColLabelPlannedEffort = ConvertColNumberToLetter(lngCOL_PLANNED_EFF)
+    strColLabelEffortProg = ConvertColNumberToLetter(lngCOL_EFFORT_PROG)
     strColLabelTaskProg = ConvertColNumberToLetter(lngCOL_TASK_PROG)
     strColLabelWbsId = ConvertColNumberToLetter(lngCOL_WBS_ID)
     strColLabelWbsIdx = ConvertColNumberToLetter(lngCOL_WBS_IDX)
@@ -2476,20 +3258,100 @@ Private Sub ConvertFormulasToValues()
         ' ƒ^ƒXƒN‚©‚Ç‚¤‚©‚Ì”»’è
         isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).Value) Or ws.Cells(r, lngCOL_TASK).Value <> ""
         
-        ' ƒ^ƒXƒNs‚Å‚È‚¢ê‡‚É®‚ğ’l‚É•ÏŠ·
-        If Not isTask Then
+        ' ®‚ğ’l‚É•ÏŠ·
+        If isTask Then
+            ' # ƒ^ƒXƒNs‚Ìê‡ #
+            ws.Range(strColLabelEffortProg & r).Value = ws.Range(strColLabelEffortProg & r).Value
+        Else
+            ' # ƒ^ƒXƒNs‚Å‚È‚¢ê‡ #
+            ws.Range(strColLabelActualRemainingEffort & r).Value = ws.Range(strColLabelActualRemainingEffort & r).Value
+            ws.Range(strColLabelActualCompletedEffort & r).Value = ws.Range(strColLabelActualCompletedEffort & r).Value
             ws.Range(strColLabelPlannedEffort & r).Value = ws.Range(strColLabelPlannedEffort & r).Value
+            ws.Range(strColLabelEffortProg & r).Value = ws.Range(strColLabelEffortProg & r).Value
             ws.Range(strColLabelTaskProg & r).Value = ws.Range(strColLabelTaskProg & r).Value
         End If
         
         ' ‚·‚×‚Ä‚Ìs‚Å®‚ğ’l‚É•ÏŠ·
-        ws.Range(strColLabelWbsId & r).Value = ws.Range(strColLabelWbsId & r).Value
-        ws.Range(strColLabelWbsIdx & r).Value = ws.Range(strColLabelWbsIdx & r).Value
+        tmpString = ws.Range(strColLabelWbsId & r).Value
+        ws.Range(strColLabelWbsId & r).NumberFormat = "@"
+        ws.Range(strColLabelWbsId & r).Value = tmpString
+        tmpString = ws.Range(strColLabelWbsIdx & r).Value
+        ws.Range(strColLabelWbsIdx & r).NumberFormat = "@"
+        ws.Range(strColLabelWbsIdx & r).Value = tmpString
         
     Next r
     
     ' “Á’è‚ÌƒZƒ‹‚Ì®‚ğ’l‚É•ÏŠ·
+    ws.Range(strColLabelActualRemainingEffort & lngEndRow + 2).Value = ws.Range(strColLabelActualRemainingEffort & lngEndRow + 2).Value
+    ws.Range(strColLabelActualCompletedEffort & lngEndRow + 2).Value = ws.Range(strColLabelActualCompletedEffort & lngEndRow + 2).Value
     ws.Range(strColLabelPlannedEffort & lngEndRow + 2).Value = ws.Range(strColLabelPlannedEffort & lngEndRow + 2).Value
+    ws.Range(strColLabelEffortProg & lngEndRow + 2).Value = ws.Range(strColLabelEffortProg & lngEndRow + 2).Value
     ws.Range(strColLabelTaskProg & lngEndRow + 2).Value = ws.Range(strColLabelTaskProg & lngEndRow + 2).Value
+
+End Sub
+
+
+' ¡ ƒV[ƒg‘€ì‚Ì€”õ‚ğ‚·‚é
+Private Sub PrepareSheet()
+    
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+    Application.EnableEvents = False
+    
+    PrepareForProcessing
+    
+    ' WŒv®‚Ì‘}“ü
+    SetFormulaForPlannedEffort
+    SetFormulaForActualRemainingEffort
+    SetFormulaForActualCompletedEffort
+    SetFormulaForEffortProgressRate
+    SetFormulaForTaskProgressRate
+    SetFormulaForWbsId
+    SetFormulaForWbsIdx
+    
+    ' ®‚Ìƒ}ƒjƒ…ƒAƒ‹XVAˆê“I©“®ŒvZ‚ğs‚¤
+    If Application.Calculation = xlCalculationManual Then
+        Application.Calculation = xlCalculationAutomatic
+        Application.Calculation = xlCalculationManual
+    End If
+    
+    ' ®‚ğ’l‚É•ÏŠ·
+    ConvertFormulasToValues
+    
+    Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.EnableEvents = True
+    
+End Sub
+
+
+' ¡ ƒV[ƒg‚ğÄŒvZ‚·‚é
+Private Sub RecalculateSheet()
+
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+    Application.EnableEvents = False
+
+    ' WŒv®‚Ì‘}“ü
+    SetFormulaForPlannedEffort
+    SetFormulaForActualRemainingEffort
+    SetFormulaForActualCompletedEffort
+    SetFormulaForEffortProgressRate
+    SetFormulaForTaskProgressRate
+    SetFormulaForWbsId
+    SetFormulaForWbsIdx
+    
+    ' ®‚Ìƒ}ƒjƒ…ƒAƒ‹XVAˆê“I©“®ŒvZ‚ğs‚¤
+    If Application.Calculation = xlCalculationManual Then
+        Application.Calculation = xlCalculationAutomatic
+        Application.Calculation = xlCalculationManual
+    End If
+    
+    ' ®‚ğ’l‚É•ÏŠ·
+    ConvertFormulasToValues
+    
+    Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.EnableEvents = True
 
 End Sub
