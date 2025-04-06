@@ -1,0 +1,27 @@
+# Excel一時ファイル（開いてるときに自動生成されるやつ）
+~$*.xlsm
+~$*.xlsx
+~$*.xls
+
+# 追加
+/.history/
+
+# Officeの一時ファイル
+*.tmp
+
+# サムネイルファイル（Windowsが勝手に作ることがある）
+Thumbs.db
+Desktop.ini
+
+# VBAエクスポート用（バックアップなど除外したい場合）
+*.bak
+
+# VSCode設定ファイル（使ってる場合）
+.vscode/
+
+# Macのメタデータ
+.DS_Store
+
+# PythonやNode.jsの環境がある場合（あれば追記）
+__pycache__/
+node_modules/
