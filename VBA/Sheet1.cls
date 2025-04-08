@@ -25,6 +25,11 @@ Attribute VB_Exposed = True
 
 ' ■ 定数定義
 
+Private Const strCHK_T As String = "■"
+Private Const strCHK_F As String = "・"
+Private Const strOPT_T As String = "●"
+Private Const strOPT_F As String = "・"
+
 ' 列定義
 Private Const lngCOL_KEY  As Long = 1                  '  A列：KEY カラム
 Private Const lngCOL_ERR  As Long = 2                  '  B列：ERROR 情報が出力されるカラム
@@ -38,36 +43,218 @@ Private Const lngCOL_L5   As Long = 9                  '  I列：L5 番号を入力する
 Private Const lngCOL_TASK As Long = 10                 '  J列：TASK 番号を入力するカラム
 Private Const lngCOL_WBS_IDX As Long = 11              '  K列：WBS_IDXを表示するカラム（普段は非表示）
 Private Const lngCOL_WBS_ID As Long = 12               '  L列：WBS_IDを表示するカラム
-Private Const lngCOL_EFFORT_PROG As Long = 20          '  T列：工数進捗率のカラム
-Private Const lngCOL_TASK_PROG As Long = 21            '  U列：項目消化率のカラム
-Private Const lngCOL_TASK_WGT As Long = 22             '  V列：項目加重のカラム
-Private Const lngCOL_WBS_STATUS As Long = 23           '  W列：WBSステータスのカラム
-Private Const lngCOL_TEAM_SLCT As Long = 24            '  X列：組織選択のカラム
-Private Const lngCOL_PERSON_SLCT As Long = 25          '  Y列：担当選択のカラム
-Private Const lngCOL_PLANNED_EFF As Long = 27          ' AA列：予定工数のカラム
-Private Const lngCOL_ACTUAL_REMAINING_EFF As Long = 30 ' AD列：実績残工数のカラム
-Private Const lngCOL_ACTUAL_COMPLETED_EFF As Long = 31 ' AE列：実績済工数のカラム
-Private Const lngCOL_LAST As Long = 34                 ' AH列：（データの）最終カラム
-Private Const lngCOL_DEFINE_TEAM As Long = 36          ' AJ列：組織を定義するカラム
-Private Const lngCOL_DEFINE_PERSON As Long = 37        ' AK列：担当を定義するカラム
+Private Const lngCOL_TASK_COUNT As Long = 20           '  T列：タスク数のカラム
+Private Const lngCOL_EFFORT_PROG As Long = 21          '  U列：工数進捗率のカラム
+Private Const lngCOL_TASK_PROG As Long = 22            '  V列：項目消化率のカラム
+Private Const lngCOL_TASK_WGT As Long = 23             '  W列：項目加重のカラム
+Private Const lngCOL_WBS_STATUS As Long = 24           '  X列：WBSステータスのカラム
+Private Const lngCOL_TEAM_SLCT As Long = 25            '  Y列：組織選択のカラム
+Private Const lngCOL_PERSON_SLCT As Long = 26          '  Z列：担当選択のカラム
+Private Const lngCOL_PLANNED_EFF As Long = 28          ' AB列：予定工数のカラム
+Private Const lngCOL_ACTUAL_REMAINING_EFF As Long = 31 ' AE列：実績残工数のカラム
+Private Const lngCOL_ACTUAL_COMPLETED_EFF As Long = 32 ' AF列：実績済工数のカラム
+Private Const lngCOL_LAST As Long = 35                 ' AI列：（データの）最終カラム
+Private Const lngCOL_DEFINE_TEAM As Long = 37          ' AK列：組織を定義するカラム
+Private Const lngCOL_DEFINE_PERSON As Long = 38        ' AL列：担当を定義するカラム
 
 ' 行定義
 Private Const lngROW_CTRL1 As Long = 3            ' コントロールを配置する行
 
 ' コントロール名関連定義
-Private Const strNAME_OPT_GROUPBOX1 As String = "OptionGroupBox_1"   ' オプションボタングループ名
-Private Const strNAME_EXE_COMBOBOX1 As String = "ExecuteComboBox_1"  '
-Private Const strNAME_EXE_BUTTON1   As String = "ExecuteButton_1"    '
-Private Const strNAME_RESET_BUTTON As String = "ResetButton_1"      '
-Private Const strNAME_RECALCULATE_BUTTON As String = "RecalculateButton_1"
-Private Const strNAME_PREFIX_CHK As String = "CheckBox_"
-Private Const strNAME_PREFIX_OPT As String = "OptionButton_"
+Private Const strNAME_EXE_COMBOBOX1 As String = "ExecuteComboBox_1"         '
+Private Const strNAME_EXE_BUTTON1   As String = "ExecuteButton_1"           '
+Private Const strNAME_RESET_BUTTON As String = "ResetButton_1"              '
+Private Const strNAME_RECALCULATE_BUTTON As String = "RecalculateButton_1"  '
 
 ' コントロール関連定義
 Private Const dblSHAPE_MARGIN As Double = 0.2
 Private Const intEXE_COMBOBOX_WIDTH = 500
 Private Const intRESET_BUTTON_WIDTH = 55
 Private Const intRECALCULATE_BUTTON_WIDTH = 55
+
+
+' ■ ユーティリティ：コレクション
+Function ExistsColKey(objCol As Collection, strKey As String) As Boolean
+     
+    ' 戻り値の初期値：False
+    ExistsColKey = False
+     
+    ' 変数にCollection未設定の場合は処理終了
+    If objCol Is Nothing Then Exit Function
+     
+    ' Collectionのメンバー数が「0」の場合は処理終了
+    If objCol.Count = 0 Then Exit Function
+    
+    ' エラー設定の変更
+    On Error Resume Next
+     
+    ' Itemメソッドを実行
+    Call objCol.Item(strKey)
+         
+    ' エラー値がない場合：キー検索はヒット（戻り値：True）
+    If Err.Number = 0 Then ExistsColKey = True
+    
+    ' 処理の終了とともに、エラー設定が元に戻る
+ 
+End Function
+
+
+' ■ ユーティリティ：コレクション
+Function ExistsColItem(objCol As Collection, varItem As Variant) As Boolean
+    
+    ' 変数定義
+    Dim v As Variant
+     
+    ' 戻り値の初期値：False
+    ExistsColItem = False
+     
+    ' 変数にCollection未設定の場合は処理終了
+    If objCol Is Nothing Then Exit Function
+     
+    ' Collectionのメンバー数が「0」の場合は処理終了
+    If objCol.Count = 0 Then Exit Function
+     
+    ' Collectionの各メンバーと突合
+    For Each v In objCol
+         
+        ' 突合結果が一致した場合：戻り値「True」にループ抜け
+        If v = varItem Then ExistsColItem = True: Exit For
+         
+    Next
+     
+End Function
+
+
+' ■ ユーティリティ：コレクション
+Function ExistsColItemCount(objCol As Collection, varItem As Variant) As Long
+
+    ' 変数定義
+    Dim v As Variant
+    Dim lngMatchCount As Long ' 一致した数をカウントする変数
+
+    ' 戻り値の初期化
+    ExistsColItemCount = 0
+
+    ' 変数にCollection未設定の場合は処理終了
+    If objCol Is Nothing Then Exit Function
+
+    ' Collectionのメンバー数が「0」の場合は処理終了
+    If objCol.Count = 0 Then Exit Function
+
+    ' Collectionの各メンバーと突合
+    For Each v In objCol
+        ' 突合結果が一致した場合：カウントをインクリメント
+        If v = varItem Then
+            lngMatchCount = lngMatchCount + 1
+        End If
+    Next
+
+    ' 一致した数を関数の戻り値として設定
+    ExistsColItemCount = lngMatchCount
+
+End Function
+
+
+' ◆ CHK と OPT のダブルクリックイベントを実装
+Private Sub Worksheet_BeforeDoubleClick(ByVal Target As Range, Cancel As Boolean)
+    
+    ' 変数定義
+    Dim lngClickedColumn As Long
+    
+    ' 列番号を取得
+    lngClickedColumn = Target.Column
+    
+    ' ガード条件（対象列以外はデフォルト動作のままで終了）
+    If lngClickedColumn <> lngCOL_CHK And lngClickedColumn <> lngCOL_OPT Then
+        Exit Sub
+    End If
+    
+    ' 現在のシートを取得
+    Dim ws As Worksheet
+    Set ws = Me
+    
+    ' 変数定義
+    Dim lngClickedRow As Long
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim varClicked As Variant
+    ' 一時変数定義
+    Dim rngFoundCell As Range
+    
+    ' 行番号を取得
+    lngClickedRow = Target.Row
+    
+    ' 開始行と終了行を取得
+    varRangeRows = FindDataRangeRows()
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' ガード条件（行番号が指定範囲外の場合は終了）
+    If lngClickedRow < lngStartRow Or lngClickedRow > lngEndRow Then
+        Exit Sub
+    End If
+    
+    ' CHK 処理
+    If lngClickedColumn = lngCOL_CHK Then
+        varClicked = ws.Cells(lngClickedRow, lngCOL_CHK).value
+        
+        Application.ScreenUpdating = False
+        Application.Calculation = xlCalculationManual
+        Application.EnableEvents = False
+            
+        If varClicked = strCHK_T Then
+            ws.Cells(lngClickedRow, lngCOL_CHK).value = strCHK_F
+        Else
+            ws.Cells(lngClickedRow, lngCOL_CHK).value = strCHK_T
+        End If
+        
+        Application.ScreenUpdating = True
+        Application.Calculation = xlCalculationAutomatic
+        Application.EnableEvents = True
+        
+        Cancel = True
+        Exit Sub
+    End If
+    
+    ' OPT 処理 (高速化版)
+    If lngClickedColumn = lngCOL_OPT Then
+        ' クリックした値を取得
+        varClicked = ws.Cells(lngClickedRow, lngCOL_OPT).value
+        If varClicked <> strOPT_T Then ' クリックされたセルが strOPT_T でない場合のみ処理
+            ' lngStartRow から lngEndRow の範囲で strOPT_T を持つ最初のセルを検索
+            On Error Resume Next
+            Set rngFoundCell = ws.Range(ws.Cells(lngStartRow, lngCOL_OPT), ws.Cells(lngEndRow, lngCOL_OPT)).Find( _
+                What:=strOPT_T, _
+                LookAt:=xlWhole, _
+                LookIn:=xlValues, _
+                MatchCase:=True _
+            )
+            On Error GoTo 0
+            
+            Application.ScreenUpdating = False
+            Application.Calculation = xlCalculationManual
+            Application.EnableEvents = False
+            
+            ' strOPT_T を持つセルが見つかったら strOPT_F に変更
+            If Not rngFoundCell Is Nothing Then
+                rngFoundCell.value = strOPT_F
+            End If
+
+            ' クリックされたセルの値を strOPT_T に変更
+            ws.Cells(lngClickedRow, lngCOL_OPT).value = strOPT_T
+            
+            Application.ScreenUpdating = True
+            Application.Calculation = xlCalculationAutomatic
+            Application.EnableEvents = True
+            
+            Cancel = True
+            Exit Sub
+        End If
+    End If
+    
+End Sub
 
 
 ' ■ 列番号を列文字列に変換する
@@ -93,234 +280,58 @@ Private Function ConvertColNumberToLetter(lngColNum As Long) As String
 End Function
 
 
-' ■ データ行範囲を取得する
+' ■ データ行範囲を取得する (高速化版)
 Private Function FindDataRangeRows() As Variant
 
     ' 現在のシートを取得
     Dim ws As Worksheet
     Set ws = Me
 
-    ' 変数定義
-    Dim lngStartRow As Long, lngEndRow As Long
-    ' 一時変数定義
-    Dim r As Long
+    Dim startCell As Range
+    Dim endCell As Range
+    Dim lngStartRow As Long
+    Dim lngEndRow As Long
 
-    ' 初期値セット
-    lngStartRow = 0
-    lngEndRow = 0
+    ' 1. KEY列で "@" を持つ最初のセルを高速に検索
+    On Error Resume Next
+    Set startCell = ws.Columns(lngCOL_KEY).Find(What:="@", LookAt:=xlWhole, LookIn:=xlValues, MatchCase:=True)
+    On Error GoTo 0
 
-    ' KEY 列を上から走査して値をセット
-    For r = 1 To ws.Cells(ws.Rows.Count, lngCOL_KEY).End(xlUp).Row
-        If ws.Cells(r, lngCOL_KEY).Value = "@" Then
-            lngStartRow = r
-        ElseIf ws.Cells(r, lngCOL_KEY).Value = "$" Then
-            lngEndRow = r
-            Exit For
-        End If
-    Next r
-
-    ' lngStartRow + 1 と lngEndRow - 1 を使って実際の範囲を決定
-    If lngStartRow > 0 Then
-        lngStartRow = lngStartRow + 1
-    End If
-    If lngEndRow > 0 Then
-        lngEndRow = lngEndRow - 1
-    End If
-
-    '結果を配列で返す
-    FindDataRangeRows = Array(lngStartRow, lngEndRow)
-End Function
-
-
-' ■ 階層エラーチェック１
-Private Function CheckHierarchyError1(rngTargetCell As Range, ByRef brfErrorMsg As String) As Boolean
-    ' 【チェック内容】
-    ' ・L2～TASK 列で、対象セルに値が入っている場合にチェックを行う。
-    ' ・対象セルの右側セルに値が入っている場合は、右側セルでチェックを行えばいいため、チェックを終了する。
-    ' ・対象セルの親階層となる行（対象セル 1.2.3.4 なら 1, 1.2, 1.2.3 の定義）が存在するかチェックする。
-
-    ' 変数定義
-    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
-    Dim varL1 As Variant, varL2 As Variant, varL3 As Variant, varL4 As Variant, varL5 As Variant, varTask As Variant
-    Dim varL1Check As Variant, varL2Check As Variant, varL3Check As Variant, varL4Check As Variant, varL5Check As Variant, varTaskCheck As Variant
-    Dim blnL1Result As Boolean, blnL2Result As Boolean, blnL3Result As Boolean, blnL4Result As Boolean, blnL5Result As Boolean
-    ' 一時変数定義
-    Dim r As Long
-    
-    ' 開始行と終了行に値をセット
-    varRangeRows = FindDataRangeRows()
-    lngStartRow = varRangeRows(0)
-    lngEndRow = varRangeRows(1)
-    
-    ' 初期状態ではエラーなし
-    CheckHierarchyError1 = False
-    ' エラーメッセージの初期化
-    brfErrorMsg = ""
-    
-    ' 対象セルが L2～TASK 列ではない、または、対象セルの値が Empty の場合 → チェックしない
-    If rngTargetCell.Column < lngCOL_L2 Or rngTargetCell.Column > lngCOL_TASK Or IsEmpty(rngTargetCell.Value) Then
-        CheckHierarchyError1 = False
-        Exit Function
-    End If
-
-    ' 対象セルが TASK 列ではなく、かつ、対象セルの右側が空でない場合はチェックから外す
-    If rngTargetCell.Column <> lngCOL_TASK And Not IsEmpty(rngTargetCell.Offset(0, 1).Value) Then
-        CheckHierarchyError1 = False
-        Exit Function
-    End If
-    
-    ' 対象セルの行の値を取り出す
-    varL1 = rngTargetCell.Worksheet.Cells(rngTargetCell.Row, lngCOL_L1).Value
-    varL2 = rngTargetCell.Worksheet.Cells(rngTargetCell.Row, lngCOL_L2).Value
-    varL3 = rngTargetCell.Worksheet.Cells(rngTargetCell.Row, lngCOL_L3).Value
-    varL4 = rngTargetCell.Worksheet.Cells(rngTargetCell.Row, lngCOL_L4).Value
-    varL5 = rngTargetCell.Worksheet.Cells(rngTargetCell.Row, lngCOL_L5).Value
-    
-    ' チェック結果変数に値をセットすることでチェック対象を
-    blnL1Result = False
-    blnL2Result = False
-    blnL3Result = False
-    blnL4Result = False
-    blnL5Result = False
-    If rngTargetCell.Column = lngCOL_L2 Then
-        blnL2Result = True
-        blnL3Result = True
-        blnL4Result = True
-        blnL5Result = True
-    End If
-    If rngTargetCell.Column = lngCOL_L3 Then
-        blnL3Result = True
-        blnL4Result = True
-        blnL5Result = True
-    End If
-    If rngTargetCell.Column = lngCOL_L4 Then
-        blnL4Result = True
-        blnL5Result = True
-    End If
-    If rngTargetCell.Column = lngCOL_L5 Then
-        blnL5Result = True
-    End If
-
-    ' 行範囲内の各行に対してチェック処理を実施
-    For r = lngStartRow To lngEndRow
-        ' L1, L2, L3, L4, L5, Task 項目を取得
-        varL1Check = rngTargetCell.Worksheet.Cells(r, lngCOL_L1).Value
-        varL2Check = rngTargetCell.Worksheet.Cells(r, lngCOL_L2).Value
-        varL3Check = rngTargetCell.Worksheet.Cells(r, lngCOL_L3).Value
-        varL4Check = rngTargetCell.Worksheet.Cells(r, lngCOL_L4).Value
-        varL5Check = rngTargetCell.Worksheet.Cells(r, lngCOL_L5).Value
-        varTaskCheck = rngTargetCell.Worksheet.Cells(r, lngCOL_TASK).Value
+    If startCell Is Nothing Then
+        ' "@" が見つからない場合は、開始行を 0 として処理を終える
+        FindDataRangeRows = Array(0, 0)
         
-        ' 対象セルに対して L1 定義の行があるかチェック
-        If blnL1Result = False Then
-            If varL1 = varL1Check And _
-                    IsEmpty(varL2Check) And _
-                    IsEmpty(varL3Check) And _
-                    IsEmpty(varL4Check) And _
-                    IsEmpty(varL5Check) And _
-                    IsEmpty(varTaskCheck) Then
-                blnL1Result = True
-            End If
-        End If
+        MsgBox "KEY列（" & ConvertColNumberToLetter(lngCOL_KEY) & "）の開始行マーカー「@」が見つかりません。" & vbCrLf & _
+               "（KEY列が非表示となっている場合は表示状態にしてください）", vbExclamation, "通知"
         
-        ' 対象セルに対して L2 定義の行があるかチェック
-        If blnL2Result = False Then
-            If varL1 = varL1Check And _
-                    varL2 = varL2Check And _
-                    IsEmpty(varL3Check) And _
-                    IsEmpty(varL4Check) And _
-                    IsEmpty(varL5Check) And _
-                    IsEmpty(varTaskCheck) Then
-                blnL2Result = True
-            End If
-        End If
-        
-        ' 対象セルに対して L3 定義の行があるかチェック
-        If blnL3Result = False Then
-            If varL1 = varL1Check And _
-                    varL2 = varL2Check And _
-                    varL3 = varL3Check And _
-                    IsEmpty(varL4Check) And _
-                    IsEmpty(varL5Check) And _
-                    IsEmpty(varTaskCheck) Then
-                blnL3Result = True
-            End If
-        End If
-    
-        ' 対象セルに対して L4 定義の行があるかチェック
-        If blnL4Result = False Then
-            If varL1 = varL1Check And _
-                    varL2 = varL2Check And _
-                    varL3 = varL3Check And _
-                    varL4 = varL4Check And _
-                    IsEmpty(varL5Check) And _
-                    IsEmpty(varTaskCheck) Then
-                blnL4Result = True
-            End If
-        End If
-    
-        ' 対象セルに対して L5 定義の行があるかチェック
-        If blnL5Result = False Then
-            If varL1 = varL1Check And _
-                    varL2 = varL2Check And _
-                    varL3 = varL3Check And _
-                    varL4 = varL4Check And _
-                    varL5 = varL5Check And _
-                    IsEmpty(varTaskCheck) Then
-                blnL5Result = True
-            End If
-        End If
-    Next r
-    
-    ' エラーが見つかった場合
-    If blnL1Result = False Or _
-            blnL2Result = False Or _
-            blnL3Result = False Or _
-            blnL4Result = False Or _
-            blnL5Result = False Then
-        CheckHierarchyError1 = True
-        brfErrorMsg = brfErrorMsg & "親階層が定義されていません。" & vbNewLine
         Exit Function
+    Else
+        lngStartRow = startCell.Row + 1 ' 実際のデータ開始行は "@" の次の行
     End If
 
-    CheckHierarchyError1 = False
-End Function
-
-
-' ■ 階層エラーチェック２
-Private Function CheckHierarchyError2(rngTargetCell As Range, ByRef brfErrorMsg As String) As Boolean
-    ' 【チェック内容】
-    ' ・L2～L5 列で、対象セルが Empty ではなく数値である場合にチェックを行う。
-    ' ・対象セルの左側の値が数値であるかチェックする。
-    
-    ' 変数定義
-    Dim rngLeftCell As Range
-
-    ' 対象セルが L2～L5 列ではない → チェックしない
-    If rngTargetCell.Column < lngCOL_L2 Or rngTargetCell.Column > lngCOL_L5 Then
-        CheckHierarchyError2 = False
-        Exit Function
-    End If
-
-    ' チェック処理を実施
-    If IsNumeric(rngTargetCell.Value) And Not IsEmpty(rngTargetCell.Value) Then
-        
-        ' 対象セルの左隣のセルを取得
+    ' 2. KEY列で "$" を持つ最初のセルを "@" の次の行から高速に検索
+    If lngStartRow > 1 Then ' "@" が見つかった場合のみ検索
         On Error Resume Next
-        Set rngLeftCell = rngTargetCell.Offset(0, -1) ' 左隣のセル
+        Set endCell = ws.Columns(lngCOL_KEY).Find(What:="$", LookAt:=xlWhole, LookIn:=xlValues, MatchCase:=True, After:=ws.Cells(lngStartRow - 1, lngCOL_KEY))
         On Error GoTo 0
-
-        ' 左隣のセルが数値でない場合、エラーメッセージをセット
-        If Not rngLeftCell Is Nothing Then
-            If Not IsNumeric(rngLeftCell.Value) Or IsEmpty(rngLeftCell.Value) Then
-                CheckHierarchyError2 = True
-                brfErrorMsg = "階層番号に問題があります。 (" & rngLeftCell.Address(False, False) & " の値が数値でありません)"
-                Exit Function
-            End If
+        
+        If endCell Is Nothing Then
+            ' "$" が見つからない場合は、最終行をシートの最終行とするか、特定の値にするか検討
+            lngEndRow = ws.Cells(ws.Rows.Count, lngCOL_KEY).End(xlUp).Row - 1 ' "$" がなくても最後まで
+            
+            MsgBox "KEY列（" & ConvertColNumberToLetter(lngCOL_KEY) & "）の終了行マーカー「$」が見つかりません。" & vbCrLf & _
+                   "（KEY列が非表示となっている場合は表示状態にしてください）", vbExclamation, "通知"
+        Else
+            lngEndRow = endCell.Row - 1 ' 実際のデータ終了行は "$" の前の行
         End If
+    Else
+        ' "@" が最初の行にある場合などの処理
+        lngEndRow = ws.Cells(ws.Rows.Count, lngCOL_KEY).End(xlUp).Row - 1
     End If
 
-    CheckHierarchyError2 = False
+    ' 結果を配列で返す
+    FindDataRangeRows = Array(lngStartRow, lngEndRow)
+
 End Function
 
 
@@ -332,27 +343,30 @@ Public Function HasErrors(Optional ByVal blnCheckOnly As Boolean = False) As Boo
         HasErrors = False
         Exit Function
     End If
-    
+
     ' 現在のシートを取得
     Dim ws As Worksheet
     Set ws = Me
-
+    
     ' 変数定義
     Dim lngLastRow As Long
-    ' 一時変数定義
-    Dim r As Long
+    Dim varArray As Variant
 
     ' ERR 列の最終行を取得
     lngLastRow = ws.Cells(ws.Rows.Count, lngCOL_ERR).End(xlUp).Row
 
-    ' ERR 列をチェックして「E」があるか確認
-    For r = 1 To lngLastRow
-        If ws.Cells(r, lngCOL_ERR).Value = "E" Then
+    ' B列の値を一括取得（配列として）
+    varArray = ws.Range(ws.Cells(1, lngCOL_ERR), ws.Cells(lngLastRow, lngCOL_ERR)).value
+
+    ' 配列をループして "E" を探す
+    Dim i As Long
+    For i = 1 To UBound(varArray, 1)
+        If varArray(i, 1) = "E" Then
             HasErrors = True
             Exit Function
         End If
-    Next r
-    
+    Next i
+
     HasErrors = False
 End Function
 
@@ -366,13 +380,36 @@ Private Sub CheckErrors()
     
     ' 変数定義
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
-    Dim strErrorMsg As String
     Dim blnHasError As Boolean
     Dim intErrorCount As Integer
+    Dim varData As Variant
+    Dim colWbsId As New Collection         ' key=行番号文字列、value=WbsId文字列
+    Dim colParentWbsId As New Collection   ' key=WbsId文字列、 value=WbsIdの親階層文字列
+    Dim colError1Count As New Collection   ' key=行番号文字列、value=エラー数1
+    Dim colError1Message As New Collection ' key=行番号文字列、value=エラーメッセージ1
+    Dim colError2Count As New Collection   ' key=行番号文字列、value=エラー数2
+    Dim colError2Message As New Collection ' key=行番号文字列、value=エラーメッセージ2
+    Dim colError3Count As New Collection   ' key=行番号文字列、value=エラー数3
+    Dim colError3Message As New Collection ' key=行番号文字列、value=エラーメッセージ3
     ' 一時変数定義
     Dim r As Long, c As Long
-    Dim cell As Range
-    Dim tempMsg As String
+    Dim tmpWbsId As String
+    Dim tmpCellValue As Variant
+    Dim tmpPreCell As Variant
+    Dim tmpErrorCount As Variant
+    Dim tmpErrorMessage As Variant
+    Dim tmpDotPosition As Long
+    Dim tmpParentWbsId As String
+    Dim tmpRecordError As Boolean
+    Dim tmpWbsIdCount As Long
+    Dim tmpRowIdx As String
+    Dim tmpCol As Long
+    Dim tmpRow As Long
+    Dim tmpCount As Long
+    Dim tmpCell As Range
+    
+    ' 初期化
+    blnHasError = False
 
     ' 開始行と終了行に値をセット
     varRangeRows = FindDataRangeRows()
@@ -384,52 +421,154 @@ Private Sub CheckErrors()
 
     ' ERR 列の E をクリア
     ws.Range(ws.Cells(lngStartRow, lngCOL_ERR), ws.Cells(lngEndRow, lngCOL_ERR)).ClearContents
-
-    ' セルを走査
-    intErrorCount = 0
-    For r = lngStartRow To lngEndRow
-        
-        blnHasError = False
-        strErrorMsg = ""
-        
-        For c = lngCOL_L1 To lngCOL_LAST
-            Set cell = ws.Cells(r, c)
-
-            ' 各エラーチェック関数を実行
-            tempMsg = "" ' クリア
-            If CheckHierarchyError1(cell, tempMsg) Then
-                blnHasError = True
-                strErrorMsg = strErrorMsg & vbNewLine & tempMsg & " (" & cell.Address(False, False) & ");"
+    With ws.Range(ws.Cells(lngStartRow, lngCOL_ERR), ws.Cells(lngEndRow, lngCOL_ERR))
+        For Each tmpCell In .Cells
+            If Not tmpCell.Comment Is Nothing Then
+                tmpCell.Comment.Delete
             End If
+        Next tmpCell
+    End With
+    
+    ' 指定範囲のデータを一度に取得
+    varData = ws.Range(ws.Cells(lngStartRow, lngCOL_L1), ws.Cells(lngEndRow, lngCOL_TASK)).value
 
-            tempMsg = "" ' クリア
-            If CheckHierarchyError2(cell, tempMsg) Then
-                blnHasError = True
-                strErrorMsg = strErrorMsg & vbNewLine & tempMsg & " (" & cell.Address(False, False) & ");"
+    ' 配列をループしてチェック＆必要なデータを収集
+    For r = 1 To UBound(varData, 1)
+        ' 実際の行番号を作成
+        tmpRow = r + lngStartRow - 1
+        tmpRowIdx = "IDX" & tmpRow
+        tmpRecordError = False
+        tmpPreCell = ""
+        tmpWbsId = ""
+        For c = 1 To UBound(varData, 2)
+            ' 実際のカラム番号を作成
+            tmpCol = c + lngCOL_OPT
+            ' 現在のセルの値を取得
+            tmpCellValue = varData(r, c)
+            If c = 1 Then
+                ' # L1 の場合 #
+                If Not IsEmpty(tmpCellValue) And tmpCellValue <> "" Then
+                    ' セルが空ではない場合、WbsId に文字列を追加
+                    tmpWbsId = tmpWbsId & tmpCellValue
+                End If
+            ElseIf c = 6 Then
+                ' # TASK の場合 #
+                If Not IsEmpty(tmpCellValue) And tmpCellValue <> "" Then
+                    ' セルが空ではない場合、WbsId に文字列を追加
+                    tmpWbsId = tmpWbsId & ".T" & tmpCellValue
+                End If
+                ' ここまで来たら正常終了
+                colError1Count.Add 0, tmpRowIdx
+                colError1Message.Add "", tmpRowIdx
+            Else
+                ' # L2～L5 の場合 #
+                If Not IsEmpty(tmpCellValue) And tmpCellValue <> "" Then
+                    ' # 現在のセルが空ではない場合 #
+                    If Not IsEmpty(tmpPreCell) And tmpPreCell <> "" Then
+                        ' # 直前のセルが空ではない場合、WbsId に文字列を追加 #
+                        tmpWbsId = tmpWbsId & "." & tmpCellValue
+                    Else
+                        ' # 直前のセルが空の場合、エラーとして処理 #
+                        blnHasError = True
+                        ' エラー件数およびメッセージに追加して、コレクションに再セット
+                        colError1Count.Add 1, tmpRowIdx
+                        colError1Message.Add "・階層番号に問題（" & ConvertColNumberToLetter(tmpCol - 1) & tmpRow & "が数値ではない）" & vbCrLf, tmpRowIdx
+                        ' エラー行としてカラムのループを終了
+                        tmpRecordError = True
+                        Exit For
+                    End If
+                End If
             End If
+            tmpPreCell = tmpCellValue
         Next c
-
-        ' エラーがあれば ERR 列に「E」、コメント追加
-        If blnHasError Then
-            ws.Cells(r, lngCOL_ERR).Value = "E"
-            If ws.Cells(r, lngCOL_ERR).Comment Is Nothing Then
-                ws.Cells(r, lngCOL_ERR).AddComment
-            End If
-            ws.Cells(r, lngCOL_ERR).Comment.Text Text:=strErrorMsg
-            intErrorCount = intErrorCount + 1
-            ' コメントの幅と高さを手動で設定
-            With ws.Cells(r, lngCOL_ERR).Comment.Shape
-                .Width = 300   ' 幅を 300 に設定
-                .Height = 100  ' 高さを 100 に設定
-            End With
-        Else
-            ' 既存のコメントがあれば削除
-            If Not ws.Cells(r, lngCOL_ERR).Comment Is Nothing Then
-                ws.Cells(r, lngCOL_ERR).Comment.Delete
+        ' レコードエラーが発生してない場合、WbsId や ParentWbsId をコレクションに追加
+        If tmpRecordError = False Then
+            ' WbsId をコレクションに追加
+            colWbsId.Add tmpWbsId, tmpRowIdx
+            ' WbsId の親階層を作成し、コレクションに追加
+            tmpDotPosition = InStrRev(tmpWbsId, ".")
+            If tmpDotPosition > 0 Then
+                tmpParentWbsId = Left(tmpWbsId, tmpDotPosition - 1)
+                On Error Resume Next
+                colParentWbsId.Add tmpParentWbsId, tmpWbsId
+                On Error GoTo 0
             End If
         End If
     Next r
-
+    
+    ' すべての行を調査
+    For r = lngStartRow To lngEndRow
+        tmpRowIdx = "IDX" & r
+        ' ここまでのエラー件数を取得する
+        tmpErrorCount = 0
+        If ExistsColKey(colError1Count, tmpRowIdx) = True Then
+            tmpErrorCount = colError1Count.Item(tmpRowIdx)
+        End If
+        ' まだエラーが発生していない行で、WbsId が登録されているもののみ検査
+        If tmpErrorCount = 0 And ExistsColKey(colWbsId, tmpRowIdx) Then
+            tmpWbsId = colWbsId.Item(tmpRowIdx)
+            ' 空文字列となっているWbsIdを除外して、エラーチェックを行う
+            If tmpWbsId <> "" Then
+                ' WbsId の数を取得して、1件以上ならエラーとする
+                If ExistsColItemCount(colWbsId, tmpWbsId) > 1 Then
+                    blnHasError = True
+                    colError2Count.Add 1, tmpRowIdx
+                    colError2Message.Add "・同一階層番号が存在（Row=" & r & "）" & vbCrLf, tmpRowIdx
+                End If
+                ' L1 以外（WbsId のドットがある）で、親階層WbsIdがない場合エラーとする
+                tmpDotPosition = InStrRev(tmpWbsId, ".")
+                If tmpDotPosition > 0 And ExistsColKey(colParentWbsId, tmpWbsId) = True Then
+                    tmpParentWbsId = colParentWbsId.Item(tmpWbsId)
+                    If ExistsColItem(colWbsId, tmpParentWbsId) = False Then
+                        blnHasError = True
+                        colError3Count.Add 1, tmpRowIdx
+                        colError3Message.Add "・親階層が存在しない（Row=" & r & "）" & vbCrLf, tmpRowIdx
+                    End If
+                End If
+            End If
+        End If
+    Next r
+    
+    ' 集計したエラーで表示を作成
+    If blnHasError = True Then
+        For r = lngStartRow To lngEndRow
+            tmpRowIdx = "IDX" & r
+            tmpErrorCount = 0
+            tmpErrorMessage = ""
+            If ExistsColKey(colError1Count, tmpRowIdx) = True Then
+                tmpErrorCount = tmpErrorCount + colError1Count.Item(tmpRowIdx)
+                If ExistsColKey(colError1Message, tmpRowIdx) = True Then
+                    tmpErrorMessage = tmpErrorMessage & colError1Message.Item(tmpRowIdx)
+                End If
+            End If
+            If ExistsColKey(colError2Count, tmpRowIdx) = True Then
+                tmpErrorCount = tmpErrorCount + colError2Count.Item(tmpRowIdx)
+                If ExistsColKey(colError2Message, tmpRowIdx) = True Then
+                    tmpErrorMessage = tmpErrorMessage & colError2Message.Item(tmpRowIdx)
+                End If
+            End If
+            If ExistsColKey(colError3Count, tmpRowIdx) = True Then
+                tmpErrorCount = tmpErrorCount + colError3Count.Item(tmpRowIdx)
+                If ExistsColKey(colError3Message, tmpRowIdx) = True Then
+                    tmpErrorMessage = tmpErrorMessage & colError3Message.Item(tmpRowIdx)
+                End If
+            End If
+            If tmpErrorCount > 0 Then
+                ws.Cells(r, lngCOL_ERR).value = "E"
+                If ws.Cells(r, lngCOL_ERR).Comment Is Nothing Then
+                    ws.Cells(r, lngCOL_ERR).AddComment
+                End If
+                ws.Cells(r, lngCOL_ERR).Comment.Text Text:=tmpErrorMessage
+                intErrorCount = intErrorCount + tmpErrorCount
+                ' コメントの幅と高さを手動で設定
+                With ws.Cells(r, lngCOL_ERR).Comment.Shape
+                    .Width = 300   ' 幅を 300 に設定
+                    .Height = 100  ' 高さを 100 に設定
+                End With
+            End If
+        Next r
+    End If
+    
     ' エラーがあればメッセージ表示
     If intErrorCount > 0 Then
         MsgBox intErrorCount & " 件の異常を検出しました。", vbExclamation, "エラーチェック"
@@ -449,8 +588,7 @@ Private Sub SetFormulaForWbsIdx()
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
     Dim strFormula As String
     Dim strTargetColLetter As String
-    ' 一時変数定義
-    Dim r As Long
+    Dim rngTarget As Range
 
     ' 開始行と終了行に値をセット
     varRangeRows = FindDataRangeRows()
@@ -463,21 +601,24 @@ Private Sub SetFormulaForWbsIdx()
     ' lngCOL_WBS_IDX をアルファベットに変換（ループ外で一度だけ実行）
     strTargetColLetter = ConvertColNumberToLetter(lngCOL_WBS_IDX)
 
+    ' 数式を作成
+    strFormula = "=IF(B" & lngStartRow & "=""E"",""ERROR""," & _
+              "IF(E" & lngStartRow & "="""",""XXX.XXX.XXX.XXX.XXX.XXX"", CONCAT(" & _
+              "TEXT(E" & lngStartRow & ",""000"")," & _
+              "IF(F" & lngStartRow & "="""","".---"", ""."" & TEXT(F" & lngStartRow & ",""000""))," & _
+              "IF(G" & lngStartRow & "="""","".---"", ""."" & TEXT(G" & lngStartRow & ",""000""))," & _
+              "IF(H" & lngStartRow & "="""","".---"", ""."" & TEXT(H" & lngStartRow & ",""000""))," & _
+              "IF(I" & lngStartRow & "="""","".---"", ""."" & TEXT(I" & lngStartRow & ",""000""))," & _
+              "IF(J" & lngStartRow & "="""","".---"", ""."" & TEXT(J" & lngStartRow & ",""000"")))))"
+
+    ' 一括で対象範囲を取得
+    Set rngTarget = ws.Range(strTargetColLetter & lngStartRow & ":" & strTargetColLetter & lngEndRow)
+    
+    ' 数値書式を一括で設定
+    rngTarget.NumberFormat = "General"
+    
     ' 数式をセット
-    For r = lngStartRow To lngEndRow
-        ' 数式を作成
-        strFormula = "=IF(B" & r & "=""E"",""ERROR""," & _
-                  "IF(E" & r & "="""",""XXX.XXX.XXX.XXX.XXX.XXX"", CONCAT(" & _
-                  "TEXT(E" & r & ",""000"")," & _
-                  "IF(F" & r & "="""","".---"", ""."" & TEXT(F" & r & ",""000""))," & _
-                  "IF(G" & r & "="""","".---"", ""."" & TEXT(G" & r & ",""000""))," & _
-                  "IF(H" & r & "="""","".---"", ""."" & TEXT(H" & r & ",""000""))," & _
-                  "IF(I" & r & "="""","".---"", ""."" & TEXT(I" & r & ",""000""))," & _
-                  "IF(J" & r & "="""","".---"", ""."" & TEXT(J" & r & ",""000"")))))"
-        ' 指定された列のセルに数式をセット
-        ws.Range(strTargetColLetter & r).NumberFormat = "General"
-        ws.Range(strTargetColLetter & r).formula = strFormula
-    Next r
+    rngTarget.Formula = strFormula
     
 End Sub
 
@@ -493,8 +634,7 @@ Private Sub SetFormulaForWbsId()
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
     Dim strFormula As String
     Dim strTargetColLetter As String
-    ' 一時変数定義
-    Dim r As Long
+    Dim rngTarget As Range
 
     ' 開始行と終了行に値をセット
     varRangeRows = FindDataRangeRows()
@@ -507,21 +647,24 @@ Private Sub SetFormulaForWbsId()
     ' lngCOL_WBS_IDX をアルファベットに変換（ループ外で一度だけ実行）
     strTargetColLetter = ConvertColNumberToLetter(lngCOL_WBS_ID)
 
+    ' 数式を作成
+    strFormula = "=IF(B" & lngStartRow & "=""E"",""ERROR""," & _
+              "IF(E" & lngStartRow & "="""","""",CONCAT(" & _
+              "E" & lngStartRow & "," & _
+              "IF(F" & lngStartRow & "="""","""","".""&F" & lngStartRow & " ), " & _
+              "IF(G" & lngStartRow & "="""","""","".""&G" & lngStartRow & " ), " & _
+              "IF(H" & lngStartRow & "="""","""","".""&H" & lngStartRow & " ), " & _
+              "IF(I" & lngStartRow & "="""","""","".""&I" & lngStartRow & " ), " & _
+              "IF(J" & lngStartRow & "="""","""","".T""&J" & lngStartRow & " ))))"
+
+    ' 一括で対象範囲を取得
+    Set rngTarget = ws.Range(strTargetColLetter & lngStartRow & ":" & strTargetColLetter & lngEndRow)
+
+    ' 数値書式を一括で設定
+    rngTarget.NumberFormat = "General"
+    
     ' 数式をセット
-    For r = lngStartRow To lngEndRow
-        ' 数式を作成
-        strFormula = "=IF(B" & r & "=""E"",""ERROR""," & _
-                  "IF(E" & r & "="""","""",CONCAT(" & _
-                  "E" & r & "," & _
-                  "IF(F" & r & "="""","""","".""&F" & r & " ), " & _
-                  "IF(G" & r & "="""","""","".""&G" & r & " ), " & _
-                  "IF(H" & r & "="""","""","".""&H" & r & " ), " & _
-                  "IF(I" & r & "="""","""","".""&I" & r & " ), " & _
-                  "IF(J" & r & "="""","""","".T""&J" & r & " ))))"
-        ' 指定された列のセルに数式をセット
-        ws.Range(strTargetColLetter & r).NumberFormat = "General"
-        ws.Range(strTargetColLetter & r).formula = strFormula
-    Next r
+    rngTarget.Formula = strFormula
     
 End Sub
 
@@ -569,22 +712,24 @@ Public Sub PrepareForProcessing(Optional ByVal blnCheckOnly As Boolean = False)
     Set ws = Me
     
     ' タイトルを更新
-    ws.Cells(2, 2).Value = ws.Name
-
+    ws.Cells(2, 2).value = ws.Name
+    
     ' 変数定義
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
     Dim colControlNames As Collection
+    Dim lngRowCount As Long
+    Dim varChkArray() As Variant
+    Dim varOptArray() As Variant
+    Dim varWgtArray() As Variant
+    Dim varStatusArray() As Variant
+    Dim varReadWgtArray As Variant
+    Dim varReadStatusArray As Variant
     ' - 画面配置コントロール
-    Dim shpGroupBox As Shape
+    ' Dim shpGroupBox As Shape
     Dim shpExeComboBox As Shape
     Dim shpExeButton As Shape
     Dim shpResetButton As Shape
     Dim shpRecalculateButton As Shape
-    ' - オプショングループボックスの位置とサイズを計算するための変数
-    Dim dblOptGroupBoxLeft As Double
-    Dim dblOptGroupBoxTop As Double
-    Dim dblOptGroupBoxWidth As Double
-    Dim dblOptGroupBoxHeight As Double
     ' - 実行コンボボックスの位置とサイズを計算するための変数
     Dim dblExeComboBoxLeft As Double
     Dim dblExeComboBoxTop As Double
@@ -621,30 +766,6 @@ Public Sub PrepareForProcessing(Optional ByVal blnCheckOnly As Boolean = False)
     ' 開始行と終了行が見つからなければ終了
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
 
-    ' オプショングループボックスの位置とサイズを計算
-    dblOptGroupBoxLeft = ws.Cells(lngStartRow, lngCOL_CHK).Left + dblSHAPE_MARGIN
-    dblOptGroupBoxTop = ws.Cells(lngStartRow, lngCOL_CHK).Top + dblSHAPE_MARGIN
-    dblOptGroupBoxWidth = ws.Cells(lngEndRow, lngCOL_CHK).Width + ws.Cells(lngEndRow, lngCOL_OPT).Width - (dblSHAPE_MARGIN * 2)
-    dblOptGroupBoxHeight = ws.Cells(lngEndRow, lngCOL_OPT).Top + ws.Cells(lngEndRow, lngCOL_OPT).Height - ws.Cells(lngStartRow, lngCOL_OPT).Top - (dblSHAPE_MARGIN * 4)
-    ' 同じ名前のオプショングループボックスが存在するか確認
-    On Error Resume Next
-    Set shpGroupBox = ws.Shapes(strNAME_OPT_GROUPBOX1)
-    On Error GoTo 0
-    ' オプショングループボックスが存在する場合、削除
-    If Not shpGroupBox Is Nothing Then
-        shpGroupBox.Delete
-    End If
-    ' オプショングループボックスを新たに作成（サイズが変わる可能性があるため、毎回、作り直す）
-    Set shpGroupBox = ws.Shapes.AddFormControl(xlGroupBox, dblOptGroupBoxLeft, dblOptGroupBoxTop, dblOptGroupBoxWidth, dblOptGroupBoxHeight)
-    shpGroupBox.Name = strNAME_OPT_GROUPBOX1
-    ' キャプションを削除
-    With ws.GroupBoxes(strNAME_OPT_GROUPBOX1)
-        .Width = dblOptGroupBoxWidth
-        .Caption = ""
-        .Visible = False
-    End With
-    colControlNames.Add shpGroupBox.Name
-    
     ' 実行コンボボックスの位置とサイズを計算
     dblExeComboBoxLeft = ws.Cells(lngROW_CTRL1, lngCOL_L1).Left + dblSHAPE_MARGIN
     dblExeComboBoxTop = ws.Cells(lngROW_CTRL1, lngCOL_L1).Top + dblSHAPE_MARGIN
@@ -662,7 +783,7 @@ Public Sub PrepareForProcessing(Optional ByVal blnCheckOnly As Boolean = False)
     Set shpExeComboBox = ws.Shapes.AddFormControl(xlDropDown, dblExeComboBoxLeft, dblExeComboBoxTop, dblExeComboBoxWidth, dblExeComboBoxHeight)
     shpExeComboBox.Name = strNAME_EXE_COMBOBOX1
     With shpExeComboBox.ControlFormat
-        .AddItem "【OPT】 選択した行の上に一行追加"
+        .AddItem "【OPT】 選択した行の下に一行追加"
         .AddItem "【OPT】 選択した階層番号の末尾を＋１"
         .AddItem "【OPT】 選択した階層番号の末尾を－１"
         .AddItem "【CHK】 チェックした２箇所の階層番号の末尾番号を交換　※ チェックが同階層である階層行の２箇所でなかった場合は不可 ※"
@@ -744,26 +865,45 @@ Public Sub PrepareForProcessing(Optional ByVal blnCheckOnly As Boolean = False)
     shpRecalculateButton.OnAction = ws.CodeName & ".RecalculateSheet"
     colControlNames.Add shpRecalculateButton.Name
 
-    ' 数式をセット
-    For r = lngStartRow To lngEndRow
-        ' CHK列にチェックボックスを設置または更新
-        Set chkBox = CreateOrUpdateCheckBox(r)
-        colControlNames.Add chkBox.Name
-
-        ' OPT列に同じグループのラジオボタンを設置または更新
-        Set optBtn = CreateOrUpdateOptionButton(r)
-        colControlNames.Add optBtn.Name
-
-        ' 項目加重列が Empty の場合、数値の 1 をセット
-        If IsEmpty(ws.Cells(r, lngCOL_TASK_WGT).Value) Then
-            ws.Cells(r, lngCOL_TASK_WGT).Value = 1
+    ' 対象行数を取得
+    lngRowCount = lngEndRow - lngStartRow + 1
+    
+    ' 一括書き込みのためのデータを用意
+    ReDim varChkArray(1 To lngRowCount, 1 To 1)
+    ReDim varOptArray(1 To lngRowCount, 1 To 1)
+    ReDim varWgtArray(1 To lngRowCount, 1 To 1)
+    ReDim varStatusArray(1 To lngRowCount, 1 To 1)
+    
+    ' 値を配列に格納（固定値）
+    For r = 1 To lngRowCount
+        varChkArray(r, 1) = strCHK_F                  ' CHK列
+        varOptArray(r, 1) = strOPT_F                  ' OPT列
+    Next r
+    
+    ' 値を配列に格納（値に応じて書き込みする値を変えたデータを用意）
+    varReadWgtArray = ws.Range(ws.Cells(lngStartRow, lngCOL_TASK_WGT), ws.Cells(lngEndRow, lngCOL_TASK_WGT)).value
+    varReadStatusArray = ws.Range(ws.Cells(lngStartRow, lngCOL_WBS_STATUS), ws.Cells(lngEndRow, lngCOL_WBS_STATUS)).value
+    Set rngWgtRange = ws.Range(ws.Cells(lngStartRow, lngCOL_TASK_WGT), ws.Cells(lngEndRow, lngCOL_TASK_WGT))
+    Set rngStatusRange = ws.Range(ws.Cells(lngStartRow, lngCOL_WBS_STATUS), ws.Cells(lngEndRow, lngCOL_WBS_STATUS))
+    For r = 1 To lngRowCount
+        If IsEmpty(varReadWgtArray(r, 1)) Then
+            varWgtArray(r, 1) = 1
+        Else
+            varWgtArray(r, 1) = varReadWgtArray(r, 1)
         End If
-
-        ' WBSステータス列が Empty の場合、文字列「-」をセット
-        If IsEmpty(ws.Cells(r, lngCOL_WBS_STATUS).Value) Then
-            ws.Cells(r, lngCOL_WBS_STATUS).Value = "-"
+        
+        If IsEmpty(varReadStatusArray(r, 1)) Then
+            varStatusArray(r, 1) = "-"
+        Else
+            varStatusArray(r, 1) = varReadStatusArray(r, 1)
         End If
     Next r
+    
+    ' 結果を書き込み
+    ws.Range(ws.Cells(lngStartRow, lngCOL_CHK), ws.Cells(lngEndRow, lngCOL_CHK)).value = varChkArray
+    ws.Range(ws.Cells(lngStartRow, lngCOL_OPT), ws.Cells(lngEndRow, lngCOL_OPT)).value = varOptArray
+    ws.Range(ws.Cells(lngStartRow, lngCOL_TASK_WGT), ws.Cells(lngEndRow, lngCOL_TASK_WGT)).value = varWgtArray
+    ws.Range(ws.Cells(lngStartRow, lngCOL_WBS_STATUS), ws.Cells(lngEndRow, lngCOL_WBS_STATUS)).value = varStatusArray
 
     ' 不要なコントロールを削除
     For Each shp In ws.Shapes
@@ -797,13 +937,14 @@ Public Sub ExeButtonClick()
     ' 選択中のインデックスを取得
     lngSelectedIndex = ws.Shapes(strNAME_EXE_COMBOBOX1).ControlFormat.ListIndex
 
+    ' インデックスに対応する処理を実行
     Select Case lngSelectedIndex
         Case 1
             Application.ScreenUpdating = False
             Application.Calculation = xlCalculationManual
             Application.EnableEvents = False
             
-            InsertRowAboveSelection
+            InsertRowBelowSelection
             PrepareForProcessing
             
             Application.ScreenUpdating = True
@@ -902,84 +1043,6 @@ Public Sub ExeButtonClick()
 End Sub
 
 
-' ■ チェックボックスを設置または更新する関数
-Private Function CreateOrUpdateCheckBox(lngRowNum As Long) As Shape
-
-    ' 現在のシートを取得
-    Dim ws As Worksheet
-    Set ws = Me
-
-    ' 名前を作成
-    Dim strChkName As String
-    strChkName = strNAME_PREFIX_CHK & lngRowNum
-
-    ' 同じ名前のチェックボックスが存在するか確認
-    On Error Resume Next
-    Set CreateOrUpdateCheckBox = ws.Shapes(strChkName)
-    On Error GoTo 0
-
-    ' チェックボックスが存在しない場合、作成
-    If CreateOrUpdateCheckBox Is Nothing Then
-        Set CreateOrUpdateCheckBox = ws.Shapes.AddFormControl(xlCheckBox, _
-            ws.Cells(lngRowNum, lngCOL_CHK).Left + dblSHAPE_MARGIN, _
-            ws.Cells(lngRowNum, lngCOL_CHK).Top + dblSHAPE_MARGIN, _
-            ws.Cells(lngRowNum, lngCOL_CHK).Width - (dblSHAPE_MARGIN * 2), _
-            ws.Cells(lngRowNum, lngCOL_CHK).Height - (dblSHAPE_MARGIN * 2))
-        CreateOrUpdateCheckBox.Name = strChkName
-    End If
-
-    ' チェックボックス独自の操作
-    With ws.CheckBoxes(strChkName)
-        .Left = ws.Cells(lngRowNum, lngCOL_CHK).Left + dblSHAPE_MARGIN
-        .Top = ws.Cells(lngRowNum, lngCOL_CHK).Top + dblSHAPE_MARGIN
-        .Width = ws.Cells(lngRowNum, lngCOL_CHK).Width - (dblSHAPE_MARGIN * 2)
-        .Height = ws.Cells(lngRowNum, lngCOL_CHK).Height - (dblSHAPE_MARGIN * 2)
-        .Caption = ""
-        .Value = False
-    End With
-
-End Function
-
-
-' ■ ラジオボタンを設置または更新する関数
-Private Function CreateOrUpdateOptionButton(lngRowNum As Long) As Shape
-
-    ' 現在のシートを取得
-    Dim ws As Worksheet
-    Set ws = Me
-    
-    ' 名前を作成
-    Dim strOptName As String
-    strOptName = strNAME_PREFIX_OPT & lngRowNum
-
-    ' 同じ名前のラジオボタンが存在するか確認
-    On Error Resume Next
-    Set CreateOrUpdateOptionButton = ws.Shapes(strOptName)
-    On Error GoTo 0
-
-    ' ラジオボタンが存在しない場合、作成
-    If CreateOrUpdateOptionButton Is Nothing Then
-        Set CreateOrUpdateOptionButton = ws.Shapes.AddFormControl(xlOptionButton, _
-            ws.Cells(lngRowNum, lngCOL_OPT).Left + dblSHAPE_MARGIN, _
-            ws.Cells(lngRowNum, lngCOL_OPT).Top + dblSHAPE_MARGIN, _
-            ws.Cells(lngRowNum, lngCOL_OPT).Width - (dblSHAPE_MARGIN * 2), _
-            ws.Cells(lngRowNum, lngCOL_OPT).Height - (dblSHAPE_MARGIN * 2))
-        CreateOrUpdateOptionButton.Name = strOptName
-    End If
-
-    ' ラジオボタン独自の操作
-    With ws.OptionButtons(strOptName)
-        .Left = ws.Cells(lngRowNum, lngCOL_OPT).Left + dblSHAPE_MARGIN
-        .Top = ws.Cells(lngRowNum, lngCOL_OPT).Top + dblSHAPE_MARGIN
-        .Width = ws.Cells(lngRowNum, lngCOL_OPT).Width - (dblSHAPE_MARGIN * 2)
-        .Height = ws.Cells(lngRowNum, lngCOL_OPT).Height - (dblSHAPE_MARGIN * 2)
-        .Caption = ""
-        .Value = False
-    End With
-
-End Function
-
-
 ' ■ コントロール名がコレクションに含まれているか確認する関数
 Private Function IsControlNameInCollection(strControlName As String, colControlNames As Collection) As Boolean
 
@@ -1026,7 +1089,7 @@ Private Sub SetDropDownListResponsiblePerson()
 
     ' lngCOL_DEFINE_PERSON 列を上から走査して値をセット
     For r = lngStartRow To ws.Cells(ws.Rows.Count, lngCOL_DEFINE_PERSON).End(xlUp).Row
-        If IsEmpty(ws.Cells(r, lngCOL_DEFINE_PERSON).Value) Or ws.Cells(r, lngCOL_DEFINE_PERSON).Value = "" Then
+        If IsEmpty(ws.Cells(r, lngCOL_DEFINE_PERSON).value) Or ws.Cells(r, lngCOL_DEFINE_PERSON).value = "" Then
             Exit For
         End If
         lngSelectEndRow = r
@@ -1080,7 +1143,7 @@ Private Sub SetDropDownListResponsibleTeam()
 
     ' lngCOL_DEFINE_TEAM 列を上から走査して値をセット
     For r = lngStartRow To ws.Cells(ws.Rows.Count, lngCOL_DEFINE_TEAM).End(xlUp).Row
-        If IsEmpty(ws.Cells(r, lngCOL_DEFINE_TEAM).Value) Or ws.Cells(r, lngCOL_DEFINE_TEAM).Value = "" Then
+        If IsEmpty(ws.Cells(r, lngCOL_DEFINE_TEAM).value) Or ws.Cells(r, lngCOL_DEFINE_TEAM).value = "" Then
             Exit For
         End If
         lngSelectEndRow = r
@@ -1149,7 +1212,7 @@ Private Sub SetFormulaForPlannedEffort()
         
         ' 階層レベルの判定
         For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
-            val = ws.Cells(r, levelCol).Value
+            val = ws.Cells(r, levelCol).value
             If Not IsNumeric(val) Or val = "" Then
                 level = level - 1
             Else
@@ -1158,7 +1221,7 @@ Private Sub SetFormulaForPlannedEffort()
         Next levelCol
         
         ' タスクかどうかの判定
-        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).Value) Or ws.Cells(r, lngCOL_TASK).Value <> ""
+        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).value) Or ws.Cells(r, lngCOL_TASK).value <> ""
         
         ' タスク行でない場合に式をセット
         If Not isTask Then
@@ -1173,7 +1236,7 @@ Private Sub SetFormulaForPlannedEffort()
                           "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
                 strFormula = "=SUM(FILTER(" & strColLabelPlannedEffort & lngStartRow & ":" & strColLabelPlannedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelPlannedEffort & r).formula = strFormula
+                ws.Range(strColLabelPlannedEffort & r).Formula = strFormula
             End If
             
             ' L4階層の数式をセット
@@ -1194,7 +1257,7 @@ Private Sub SetFormulaForPlannedEffort()
                 strFormula = "=SUM(FILTER(" & strColLabelPlannedEffort & lngStartRow & ":" & strColLabelPlannedEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelPlannedEffort & lngStartRow & ":" & strColLabelPlannedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelPlannedEffort & r).formula = strFormula
+                ws.Range(strColLabelPlannedEffort & r).Formula = strFormula
             End If
             
             ' L3階層の数式をセット
@@ -1215,7 +1278,7 @@ Private Sub SetFormulaForPlannedEffort()
                 strFormula = "=SUM(FILTER(" & strColLabelPlannedEffort & lngStartRow & ":" & strColLabelPlannedEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelPlannedEffort & lngStartRow & ":" & strColLabelPlannedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelPlannedEffort & r).formula = strFormula
+                ws.Range(strColLabelPlannedEffort & r).Formula = strFormula
             End If
             
             ' L2階層の数式をセット
@@ -1236,7 +1299,7 @@ Private Sub SetFormulaForPlannedEffort()
                 strFormula = "=SUM(FILTER(" & strColLabelPlannedEffort & lngStartRow & ":" & strColLabelPlannedEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelPlannedEffort & lngStartRow & ":" & strColLabelPlannedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelPlannedEffort & r).formula = strFormula
+                ws.Range(strColLabelPlannedEffort & r).Formula = strFormula
             End If
             
             ' L1階層の数式をセット
@@ -1257,7 +1320,7 @@ Private Sub SetFormulaForPlannedEffort()
                 strFormula = "=SUM(FILTER(" & strColLabelPlannedEffort & lngStartRow & ":" & strColLabelPlannedEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelPlannedEffort & lngStartRow & ":" & strColLabelPlannedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelPlannedEffort & r).formula = strFormula
+                ws.Range(strColLabelPlannedEffort & r).Formula = strFormula
             End If
         End If
     Next r
@@ -1270,7 +1333,179 @@ Private Sub SetFormulaForPlannedEffort()
                    "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
                    "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
     strFormula = "=SUM(FILTER(" & strColLabelPlannedEffort & lngStartRow & ":" & strColLabelPlannedEffort & lngEndRow & "," & strBoolArrayH & ",0))"
-    ws.Range(strColLabelPlannedEffort & lngEndRow + 2).formula = strFormula
+    ws.Range(strColLabelPlannedEffort & lngEndRow + 2).Formula = strFormula
+    
+End Sub
+
+
+' ■ タスク件数を集計する式をセット
+Private Sub SetFormulaForTaskCount()
+
+    ' 現在のシートを取得
+    Dim ws As Worksheet
+    Set ws = Me
+
+    ' 変数定義
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim strColLabelTaskCount As String, strColLabelTask As String
+    Dim strColLabelL1 As String, strColLabelL2 As String, strColLabelL3 As String, strColLabelL4 As String, strColLabelL5 As String
+    Dim strBoolArrayH As String, strBoolArrayT As String
+    Dim strFormula As String
+    ' 一時変数定義
+    Dim r As Long, levelCol As Integer, level As Integer, isTask As Boolean
+    Dim val As Variant
+    
+    ' 開始行と終了行を取得
+    varRangeRows = FindDataRangeRows()
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' ラベル文字列事前用意
+    strColLabelTaskCount = ConvertColNumberToLetter(lngCOL_TASK_COUNT)
+    strColLabelL1 = ConvertColNumberToLetter(lngCOL_L1)
+    strColLabelL2 = ConvertColNumberToLetter(lngCOL_L2)
+    strColLabelL3 = ConvertColNumberToLetter(lngCOL_L3)
+    strColLabelL4 = ConvertColNumberToLetter(lngCOL_L4)
+    strColLabelL5 = ConvertColNumberToLetter(lngCOL_L5)
+    strColLabelTask = ConvertColNumberToLetter(lngCOL_TASK)
+    
+    ' すべてのタスクと階層のキーを作成
+    For r = lngStartRow To lngEndRow
+        
+        ' 初期化
+        level = 5
+        isTask = False
+        
+        ' 階層レベルの判定
+        For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
+            val = ws.Cells(r, levelCol).value
+            If Not IsNumeric(val) Or val = "" Then
+                level = level - 1
+            Else
+                Exit For
+            End If
+        Next levelCol
+        
+        ' タスクかどうかの判定
+        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).value) Or ws.Cells(r, lngCOL_TASK).value <> ""
+        
+        If isTask Then
+            ' # タスク行の場合は値をセット #
+            ws.Range(strColLabelTaskCount & r).value = 1
+        Else
+            ' # タスク行でない場合に式をセット #
+            ' L5階層の数式をセット
+            If level = 5 Then
+                ' 数式を作成
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "=" & strColLabelL5 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelTaskCount & lngStartRow & ":" & strColLabelTaskCount & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(strColLabelTaskCount & r).Formula = strFormula
+            End If
+            
+            ' L4階層の数式をセット
+            If level = 4 Then
+                ' 数式を作成
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "))*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "=" & strColLabelL4 & r & ")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelTaskCount & lngStartRow & ":" & strColLabelTaskCount & lngEndRow & "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelTaskCount & lngStartRow & ":" & strColLabelTaskCount & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(strColLabelTaskCount & r).Formula = strFormula
+            End If
+            
+            ' L3階層の数式をセット
+            If level = 3 Then
+                ' 数式を作成
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "))*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "=" & strColLabelL3 & r & ")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelTaskCount & lngStartRow & ":" & strColLabelTaskCount & lngEndRow & "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelTaskCount & lngStartRow & ":" & strColLabelTaskCount & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(strColLabelTaskCount & r).Formula = strFormula
+            End If
+            
+            ' L2階層の数式をセット
+            If level = 2 Then
+                ' 数式を作成
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "))*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "=" & strColLabelL2 & r & ")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelTaskCount & lngStartRow & ":" & strColLabelTaskCount & lngEndRow & "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelTaskCount & lngStartRow & ":" & strColLabelTaskCount & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(strColLabelTaskCount & r).Formula = strFormula
+            End If
+            
+            ' L1階層の数式をセット
+            If level = 1 Then
+                ' 数式を作成
+                strBoolArrayH = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(ISNUMBER(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "))*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+                strBoolArrayT = "(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "=" & strColLabelL1 & r & ")*" & _
+                          "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                          "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                          "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
+                strFormula = "=SUM(FILTER(" & strColLabelTaskCount & lngStartRow & ":" & strColLabelTaskCount & lngEndRow & "," & strBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & strColLabelTaskCount & lngStartRow & ":" & strColLabelTaskCount & lngEndRow & "," & strBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(strColLabelTaskCount & r).Formula = strFormula
+            End If
+        End If
+    Next r
+    
+    ' L1 を集計する数式をセット
+    strBoolArrayH = "(ISNUMBER(" & strColLabelL1 & lngStartRow & ":" & strColLabelL1 & lngEndRow & "))*" & _
+                   "(" & strColLabelL2 & lngStartRow & ":" & strColLabelL2 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelL3 & lngStartRow & ":" & strColLabelL3 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelL4 & lngStartRow & ":" & strColLabelL4 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
+                   "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
+    strFormula = "=SUM(FILTER(" & strColLabelTaskCount & lngStartRow & ":" & strColLabelTaskCount & lngEndRow & "," & strBoolArrayH & ",0))"
+    ws.Range(strColLabelTaskCount & lngEndRow + 2).Formula = strFormula
     
 End Sub
 
@@ -1318,7 +1553,7 @@ Private Sub SetFormulaForActualRemainingEffort()
         
         ' 階層レベルの判定
         For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
-            val = ws.Cells(r, levelCol).Value
+            val = ws.Cells(r, levelCol).value
             If Not IsNumeric(val) Or val = "" Then
                 level = level - 1
             Else
@@ -1327,7 +1562,7 @@ Private Sub SetFormulaForActualRemainingEffort()
         Next levelCol
         
         ' タスクかどうかの判定
-        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).Value) Or ws.Cells(r, lngCOL_TASK).Value <> ""
+        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).value) Or ws.Cells(r, lngCOL_TASK).value <> ""
         
         ' タスク行でない場合に式をセット
         If Not isTask Then
@@ -1342,7 +1577,7 @@ Private Sub SetFormulaForActualRemainingEffort()
                           "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
                 strFormula = "=SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelActualRemainingEffort & r).formula = strFormula
+                ws.Range(strColLabelActualRemainingEffort & r).Formula = strFormula
             End If
             
             ' L4階層の数式をセット
@@ -1363,7 +1598,7 @@ Private Sub SetFormulaForActualRemainingEffort()
                 strFormula = "=SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelActualRemainingEffort & r).formula = strFormula
+                ws.Range(strColLabelActualRemainingEffort & r).Formula = strFormula
             End If
             
             ' L3階層の数式をセット
@@ -1384,7 +1619,7 @@ Private Sub SetFormulaForActualRemainingEffort()
                 strFormula = "=SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelActualRemainingEffort & r).formula = strFormula
+                ws.Range(strColLabelActualRemainingEffort & r).Formula = strFormula
             End If
             
             ' L2階層の数式をセット
@@ -1405,7 +1640,7 @@ Private Sub SetFormulaForActualRemainingEffort()
                 strFormula = "=SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelActualRemainingEffort & r).formula = strFormula
+                ws.Range(strColLabelActualRemainingEffort & r).Formula = strFormula
             End If
             
             ' L1階層の数式をセット
@@ -1426,7 +1661,7 @@ Private Sub SetFormulaForActualRemainingEffort()
                 strFormula = "=SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelActualRemainingEffort & r).formula = strFormula
+                ws.Range(strColLabelActualRemainingEffort & r).Formula = strFormula
             End If
         End If
     Next r
@@ -1439,7 +1674,7 @@ Private Sub SetFormulaForActualRemainingEffort()
                    "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
                    "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
     strFormula = "=SUM(FILTER(" & strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow & "," & strBoolArrayH & ",0))"
-    ws.Range(strColLabelActualRemainingEffort & lngEndRow + 2).formula = strFormula
+    ws.Range(strColLabelActualRemainingEffort & lngEndRow + 2).Formula = strFormula
     
 End Sub
 
@@ -1487,7 +1722,7 @@ Private Sub SetFormulaForActualCompletedEffort()
         
         ' 階層レベルの判定
         For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
-            val = ws.Cells(r, levelCol).Value
+            val = ws.Cells(r, levelCol).value
             If Not IsNumeric(val) Or val = "" Then
                 level = level - 1
             Else
@@ -1496,7 +1731,7 @@ Private Sub SetFormulaForActualCompletedEffort()
         Next levelCol
         
         ' タスクかどうかの判定
-        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).Value) Or ws.Cells(r, lngCOL_TASK).Value <> ""
+        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).value) Or ws.Cells(r, lngCOL_TASK).value <> ""
         
         ' タスク行でない場合に式をセット
         If Not isTask Then
@@ -1511,7 +1746,7 @@ Private Sub SetFormulaForActualCompletedEffort()
                           "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
                 strFormula = "=SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelActualCompletedEffort & r).formula = strFormula
+                ws.Range(strColLabelActualCompletedEffort & r).Formula = strFormula
             End If
             
             ' L4階層の数式をセット
@@ -1532,7 +1767,7 @@ Private Sub SetFormulaForActualCompletedEffort()
                 strFormula = "=SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelActualCompletedEffort & r).formula = strFormula
+                ws.Range(strColLabelActualCompletedEffort & r).Formula = strFormula
             End If
             
             ' L3階層の数式をセット
@@ -1553,7 +1788,7 @@ Private Sub SetFormulaForActualCompletedEffort()
                 strFormula = "=SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelActualCompletedEffort & r).formula = strFormula
+                ws.Range(strColLabelActualCompletedEffort & r).Formula = strFormula
             End If
             
             ' L2階層の数式をセット
@@ -1574,7 +1809,7 @@ Private Sub SetFormulaForActualCompletedEffort()
                 strFormula = "=SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelActualCompletedEffort & r).formula = strFormula
+                ws.Range(strColLabelActualCompletedEffort & r).Formula = strFormula
             End If
             
             ' L1階層の数式をセット
@@ -1595,7 +1830,7 @@ Private Sub SetFormulaForActualCompletedEffort()
                 strFormula = "=SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelActualCompletedEffort & r).formula = strFormula
+                ws.Range(strColLabelActualCompletedEffort & r).Formula = strFormula
             End If
         End If
     Next r
@@ -1608,7 +1843,7 @@ Private Sub SetFormulaForActualCompletedEffort()
                    "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "="""")*" & _
                    "(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "="""")"
     strFormula = "=SUM(FILTER(" & strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow & "," & strBoolArrayH & ",0))"
-    ws.Range(strColLabelActualCompletedEffort & lngEndRow + 2).formula = strFormula
+    ws.Range(strColLabelActualCompletedEffort & lngEndRow + 2).Formula = strFormula
     
 End Sub
 
@@ -1658,7 +1893,7 @@ Private Sub SetFormulaForTaskProgressRate()
         
         ' 階層レベルの判定
         For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
-            val = ws.Cells(r, levelCol).Value
+            val = ws.Cells(r, levelCol).value
             If Not IsNumeric(val) Or val = "" Then
                 level = level - 1
             Else
@@ -1667,7 +1902,7 @@ Private Sub SetFormulaForTaskProgressRate()
         Next levelCol
         
         ' タスクかどうかの判定
-        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).Value) Or ws.Cells(r, lngCOL_TASK).Value <> ""
+        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).value) Or ws.Cells(r, lngCOL_TASK).value <> ""
         
         ' タスク行でない場合に式をセット
         If Not isTask Then
@@ -1682,16 +1917,12 @@ Private Sub SetFormulaForTaskProgressRate()
                           "(" & strColLabelL5 & lngStartRow & ":" & strColLabelL5 & lngEndRow & "=" & strColLabelL5 & r & ")*" & _
                           "(ISNUMBER(" & strColLabelTask & lngStartRow & ":" & strColLabelTask & lngEndRow & "))"
                 strSumWeightT = "SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0))"
-                ' strFormula = "=SUM(FILTER(" & strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow & _
-                '           "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "" & _
-                '           "/SUM(FILTER(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & "," & strBoolArrayT & ",0)))" & _
-                '           "," & strBoolArrayT & ",0))"
                 strFormula = "=SUM(FILTER(" & strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow & _
                           "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & ")" & _
                           "," & strBoolArrayT & ",0))" & _
                           "/IF(" & strSumWeightT & "=0,1," & strSumWeightT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelTaskProg & r).formula = strFormula
+                ws.Range(strColLabelTaskProg & r).Formula = strFormula
             End If
             
             ' L4階層の数式をセット
@@ -1719,7 +1950,7 @@ Private Sub SetFormulaForTaskProgressRate()
                           "," & strBoolArrayT & ",0)))" & _
                           "/IF(" & strSumWeightH & "+" & strSumWeightT & "=0,1," & strSumWeightH & "+" & strSumWeightT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelTaskProg & r).formula = strFormula
+                ws.Range(strColLabelTaskProg & r).Formula = strFormula
             End If
             
             ' L3階層の数式をセット
@@ -1747,7 +1978,7 @@ Private Sub SetFormulaForTaskProgressRate()
                           "," & strBoolArrayT & ",0)))" & _
                           "/IF(" & strSumWeightH & "+" & strSumWeightT & "=0,1," & strSumWeightH & "+" & strSumWeightT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelTaskProg & r).formula = strFormula
+                ws.Range(strColLabelTaskProg & r).Formula = strFormula
             End If
             
             ' L2階層の数式をセット
@@ -1775,7 +2006,7 @@ Private Sub SetFormulaForTaskProgressRate()
                           "," & strBoolArrayT & ",0)))" & _
                           "/IF(" & strSumWeightH & "+" & strSumWeightT & "=0,1," & strSumWeightH & "+" & strSumWeightT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelTaskProg & r).formula = strFormula
+                ws.Range(strColLabelTaskProg & r).Formula = strFormula
             End If
             
             ' L1階層の数式をセット
@@ -1803,7 +2034,7 @@ Private Sub SetFormulaForTaskProgressRate()
                           "," & strBoolArrayT & ",0)))" & _
                           "/IF(" & strSumWeightH & "+" & strSumWeightT & "=0,1," & strSumWeightH & "+" & strSumWeightT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelTaskProg & r).formula = strFormula
+                ws.Range(strColLabelTaskProg & r).Formula = strFormula
             End If
         End If
     Next r
@@ -1820,7 +2051,7 @@ Private Sub SetFormulaForTaskProgressRate()
               "*(" & strColLabelTaskWeight & lngStartRow & ":" & strColLabelTaskWeight & lngEndRow & ")" & _
               "," & strBoolArrayH & ",0))" & _
               "/IF(" & strSumWeightH & "=0,1," & strSumWeightH & ")"
-    ws.Range(strColLabelTaskProg & lngEndRow + 2).formula = strFormula
+    ws.Range(strColLabelTaskProg & lngEndRow + 2).Formula = strFormula
     
 End Sub
 
@@ -1872,7 +2103,7 @@ Private Sub SetFormulaForEffortProgressRate()
         
         ' 階層レベルの判定
         For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
-            val = ws.Cells(r, levelCol).Value
+            val = ws.Cells(r, levelCol).value
             If Not IsNumeric(val) Or val = "" Then
                 level = level - 1
             Else
@@ -1881,7 +2112,7 @@ Private Sub SetFormulaForEffortProgressRate()
         Next levelCol
         
         ' タスクかどうかの判定
-        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).Value) Or ws.Cells(r, lngCOL_TASK).Value <> ""
+        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).value) Or ws.Cells(r, lngCOL_TASK).value <> ""
         
         ' 式をセット
         If isTask Then
@@ -1890,7 +2121,7 @@ Private Sub SetFormulaForEffortProgressRate()
             "/IF(" & strColLabelActualRemainingEffort & r & "+" & strColLabelActualCompletedEffort & r & "=0," & _
             "1," & strColLabelActualRemainingEffort & r & "+" & strColLabelActualCompletedEffort & r & ")"
             ' 指定された列のセルに数式をセット
-            ws.Range(strColLabelEffortProg & r).formula = strFormula
+            ws.Range(strColLabelEffortProg & r).Formula = strFormula
         Else
             ' # タスク行以外の処理 #
             ' L5階層の数式をセット
@@ -1907,7 +2138,7 @@ Private Sub SetFormulaForEffortProgressRate()
                           "," & strBoolArrayT & ",0))" & _
                           "/IF(" & strCountT & "=0,1," & strCountT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelEffortProg & r).formula = strFormula
+                ws.Range(strColLabelEffortProg & r).Formula = strFormula
             End If
             
             ' L4階層の数式をセット
@@ -1933,7 +2164,7 @@ Private Sub SetFormulaForEffortProgressRate()
                           "," & strBoolArrayT & ",0)))" & _
                           "/IF(" & strCountH & "+" & strCountT & "=0,1," & strCountH & "+" & strCountT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelEffortProg & r).formula = strFormula
+                ws.Range(strColLabelEffortProg & r).Formula = strFormula
             End If
             
             ' L3階層の数式をセット
@@ -1959,7 +2190,7 @@ Private Sub SetFormulaForEffortProgressRate()
                           "," & strBoolArrayT & ",0)))" & _
                           "/IF(" & strCountH & "+" & strCountT & "=0,1," & strCountH & "+" & strCountT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelEffortProg & r).formula = strFormula
+                ws.Range(strColLabelEffortProg & r).Formula = strFormula
             End If
             
             ' L2階層の数式をセット
@@ -1985,7 +2216,7 @@ Private Sub SetFormulaForEffortProgressRate()
                           "," & strBoolArrayT & ",0)))" & _
                           "/IF(" & strCountH & "+" & strCountT & "=0,1," & strCountH & "+" & strCountT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelEffortProg & r).formula = strFormula
+                ws.Range(strColLabelEffortProg & r).Formula = strFormula
             End If
             
             ' L1階層の数式をセット
@@ -2011,7 +2242,7 @@ Private Sub SetFormulaForEffortProgressRate()
                           "," & strBoolArrayT & ",0)))" & _
                           "/IF(" & strCountH & "+" & strCountT & "=0,1," & strCountH & "+" & strCountT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(strColLabelEffortProg & r).formula = strFormula
+                ws.Range(strColLabelEffortProg & r).Formula = strFormula
             End If
         End If
     Next r
@@ -2027,12 +2258,12 @@ Private Sub SetFormulaForEffortProgressRate()
     strFormula = "=SUM(FILTER(" & strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow & _
               "," & strBoolArrayH & ",0))" & _
                           "/IF(" & strCountH & "=0,1," & strCountH & ")"
-    ws.Range(strColLabelEffortProg & lngEndRow + 2).formula = strFormula
+    ws.Range(strColLabelEffortProg & lngEndRow + 2).Formula = strFormula
     
 End Sub
 
 
-' ■ L2階層以下を非表示
+' ■ L2階層以下を非表示（TODO: 高速化）
 Private Sub HideLowerThanL2()
 
     ' 現在のシートを取得
@@ -2062,7 +2293,7 @@ Private Sub HideLowerThanL2()
         
         ' 階層レベルの判定
         For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
-            val = ws.Cells(r, levelCol).Value
+            val = ws.Cells(r, levelCol).value
             If Not IsNumeric(val) Or val = "" Then
                 level = level - 1
             Else
@@ -2089,7 +2320,7 @@ Private Sub HideLowerThanL2()
 End Sub
 
 
-' ■ L3階層以下を非表示
+' ■ L3階層以下を非表示（TODO: 高速化）
 Private Sub HideLowerThanL3()
 
     ' 現在のシートを取得
@@ -2119,7 +2350,7 @@ Private Sub HideLowerThanL3()
         
         ' 階層レベルの判定
         For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
-            val = ws.Cells(r, levelCol).Value
+            val = ws.Cells(r, levelCol).value
             If Not IsNumeric(val) Or val = "" Then
                 level = level - 1
             Else
@@ -2146,7 +2377,7 @@ Private Sub HideLowerThanL3()
 End Sub
 
 
-' ■ L4階層以下を非表示
+' ■ L4階層以下を非表示（TODO: 高速化）
 Private Sub HideLowerThanL4()
 
     ' 現在のシートを取得
@@ -2176,7 +2407,7 @@ Private Sub HideLowerThanL4()
         
         ' 階層レベルの判定
         For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
-            val = ws.Cells(r, levelCol).Value
+            val = ws.Cells(r, levelCol).value
             If Not IsNumeric(val) Or val = "" Then
                 level = level - 1
             Else
@@ -2203,7 +2434,7 @@ Private Sub HideLowerThanL4()
 End Sub
 
 
-' ■ すべてのレベルを再表示
+' ■ すべてのレベルを再表示（TODO: 高速化）
 Private Sub UnhideAllLevels()
 
     ' 現在のシートを取得
@@ -2249,23 +2480,39 @@ Private Function GetCheckedOptSingleRow() As Long
     ' 現在のシートを取得
     Dim ws As Worksheet
     Set ws = Me
-        
+    
+    ' 変数定義
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim rngFoundCell As Range
     ' 一時変数定義
-    Dim optBtn As OptionButton
-    Dim btnName As String
-    Dim parts() As String
+    Dim r As Long
 
-    ' 行番号を取得
-    For Each optBtn In ws.OptionButtons
-        If optBtn.Value = xlOn Then
-            btnName = optBtn.Name
-            parts = Split(btnName, "_")
-            If UBound(parts) = 1 Then
-                GetCheckedOptSingleRow = CLng(parts(1))
-                Exit Function
-            End If
-        End If
-    Next optBtn
+    ' 開始行と終了行を取得
+    varRangeRows = FindDataRangeRows()
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then
+        GetCheckedOptSingleRow = 0
+        Exit Function
+    End If
+    
+    ' lngStartRow から lngEndRow の範囲で strOPT_T を持つ最初のセルを検索
+    On Error Resume Next
+    Set rngFoundCell = ws.Range(ws.Cells(lngStartRow, lngCOL_OPT), ws.Cells(lngEndRow, lngCOL_OPT)).Find( _
+        What:=strOPT_T, _
+        LookAt:=xlWhole, _
+        LookIn:=xlValues, _
+        MatchCase:=True _
+    )
+    On Error GoTo 0
+    
+    ' セルが見つかった場合
+    If Not rngFoundCell Is Nothing Then
+        GetCheckedOptSingleRow = rngFoundCell.Row
+        Exit Function
+    End If
 
     ' ここまで来たらチェックなし
     GetCheckedOptSingleRow = 0
@@ -2273,35 +2520,48 @@ End Function
 
 
 ' ■ 選択中のチェックボックスから行番号コレクションを取得
-Private Function GetCheckedChkMultpleiRows() As Collection
+Private Function GetCheckedChkMultpleRows() As Collection
 
     ' 現在のシートを取得
     Dim ws As Worksheet
     Set ws = Me
     
-    ' 一時変数定義
-    Dim cb As CheckBox
+    ' 変数定義
     Dim rowCollection As New Collection
-    Dim parts() As String
-    Dim rowNum As Long
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim varData As Variant
+    ' 一時変数定義
+    Dim r As Long
 
-    ' 行番号を収集
-    For Each cb In ws.CheckBoxes
-        If cb.Value = xlOn Then
-            parts = Split(cb.Name, "_")
-            If UBound(parts) = 1 Then
-                rowNum = CLng(parts(1))
-                rowCollection.Add rowNum
-            End If
+    ' 開始行と終了行を取得
+    varRangeRows = FindDataRangeRows()
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then
+        Set GetCheckedChkMultpleRows = rowCollection
+        Exit Function
+    End If
+
+    ' 該当範囲のセルデータを一括で配列に格納
+    varData = ws.Range(ws.Cells(lngStartRow, lngCOL_CHK), ws.Cells(lngEndRow, lngCOL_CHK)).value
+    
+    ' 配列をループして一致する行番号を収集
+    For r = 1 To UBound(varData, 1)  ' 配列の行数分だけループ
+        If varData(r, 1) = strCHK_T Then
+            rowCollection.Add lngStartRow + r - 1 ' 実際の行番号を追加
         End If
-    Next cb
+    Next r
 
-    Set GetCheckedChkMultpleiRows = rowCollection
+    ' 結果として行番号のコレクションを返す
+    Set GetCheckedChkMultpleRows = rowCollection
 End Function
 
 
 ' ■ 指定列の指定行以降で空でないセルを上にシフトする。
 Private Sub ShiftUpNonEmptyCells(ByVal intColumnNumber As Integer, ByVal lngStartRow As Long)
+
     ' 現在のシートを取得
     Dim ws As Worksheet
     Set ws = Me
@@ -2324,10 +2584,10 @@ Private Sub ShiftUpNonEmptyCells(ByVal intColumnNumber As Integer, ByVal lngStar
         Set rngCurrentCell = ws.Cells(lngCurrentRow, intColumnNumber)
 
         ' 空でないセルが見つかった場合
-        If Not IsEmpty(rngCurrentCell.Value) Then
+        If Not IsEmpty(rngCurrentCell.value) Then
             ' 空白行の値を現在のセルの値に設定
             If lngCurrentRow > lngEmptyRow Then
-                ws.Cells(lngEmptyRow, intColumnNumber).Value = rngCurrentCell.Value
+                ws.Cells(lngEmptyRow, intColumnNumber).value = rngCurrentCell.value
                 ws.Cells(lngCurrentRow, intColumnNumber).ClearContents
             End If
             ' 空白行を次の行に更新
@@ -2337,8 +2597,8 @@ Private Sub ShiftUpNonEmptyCells(ByVal intColumnNumber As Integer, ByVal lngStar
 End Sub
 
 
-' ■ 選択した行の上に一行追加
-Private Sub InsertRowAboveSelection()
+' ■ 選択した行の下に一行追加
+Private Sub InsertRowBelowSelection()
 
     ' 現在のシートを取得
     Dim ws As Worksheet
@@ -2356,7 +2616,7 @@ Private Sub InsertRowAboveSelection()
     lngSelectedRow = GetCheckedOptSingleRow()
     If lngSelectedRow <> 0 Then
         ' 行を追加
-        ws.Rows(lngSelectedRow).Insert Shift:=xlDown
+        ws.Rows(lngSelectedRow + 1).Insert Shift:=xlDown
         ' 組織・担当定義列の空でないセルを上にシフト
         Call ShiftUpNonEmptyCells(lngCOL_DEFINE_TEAM, lngStartRow)
         Call ShiftUpNonEmptyCells(lngCOL_DEFINE_PERSON, lngStartRow)
@@ -2367,7 +2627,7 @@ Private Sub InsertRowAboveSelection()
 End Sub
 
 
-' ■ 選択行の最終レベルIDをインクリメント
+' ■ 選択行の最終レベルIDをインクリメント（TODO: 高速化）
 Private Sub IncrementSelectedLastLevel()
 
     ' 現在のシートを取得
@@ -2405,12 +2665,12 @@ Private Sub IncrementSelectedLastLevel()
         Exit Sub
     End If
     
-    varL1 = ws.Cells(lngSelectedRow, lngCOL_L1).Value
-    varL2 = ws.Cells(lngSelectedRow, lngCOL_L2).Value
-    varL3 = ws.Cells(lngSelectedRow, lngCOL_L3).Value
-    varL4 = ws.Cells(lngSelectedRow, lngCOL_L4).Value
-    varL5 = ws.Cells(lngSelectedRow, lngCOL_L5).Value
-    varTask = ws.Cells(lngSelectedRow, lngCOL_TASK).Value
+    varL1 = ws.Cells(lngSelectedRow, lngCOL_L1).value
+    varL2 = ws.Cells(lngSelectedRow, lngCOL_L2).value
+    varL3 = ws.Cells(lngSelectedRow, lngCOL_L3).value
+    varL4 = ws.Cells(lngSelectedRow, lngCOL_L4).value
+    varL5 = ws.Cells(lngSelectedRow, lngCOL_L5).value
+    varTask = ws.Cells(lngSelectedRow, lngCOL_TASK).value
     
     ' 選択した行のレベル判定
     intSelectedLevel = 0
@@ -2440,12 +2700,12 @@ Private Sub IncrementSelectedLastLevel()
     For r = lngStartRow To lngEndRow
     
         ' 現在の行における各カラムの値を取得
-        tmpL1 = ws.Cells(r, lngCOL_L1).Value
-        tmpL2 = ws.Cells(r, lngCOL_L2).Value
-        tmpL3 = ws.Cells(r, lngCOL_L3).Value
-        tmpL4 = ws.Cells(r, lngCOL_L4).Value
-        tmpL5 = ws.Cells(r, lngCOL_L5).Value
-        tmpTask = ws.Cells(r, lngCOL_TASK).Value
+        tmpL1 = ws.Cells(r, lngCOL_L1).value
+        tmpL2 = ws.Cells(r, lngCOL_L2).value
+        tmpL3 = ws.Cells(r, lngCOL_L3).value
+        tmpL4 = ws.Cells(r, lngCOL_L4).value
+        tmpL5 = ws.Cells(r, lngCOL_L5).value
+        tmpTask = ws.Cells(r, lngCOL_TASK).value
         
         ' 現在の行のレベル判定
         tmpCurrentLevel = 0
@@ -2581,12 +2841,12 @@ Private Sub IncrementSelectedLastLevel()
     ' 対象行の更新
     For r = lngStartRow To lngEndRow
         ' 現在の行における各カラムの値を取得
-        tmpL1 = ws.Cells(r, lngCOL_L1).Value
-        tmpL2 = ws.Cells(r, lngCOL_L2).Value
-        tmpL3 = ws.Cells(r, lngCOL_L3).Value
-        tmpL4 = ws.Cells(r, lngCOL_L4).Value
-        tmpL5 = ws.Cells(r, lngCOL_L5).Value
-        tmpTask = ws.Cells(r, lngCOL_TASK).Value
+        tmpL1 = ws.Cells(r, lngCOL_L1).value
+        tmpL2 = ws.Cells(r, lngCOL_L2).value
+        tmpL3 = ws.Cells(r, lngCOL_L3).value
+        tmpL4 = ws.Cells(r, lngCOL_L4).value
+        tmpL5 = ws.Cells(r, lngCOL_L5).value
+        tmpTask = ws.Cells(r, lngCOL_TASK).value
         
         ' 現在の行のレベル判定
         tmpCurrentLevel = 0
@@ -2634,7 +2894,7 @@ Private Sub IncrementSelectedLastLevel()
                         Not IsEmpty(tmpTask) Then
                     ' 値を +1 する条件：現在行IDが空いているIDより小さく、選択行のID以上
                     If tmpTask < lngFirstMissingFoundId And tmpTask >= lngSelectedLastId Then
-                        ws.Cells(r, lngCOL_TASK).Value = tmpTask + 1
+                        ws.Cells(r, lngCOL_TASK).value = tmpTask + 1
                     End If
                 End If
             Else
@@ -2647,7 +2907,7 @@ Private Sub IncrementSelectedLastLevel()
                         Not IsEmpty(tmpL5) Then
                     ' 値を +1 する条件：現在行IDが空いているIDより小さく、選択行のID以上
                     If tmpL5 < lngFirstMissingFoundId And tmpL5 >= lngSelectedLastId Then
-                        ws.Cells(r, lngCOL_L5).Value = tmpL5 + 1
+                        ws.Cells(r, lngCOL_L5).value = tmpL5 + 1
                     End If
                 ElseIf intSelectedLevel = 4 And _
                         varL1 = tmpL1 And _
@@ -2656,7 +2916,7 @@ Private Sub IncrementSelectedLastLevel()
                         Not IsEmpty(tmpL4) Then
                     ' 値を +1 する条件：現在行IDが空いているIDより小さく、選択行のID以上
                     If tmpL4 < lngFirstMissingFoundId And tmpL4 >= lngSelectedLastId Then
-                        ws.Cells(r, lngCOL_L4).Value = tmpL4 + 1
+                        ws.Cells(r, lngCOL_L4).value = tmpL4 + 1
                     End If
                 ElseIf intSelectedLevel = 3 And _
                         varL1 = tmpL1 And _
@@ -2664,20 +2924,20 @@ Private Sub IncrementSelectedLastLevel()
                         Not IsEmpty(tmpL3) Then
                     ' 値を +1 する条件：現在行IDが空いているIDより小さく、選択行のID以上
                     If tmpL3 < lngFirstMissingFoundId And tmpL3 >= lngSelectedLastId Then
-                        ws.Cells(r, lngCOL_L3).Value = tmpL3 + 1
+                        ws.Cells(r, lngCOL_L3).value = tmpL3 + 1
                     End If
                 ElseIf intSelectedLevel = 2 And _
                         varL1 = tmpL1 And _
                         Not IsEmpty(tmpL2) Then
                     ' 値を +1 する条件：現在行IDが空いているIDより小さく、選択行のID以上
                     If tmpL2 < lngFirstMissingFoundId And tmpL2 >= lngSelectedLastId Then
-                        ws.Cells(r, lngCOL_L2).Value = tmpL2 + 1
+                        ws.Cells(r, lngCOL_L2).value = tmpL2 + 1
                     End If
                 ElseIf intSelectedLevel = 1 And _
                         Not IsEmpty(tmpL1) Then
                     ' 値を +1 する条件：現在行IDが空いているIDより小さく、選択行のID以上
                     If tmpL1 < lngFirstMissingFoundId And tmpL1 >= lngSelectedLastId Then
-                        ws.Cells(r, lngCOL_L1).Value = tmpL1 + 1
+                        ws.Cells(r, lngCOL_L1).value = tmpL1 + 1
                     End If
                 End If
             End If
@@ -2687,7 +2947,7 @@ Private Sub IncrementSelectedLastLevel()
 End Sub
 
 
-' ■ 選択行の最終レベルIDをデクリメント
+' ■ 選択行の最終レベルIDをデクリメント（TODO: 高速化）
 Private Sub DecrementSelectedLastLevel()
 
     ' 現在のシートを取得
@@ -2724,12 +2984,12 @@ Private Sub DecrementSelectedLastLevel()
         Exit Sub
     End If
     
-    varL1 = ws.Cells(lngSelectedRow, lngCOL_L1).Value
-    varL2 = ws.Cells(lngSelectedRow, lngCOL_L2).Value
-    varL3 = ws.Cells(lngSelectedRow, lngCOL_L3).Value
-    varL4 = ws.Cells(lngSelectedRow, lngCOL_L4).Value
-    varL5 = ws.Cells(lngSelectedRow, lngCOL_L5).Value
-    varTask = ws.Cells(lngSelectedRow, lngCOL_TASK).Value
+    varL1 = ws.Cells(lngSelectedRow, lngCOL_L1).value
+    varL2 = ws.Cells(lngSelectedRow, lngCOL_L2).value
+    varL3 = ws.Cells(lngSelectedRow, lngCOL_L3).value
+    varL4 = ws.Cells(lngSelectedRow, lngCOL_L4).value
+    varL5 = ws.Cells(lngSelectedRow, lngCOL_L5).value
+    varTask = ws.Cells(lngSelectedRow, lngCOL_TASK).value
     
     ' 選択した行のレベル判定
     intSelectedLevel = 0
@@ -2759,12 +3019,12 @@ Private Sub DecrementSelectedLastLevel()
     For r = lngStartRow To lngEndRow
     
         ' 現在の行における各カラムの値を取得
-        tmpL1 = ws.Cells(r, lngCOL_L1).Value
-        tmpL2 = ws.Cells(r, lngCOL_L2).Value
-        tmpL3 = ws.Cells(r, lngCOL_L3).Value
-        tmpL4 = ws.Cells(r, lngCOL_L4).Value
-        tmpL5 = ws.Cells(r, lngCOL_L5).Value
-        tmpTask = ws.Cells(r, lngCOL_TASK).Value
+        tmpL1 = ws.Cells(r, lngCOL_L1).value
+        tmpL2 = ws.Cells(r, lngCOL_L2).value
+        tmpL3 = ws.Cells(r, lngCOL_L3).value
+        tmpL4 = ws.Cells(r, lngCOL_L4).value
+        tmpL5 = ws.Cells(r, lngCOL_L5).value
+        tmpTask = ws.Cells(r, lngCOL_TASK).value
         
         ' 現在の行のレベル判定
         tmpCurrentLevel = 0
@@ -2893,12 +3153,12 @@ Private Sub DecrementSelectedLastLevel()
     ' 対象行の更新
     For r = lngStartRow To lngEndRow
         ' 現在の行における各カラムの値を取得
-        tmpL1 = ws.Cells(r, lngCOL_L1).Value
-        tmpL2 = ws.Cells(r, lngCOL_L2).Value
-        tmpL3 = ws.Cells(r, lngCOL_L3).Value
-        tmpL4 = ws.Cells(r, lngCOL_L4).Value
-        tmpL5 = ws.Cells(r, lngCOL_L5).Value
-        tmpTask = ws.Cells(r, lngCOL_TASK).Value
+        tmpL1 = ws.Cells(r, lngCOL_L1).value
+        tmpL2 = ws.Cells(r, lngCOL_L2).value
+        tmpL3 = ws.Cells(r, lngCOL_L3).value
+        tmpL4 = ws.Cells(r, lngCOL_L4).value
+        tmpL5 = ws.Cells(r, lngCOL_L5).value
+        tmpTask = ws.Cells(r, lngCOL_TASK).value
         
         ' 現在の行のレベル判定
         tmpCurrentLevel = 0
@@ -2946,7 +3206,7 @@ Private Sub DecrementSelectedLastLevel()
                         Not IsEmpty(tmpTask) Then
                     ' 値を -1 する条件：現在行IDが開いているIDより大きく、選択行のID以下
                     If tmpTask > lngFirstMissingFoundId And tmpTask <= lngSelectedLastId Then
-                        ws.Cells(r, lngCOL_TASK).Value = tmpTask - 1
+                        ws.Cells(r, lngCOL_TASK).value = tmpTask - 1
                     End If
                 End If
             Else
@@ -2959,7 +3219,7 @@ Private Sub DecrementSelectedLastLevel()
                         Not IsEmpty(tmpL5) Then
                     ' 値を -1 する条件：現在行IDが空いているIDより大きく、選択行のID以下
                     If tmpL5 > lngFirstMissingFoundId And tmpL5 <= lngSelectedLastId Then
-                        ws.Cells(r, lngCOL_L5).Value = tmpL5 - 1
+                        ws.Cells(r, lngCOL_L5).value = tmpL5 - 1
                     End If
                 ElseIf intSelectedLevel = 4 And _
                         varL1 = tmpL1 And _
@@ -2968,7 +3228,7 @@ Private Sub DecrementSelectedLastLevel()
                         Not IsEmpty(tmpL4) Then
                     ' 値を -1 する条件：現在行IDが空いているIDより大きく、選択行のID以下
                     If tmpL4 > lngFirstMissingFoundId And tmpL4 <= lngSelectedLastId Then
-                        ws.Cells(r, lngCOL_L4).Value = tmpL4 - 1
+                        ws.Cells(r, lngCOL_L4).value = tmpL4 - 1
                     End If
                 ElseIf intSelectedLevel = 3 And _
                         varL1 = tmpL1 And _
@@ -2976,20 +3236,20 @@ Private Sub DecrementSelectedLastLevel()
                         Not IsEmpty(tmpL3) Then
                     ' 値を -1 する条件：現在行IDが空いているIDより大きく、選択行のID以下
                     If tmpL3 > lngFirstMissingFoundId And tmpL3 <= lngSelectedLastId Then
-                        ws.Cells(r, lngCOL_L3).Value = tmpL3 - 1
+                        ws.Cells(r, lngCOL_L3).value = tmpL3 - 1
                     End If
                 ElseIf intSelectedLevel = 2 And _
                         varL1 = tmpL1 And _
                         Not IsEmpty(tmpL2) Then
                     ' 値を -1 する条件：現在行IDが空いているIDより大きく、選択行のID以下
                     If tmpL2 > lngFirstMissingFoundId And tmpL2 <= lngSelectedLastId Then
-                        ws.Cells(r, lngCOL_L2).Value = tmpL2 - 1
+                        ws.Cells(r, lngCOL_L2).value = tmpL2 - 1
                     End If
                 ElseIf intSelectedLevel = 1 And _
                         Not IsEmpty(tmpL1) Then
                     ' 値を -1 する条件：現在行IDが空いているIDより大きく、選択行のID以下
                     If tmpL1 > lngFirstMissingFoundId And tmpL1 <= lngSelectedLastId Then
-                        ws.Cells(r, lngCOL_L1).Value = tmpL1 - 1
+                        ws.Cells(r, lngCOL_L1).value = tmpL1 - 1
                     End If
                 End If
             End If
@@ -2999,7 +3259,7 @@ Private Sub DecrementSelectedLastLevel()
 End Sub
 
 
-' ■ チェックした２点の最終レベルIDを交換する
+' ■ チェックした２点の最終レベルIDを交換する（TODO: 高速化）
 Private Sub SwapCheckedLastLevel()
 
     ' 現在のシートを取得
@@ -3019,7 +3279,7 @@ Private Sub SwapCheckedLastLevel()
     Dim tmpL1 As Variant, tmpL2 As Variant, tmpL3 As Variant, tmpL4 As Variant, tmpL5 As Variant, tmpTask As Variant
     
     ' チェックされている行番号を取得
-    Set colCheckedRows = GetCheckedChkMultpleiRows()
+    Set colCheckedRows = GetCheckedChkMultpleRows()
     
     ' ガード条件（チェックが２つでなかった場合は終了）
     If colCheckedRows.Count <> 2 Then
@@ -3030,43 +3290,43 @@ Private Sub SwapCheckedLastLevel()
     ' 対象レコード１を抽出
     lngRow1 = colCheckedRows.Item(1)
     intRowLevel1 = 5
-    blnIsTask1 = Not IsEmpty(ws.Cells(lngRow1, lngCOL_TASK).Value) Or ws.Cells(lngRow1, lngCOL_TASK).Value <> ""
+    blnIsTask1 = Not IsEmpty(ws.Cells(lngRow1, lngCOL_TASK).value) Or ws.Cells(lngRow1, lngCOL_TASK).value <> ""
     For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
-        val = ws.Cells(lngRow1, levelCol).Value
+        val = ws.Cells(lngRow1, levelCol).value
         If Not IsNumeric(val) Or val = "" Then
             intRowLevel1 = intRowLevel1 - 1
         Else
             Exit For
         End If
     Next levelCol
-    varRow1L1 = ws.Cells(lngRow1, lngCOL_L1).Value
-    varRow1L2 = ws.Cells(lngRow1, lngCOL_L2).Value
-    varRow1L3 = ws.Cells(lngRow1, lngCOL_L3).Value
-    varRow1L4 = ws.Cells(lngRow1, lngCOL_L4).Value
-    varRow1L5 = ws.Cells(lngRow1, lngCOL_L5).Value
-    varRow1Task = ws.Cells(lngRow1, lngCOL_TASK).Value
-    varRow1Id = ws.Cells(lngRow1, lngCOL_WBS_ID).Value
+    varRow1L1 = ws.Cells(lngRow1, lngCOL_L1).value
+    varRow1L2 = ws.Cells(lngRow1, lngCOL_L2).value
+    varRow1L3 = ws.Cells(lngRow1, lngCOL_L3).value
+    varRow1L4 = ws.Cells(lngRow1, lngCOL_L4).value
+    varRow1L5 = ws.Cells(lngRow1, lngCOL_L5).value
+    varRow1Task = ws.Cells(lngRow1, lngCOL_TASK).value
+    varRow1Id = ws.Cells(lngRow1, lngCOL_WBS_ID).value
     
     
     ' 対象レコード２を抽出
     lngRow2 = colCheckedRows.Item(2)
     intRowLevel2 = 5
-    blnIsTask2 = Not IsEmpty(ws.Cells(lngRow2, lngCOL_TASK).Value) Or ws.Cells(lngRow2, lngCOL_TASK).Value <> ""
+    blnIsTask2 = Not IsEmpty(ws.Cells(lngRow2, lngCOL_TASK).value) Or ws.Cells(lngRow2, lngCOL_TASK).value <> ""
     For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
-        val = ws.Cells(lngRow2, levelCol).Value
+        val = ws.Cells(lngRow2, levelCol).value
         If Not IsNumeric(val) Or val = "" Then
             intRowLevel2 = intRowLevel2 - 1
         Else
             Exit For
         End If
     Next levelCol
-    varRow2L1 = ws.Cells(lngRow2, lngCOL_L1).Value
-    varRow2L2 = ws.Cells(lngRow2, lngCOL_L2).Value
-    varRow2L3 = ws.Cells(lngRow2, lngCOL_L3).Value
-    varRow2L4 = ws.Cells(lngRow2, lngCOL_L4).Value
-    varRow2L5 = ws.Cells(lngRow2, lngCOL_L5).Value
-    varRow2Task = ws.Cells(lngRow2, lngCOL_TASK).Value
-    varRow2Id = ws.Cells(lngRow2, lngCOL_WBS_ID).Value
+    varRow2L1 = ws.Cells(lngRow2, lngCOL_L1).value
+    varRow2L2 = ws.Cells(lngRow2, lngCOL_L2).value
+    varRow2L3 = ws.Cells(lngRow2, lngCOL_L3).value
+    varRow2L4 = ws.Cells(lngRow2, lngCOL_L4).value
+    varRow2L5 = ws.Cells(lngRow2, lngCOL_L5).value
+    varRow2Task = ws.Cells(lngRow2, lngCOL_TASK).value
+    varRow2Id = ws.Cells(lngRow2, lngCOL_WBS_ID).value
     
     ' ガード条件（２つの階層及びタスクか否かが一致しない場合、終了）
     If (intRowLevel1 <> intRowLevel2) Or (blnIsTask1 <> blnIsTask2) Then
@@ -3137,7 +3397,7 @@ Private Sub SwapCheckedLastLevel()
         
         ' 階層レベルの判定
         For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
-            val = ws.Cells(r, levelCol).Value
+            val = ws.Cells(r, levelCol).value
             If Not IsNumeric(val) Or val = "" Then
                 level = level - 1
             Else
@@ -3146,12 +3406,12 @@ Private Sub SwapCheckedLastLevel()
         Next levelCol
         
         ' 現在の行における各カラムの値を取得
-        tmpL1 = ws.Cells(r, lngCOL_L1).Value
-        tmpL2 = ws.Cells(r, lngCOL_L2).Value
-        tmpL3 = ws.Cells(r, lngCOL_L3).Value
-        tmpL4 = ws.Cells(r, lngCOL_L4).Value
-        tmpL5 = ws.Cells(r, lngCOL_L5).Value
-        tmpTask = ws.Cells(r, lngCOL_TASK).Value
+        tmpL1 = ws.Cells(r, lngCOL_L1).value
+        tmpL2 = ws.Cells(r, lngCOL_L2).value
+        tmpL3 = ws.Cells(r, lngCOL_L3).value
+        tmpL4 = ws.Cells(r, lngCOL_L4).value
+        tmpL5 = ws.Cells(r, lngCOL_L5).value
+        tmpTask = ws.Cells(r, lngCOL_TASK).value
         
         ' タスクかどうかの判定
         isTask = Not IsEmpty(tmpTask) Or tmpTask <> ""
@@ -3159,39 +3419,39 @@ Private Sub SwapCheckedLastLevel()
         ' 交換を実行
         If isTask = True And isTask = blnIsTask1 Then
             If tmpL1 = varRow1L1 And tmpL2 = varRow1L2 And tmpL3 = varRow1L3 And tmpL4 = varRow1L4 And tmpL5 = varRow1L5 And tmpTask = varRow1Task Then
-                ws.Cells(r, lngCOL_TASK).Value = varRow2Task
+                ws.Cells(r, lngCOL_TASK).value = varRow2Task
             ElseIf tmpL1 = varRow2L1 And tmpL2 = varRow2L2 And tmpL3 = varRow2L3 And tmpL4 = varRow2L4 And tmpL5 = varRow2L5 And tmpTask = varRow2Task Then
-                ws.Cells(r, lngCOL_TASK).Value = varRow1Task
+                ws.Cells(r, lngCOL_TASK).value = varRow1Task
             End If
         ElseIf intRowLevel1 = 5 Then
             If tmpL1 = varRow1L1 And tmpL2 = varRow1L2 And tmpL3 = varRow1L3 And tmpL4 = varRow1L4 And tmpL5 = varRow1L5 Then
-                ws.Cells(r, lngCOL_L5).Value = varRow2L5
+                ws.Cells(r, lngCOL_L5).value = varRow2L5
             ElseIf tmpL1 = varRow2L1 And tmpL2 = varRow2L2 And tmpL3 = varRow2L3 And tmpL4 = varRow2L4 And tmpL5 = varRow2L5 Then
-                ws.Cells(r, lngCOL_L5).Value = varRow1L5
+                ws.Cells(r, lngCOL_L5).value = varRow1L5
             End If
         ElseIf intRowLevel1 = 4 Then
             If tmpL1 = varRow1L1 And tmpL2 = varRow1L2 And tmpL3 = varRow1L3 And tmpL4 = varRow1L4 Then
-                ws.Cells(r, lngCOL_L4).Value = varRow2L4
+                ws.Cells(r, lngCOL_L4).value = varRow2L4
             ElseIf tmpL1 = varRow2L1 And tmpL2 = varRow2L2 And tmpL3 = varRow2L3 And tmpL4 = varRow2L4 Then
-                ws.Cells(r, lngCOL_L4).Value = varRow1L4
+                ws.Cells(r, lngCOL_L4).value = varRow1L4
             End If
         ElseIf intRowLevel1 = 3 Then
             If tmpL1 = varRow1L1 And tmpL2 = varRow1L2 And tmpL3 = varRow1L3 Then
-                ws.Cells(r, lngCOL_L3).Value = varRow2L3
+                ws.Cells(r, lngCOL_L3).value = varRow2L3
             ElseIf tmpL1 = varRow2L1 And tmpL2 = varRow2L2 And tmpL3 = varRow2L3 Then
-                ws.Cells(r, lngCOL_L3).Value = varRow1L3
+                ws.Cells(r, lngCOL_L3).value = varRow1L3
             End If
         ElseIf intRowLevel1 = 2 Then
             If tmpL1 = varRow1L1 And tmpL2 = varRow1L2 Then
-                ws.Cells(r, lngCOL_L2).Value = varRow2L2
+                ws.Cells(r, lngCOL_L2).value = varRow2L2
             ElseIf tmpL1 = varRow2L1 And tmpL2 = varRow2L2 Then
-                ws.Cells(r, lngCOL_L2).Value = varRow1L2
+                ws.Cells(r, lngCOL_L2).value = varRow1L2
             End If
         ElseIf intRowLevel1 = 1 Then
             If tmpL1 = varRow1L1 Then
-                ws.Cells(r, lngCOL_L1).Value = varRow2L1
+                ws.Cells(r, lngCOL_L1).value = varRow2L1
             ElseIf tmpL1 = varRow2L1 Then
-                ws.Cells(r, lngCOL_L1).Value = varRow1L1
+                ws.Cells(r, lngCOL_L1).value = varRow1L1
             End If
         End If
     
@@ -3211,15 +3471,17 @@ Private Sub ConvertFormulasToValues()
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
     Dim strColLabelActualRemainingEffort As String
     Dim strColLabelActualCompletedEffort As String
+    Dim strColLabelTaskCount As String
     Dim strColLabelPlannedEffort As String
     Dim strColLabelEffortProg As String
     Dim strColLabelTaskProg As String
     Dim strColLabelWbsId As String
     Dim strColLabelWbsIdx As String
     ' 一時変数定義
-    Dim r As Long, levelCol As Integer, level As Integer, isTask As Boolean
-    Dim val As Variant
+    Dim r As Long
     Dim tmpString As String
+    Dim tmpRange As Range
+    Dim tmpVariant As Variant
     
     ' 開始行と終了行を取得
     varRangeRows = FindDataRangeRows()
@@ -3232,61 +3494,68 @@ Private Sub ConvertFormulasToValues()
     ' ラベル文字列事前用意
     strColLabelActualRemainingEffort = ConvertColNumberToLetter(lngCOL_ACTUAL_REMAINING_EFF)
     strColLabelActualCompletedEffort = ConvertColNumberToLetter(lngCOL_ACTUAL_COMPLETED_EFF)
+    strColLabelTaskCount = ConvertColNumberToLetter(lngCOL_TASK_COUNT)
     strColLabelPlannedEffort = ConvertColNumberToLetter(lngCOL_PLANNED_EFF)
     strColLabelEffortProg = ConvertColNumberToLetter(lngCOL_EFFORT_PROG)
     strColLabelTaskProg = ConvertColNumberToLetter(lngCOL_TASK_PROG)
     strColLabelWbsId = ConvertColNumberToLetter(lngCOL_WBS_ID)
     strColLabelWbsIdx = ConvertColNumberToLetter(lngCOL_WBS_IDX)
     
-    ' すべてのタスクと階層のキーを作成
-    For r = lngStartRow To lngEndRow
-        
-        ' 初期化
-        level = 5
-        isTask = False
-        
-        ' 階層レベルの判定
-        For levelCol = lngCOL_L5 To lngCOL_L1 Step -1
-            val = ws.Cells(r, levelCol).Value
-            If Not IsNumeric(val) Or val = "" Then
-                level = level - 1
-            Else
-                Exit For
-            End If
-        Next levelCol
-        
-        ' タスクかどうかの判定
-        isTask = Not IsEmpty(ws.Cells(r, lngCOL_TASK).Value) Or ws.Cells(r, lngCOL_TASK).Value <> ""
-        
-        ' 式を値に変換
-        If isTask Then
-            ' # タスク行の場合 #
-            ws.Range(strColLabelEffortProg & r).Value = ws.Range(strColLabelEffortProg & r).Value
-        Else
-            ' # タスク行でない場合 #
-            ws.Range(strColLabelActualRemainingEffort & r).Value = ws.Range(strColLabelActualRemainingEffort & r).Value
-            ws.Range(strColLabelActualCompletedEffort & r).Value = ws.Range(strColLabelActualCompletedEffort & r).Value
-            ws.Range(strColLabelPlannedEffort & r).Value = ws.Range(strColLabelPlannedEffort & r).Value
-            ws.Range(strColLabelEffortProg & r).Value = ws.Range(strColLabelEffortProg & r).Value
-            ws.Range(strColLabelTaskProg & r).Value = ws.Range(strColLabelTaskProg & r).Value
-        End If
-        
-        ' すべての行で式を値に変換
-        tmpString = ws.Range(strColLabelWbsId & r).Value
-        ws.Range(strColLabelWbsId & r).NumberFormat = "@"
-        ws.Range(strColLabelWbsId & r).Value = tmpString
-        tmpString = ws.Range(strColLabelWbsIdx & r).Value
-        ws.Range(strColLabelWbsIdx & r).NumberFormat = "@"
-        ws.Range(strColLabelWbsIdx & r).Value = tmpString
-        
-    Next r
+    ' 実績残工数の式→値
+    Set tmpRange = ws.Range(strColLabelActualRemainingEffort & lngStartRow & ":" & strColLabelActualRemainingEffort & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "General"
+    tmpRange.value = tmpVariant
     
+    ' 実績済工数の式→値
+    Set tmpRange = ws.Range(strColLabelActualCompletedEffort & lngStartRow & ":" & strColLabelActualCompletedEffort & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "General"
+    tmpRange.value = tmpVariant
+    
+    ' タスク件数の式→値
+    Set tmpRange = ws.Range(strColLabelTaskCount & lngStartRow & ":" & strColLabelTaskCount & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "General"
+    tmpRange.value = tmpVariant
+    
+    ' 予定工数の式→値
+    Set tmpRange = ws.Range(strColLabelPlannedEffort & lngStartRow & ":" & strColLabelPlannedEffort & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "General"
+    tmpRange.value = tmpVariant
+    
+    ' タスク消化率の式→値
+    Set tmpRange = ws.Range(strColLabelTaskProg & lngStartRow & ":" & strColLabelTaskProg & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "0.0%"
+    tmpRange.value = tmpVariant
+    
+    ' 工数進捗率の式→値
+    Set tmpRange = ws.Range(strColLabelEffortProg & lngStartRow & ":" & strColLabelEffortProg & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "0.0%"
+    tmpRange.value = tmpVariant
+    
+    ' WbsId の式→値（文字列化）
+    Set tmpRange = ws.Range(strColLabelWbsId & lngStartRow & ":" & strColLabelWbsId & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "@"
+    tmpRange.value = tmpVariant
+    
+    ' WbsIdx の式→値（文字列化）
+    Set tmpRange = ws.Range(strColLabelWbsIdx & lngStartRow & ":" & strColLabelWbsIdx & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "@"
+    tmpRange.value = tmpVariant
+        
     ' 特定のセルの式を値に変換
-    ws.Range(strColLabelActualRemainingEffort & lngEndRow + 2).Value = ws.Range(strColLabelActualRemainingEffort & lngEndRow + 2).Value
-    ws.Range(strColLabelActualCompletedEffort & lngEndRow + 2).Value = ws.Range(strColLabelActualCompletedEffort & lngEndRow + 2).Value
-    ws.Range(strColLabelPlannedEffort & lngEndRow + 2).Value = ws.Range(strColLabelPlannedEffort & lngEndRow + 2).Value
-    ws.Range(strColLabelEffortProg & lngEndRow + 2).Value = ws.Range(strColLabelEffortProg & lngEndRow + 2).Value
-    ws.Range(strColLabelTaskProg & lngEndRow + 2).Value = ws.Range(strColLabelTaskProg & lngEndRow + 2).Value
+    ws.Range(strColLabelActualRemainingEffort & lngEndRow + 2).value = ws.Range(strColLabelActualRemainingEffort & lngEndRow + 2).value
+    ws.Range(strColLabelActualCompletedEffort & lngEndRow + 2).value = ws.Range(strColLabelActualCompletedEffort & lngEndRow + 2).value
+    ws.Range(strColLabelTaskCount & lngEndRow + 2).value = ws.Range(strColLabelTaskCount & lngEndRow + 2).value
+    ws.Range(strColLabelPlannedEffort & lngEndRow + 2).value = ws.Range(strColLabelPlannedEffort & lngEndRow + 2).value
+    ws.Range(strColLabelEffortProg & lngEndRow + 2).value = ws.Range(strColLabelEffortProg & lngEndRow + 2).value
+    ws.Range(strColLabelTaskProg & lngEndRow + 2).value = ws.Range(strColLabelTaskProg & lngEndRow + 2).value
 
 End Sub
 
@@ -3301,6 +3570,7 @@ Private Sub PrepareSheet()
     PrepareForProcessing
     
     ' 集計式の挿入
+    SetFormulaForTaskCount
     SetFormulaForPlannedEffort
     SetFormulaForActualRemainingEffort
     SetFormulaForActualCompletedEffort
@@ -3355,3 +3625,72 @@ Private Sub RecalculateSheet()
     Application.EnableEvents = True
 
 End Sub
+
+
+' ■ チェックした行を削除する
+Private Sub RemoveCheckedRows()
+
+    ' 現在のシートを取得
+    Dim ws As Worksheet
+    Set ws = Me
+    
+    ' 変数定義
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim colCheckedRows As Collection
+    Dim lngRow1 As Long, intRowLevel1 As Integer, blnIsTask1 As Boolean, varRow1Id As Variant
+    Dim varRow1L1 As Variant, varRow1L2 As Variant, varRow1L3 As Variant, varRow1L4 As Variant, varRow1L5 As Variant, varRow1Task As Variant
+    Dim lngRow2 As Long, intRowLevel2 As Integer, blnIsTask2 As Boolean, varRow2Id As Variant
+    Dim varRow2L1 As Variant, varRow2L2 As Variant, varRow2L3 As Variant, varRow2L4 As Variant, varRow2L5 As Variant, varRow2Task As Variant
+    ' 一時変数定義
+    Dim r As Long, levelCol As Integer, level As Integer, isTask As Boolean
+    Dim val As Variant
+    Dim tmpL1 As Variant, tmpL2 As Variant, tmpL3 As Variant, tmpL4 As Variant, tmpL5 As Variant, tmpTask As Variant
+    
+    ' チェックされている行番号を取得
+    Set colCheckedRows = GetCheckedChkMultpleRows()
+    
+    ' 開始行と終了行を取得
+    varRangeRows = FindDataRangeRows()
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' すべてのタスクと階層のキーを作成
+    For r = lngStartRow To lngEndRow
+        
+    Next r
+
+End Sub
+
+
+' ◇ 利用イメージ↓
+' Dim persons As New Collection
+' Call SavePersonList(persons)
+' Dim orgs As Collection
+' Set orgs = LoadOrganizationList()
+
+Private Sub ClearPersonList()
+
+End Sub
+
+Private Sub SavePersonList(ByVal colPersons As Collection)
+
+End Sub
+
+Private Function LoadPersonList() As Collection
+
+End Function
+
+Private Sub ClearOrganizationList()
+
+End Sub
+
+Private Sub SaveOrganizationList(ByVal colOrgs As Collection)
+
+End Sub
+
+Private Function LoadOrganizationList() As Collection
+
+End Function
