@@ -5,6 +5,7 @@
 
 # 追加
 /.history/
+/.old/
 
 # Officeの一時ファイル
 *.tmp
