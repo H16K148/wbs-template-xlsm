@@ -68,7 +68,7 @@ End Function
 
 
 ' ■ エラーチェックを実施
-Public Sub CheckWbsErrors(ws As Worksheet)
+Public Sub ExecCheckWbsErrors(ws As Worksheet)
 
     ' 変数定義
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
@@ -246,14 +246,14 @@ Public Sub CheckWbsErrors(ws As Worksheet)
                 End If
             End If
             If tmpErrorCount > 0 Then
-                ws.Cells(r, lngCOL_ERR).value = "E"
-                If ws.Cells(r, lngCOL_ERR).Comment Is Nothing Then
-                    ws.Cells(r, lngCOL_ERR).AddComment
+                ws.Cells(r, cfg.COL_ERR).value = "E"
+                If ws.Cells(r, cfg.COL_ERR).Comment Is Nothing Then
+                    ws.Cells(r, cfg.COL_ERR).AddComment
                 End If
-                ws.Cells(r, lngCOL_ERR).Comment.Text Text:=tmpErrorMessage
+                ws.Cells(r, cfg.COL_ERR).Comment.Text Text:=tmpErrorMessage
                 intErrorCount = intErrorCount + tmpErrorCount
                 ' コメントの幅と高さを手動で設定
-                With ws.Cells(r, lngCOL_ERR).Comment.Shape
+                With ws.Cells(r, cfg.COL_ERR).Comment.Shape
                     .Width = 300   ' 幅を 300 に設定
                     .Height = 100  ' 高さを 100 に設定
                 End With
@@ -266,6 +266,30 @@ Public Sub CheckWbsErrors(ws As Worksheet)
         MsgBox intErrorCount & " 件の異常を検出しました。", vbExclamation, "エラーチェック"
     End If
     
+End Sub
+
+
+' ■ データ範囲をソートする
+Public Sub ExecSortWbsRange(ws As Worksheet)
+
+    ' 変数定義
+    Dim rngSortTarget As Range
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+
+    ' 開始行と終了行に値をセット
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+
+   ' エラー列～最終列の範囲を指定（startRow～endRow）
+    Set rngSortTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_ERR), ws.Cells(lngEndRow, cfg.COL_LAST))
+
+    ' WBSインデックス列をキーとして昇順にソート
+    rngSortTarget.Sort Key1:=ws.Range(cfg.COL_WBS_IDX_LABEL & lngStartRow), Order1:=xlAscending, Header:=xlNo
+
 End Sub
 
 
@@ -455,9 +479,10 @@ Public Sub SetFormulaForFlgIC(ws As Worksheet)
 
     ' 数式を作成
     strFormula = "=NOT(OR(" & _
-                    cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""移管済""," & _
-                    cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""棚上げ""," & _
-                    cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""却下""" & "))"
+                    cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""" & cfg.WBS_STATUS_DELETED & """," & _
+                    cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""" & cfg.WBS_STATUS_TRANSFERRED & """," & _
+                    cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""" & cfg.WBS_STATUS_SHELVED & """," & _
+                    cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""" & cfg.WBS_STATUS_REJECTED & """" & "))"
 
     ' 一括で対象範囲を取得
     With ws.Range(cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow)
@@ -543,154 +568,1737 @@ Public Sub SetFormulaForFlgCE(ws As Worksheet)
 End Sub
 
 
-' ■ Exe1ボタンクリック時に実行される処理
-Public Sub Exe1ButtonClick()
-
-    ' 現在のシートを取得
-    Dim ws As Worksheet
-    Set ws = Application.ActiveSheet
+' ■ 予定工数を集計する式をセット
+Public Sub SetFormulaForPlannedEffort(ws As Worksheet)
 
     ' 変数定義
-    Dim lngSelectedIndex As Long
-    Dim shpExe1ComboBox As Shape
-    
-    ' 実行コンボボックスを取得
-    On Error Resume Next
-    Set shpExe1ComboBox = ws.Shapes(cfg.NAME_EXE1_COMBOBOX)
-    On Error GoTo 0
-    
-    ' 実行コンボボックスが存在しない場合、終了
-    If shpExe1ComboBox Is Nothing Then
-        Exit Sub
-    End If
-    
-    ' 選択中のインデックスを取得
-    lngSelectedIndex = shpExe1ComboBox.ControlFormat.ListIndex
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    ' 一時変数定義
+    Dim r As Long, i As Long
+    Dim tmpStrFormula As String
+    Dim tmpVarLevelArray As Variant, tmpVarLevelCell As Variant
+    Dim tmpVarTaskArray As Variant, tmpVarTaskCell As Variant
+    Dim tmpStrBoolArrayH As String, tmpStrBoolArrayT As String
 
-    ' インデックスに対応する処理を実行
-    Select Case lngSelectedIndex
-        Case 1
-            MsgBox "１つ目を選択（" & ws.Name & "）"
-        Case 2
-            MsgBox "２つ目を選択（" & ws.Name & "）"
-        Case 3
-            MsgBox "３つ目を選択（" & ws.Name & "）"
-        Case 4
-            MsgBox "４つ目を選択（" & ws.Name & "）"
-        Case 5
-            MsgBox "５つ目を選択（" & ws.Name & "）"
-        Case 6
-            MsgBox "６つ目を選択（" & ws.Name & "）"
-        Case 7
-            MsgBox "７つ目を選択（" & ws.Name & "）"
-        Case 8
-            MsgBox "８つ目を選択（" & ws.Name & "）"
-        Case 9
-            MsgBox "９つ目を選択（" & ws.Name & "）"
-        Case Else
-            MsgBox "項目が選択されていません。"
-    End Select
+    ' 開始行と終了行に値をセット
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' あらかじめWBSレベル列のデータを取得
+    tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
+    ' あらかじめWBSタスク判定列のデータを取得
+    tmpVarTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
+    
+    ' すべてのタスクと階層のキーを作成
+    For r = lngStartRow To lngEndRow
+        
+        ' 現在のインデックスを取得
+        i = r - lngStartRow + 1
+        ' 現在のWBSレベルセルの値を取得
+        tmpVarLevelCell = tmpVarLevelArray(i, 1)
+        ' 現在のWBSタスクセルの値を取得
+        tmpVarTaskCell = tmpVarTaskArray(i, 1)
+        
+        If tmpVarTaskCell = False Then
+            ' # 行がタスク以外の場合 #
+            If tmpVarLevelCell = 5 Then
+                ' # 行がL5階層の場合 #
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "=" & cfg.COL_L5_LABEL & r & ")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_PLANNED_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 4 Then
+                ' # 行がL4階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_PLANNED_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 3 Then
+                ' # 行がL3階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_PLANNED_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 2 Then
+                ' # 行がL2階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_PLANNED_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 1 Then
+                ' # 行がL1階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_PLANNED_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+        End If
+    Next r
+    
+    ' L1集計数式をセット
+    tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
+              "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+              "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+    tmpStrFormula = "=SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))"
+    ws.Range(cfg.COL_PLANNED_EFF_LABEL & lngEndRow + 2).Formula = tmpStrFormula
 
 End Sub
 
 
-' ■ Reset1ボタンクリック時に実行される処理
-Public Sub Reset1ButtonClick()
-
-    ' 現在のシートを取得
-    Dim ws As Worksheet
-    Set ws = Application.ActiveSheet
+' ■ 実績済工数を集計する式をセット
+Public Sub SetFormulaForActualCompletedEffort(ws As Worksheet)
 
     ' 変数定義
-    Dim lngSelectedIndex As Long
-    Dim shpExe1ComboBox As Shape
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    ' 一時変数定義
+    Dim r As Long, i As Long
+    Dim tmpStrFormula As String
+    Dim tmpVarLevelArray As Variant, tmpVarLevelCell As Variant
+    Dim tmpVarTaskArray As Variant, tmpVarTaskCell As Variant
+    Dim tmpStrBoolArrayH As String, tmpStrBoolArrayT As String
+
+    ' 開始行と終了行に値をセット
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
     
-    ' 実行1コンボボックスを取得
-    On Error Resume Next
-    Set shpExe1ComboBox = ws.Shapes(cfg.NAME_EXE1_COMBOBOX)
-    On Error GoTo 0
+    ' あらかじめWBSレベル列のデータを取得
+    tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
+    ' あらかじめWBSタスク判定列のデータを取得
+    tmpVarTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
     
-    ' 実行1コンボボックスが存在しない場合、終了
-    If shpExe1ComboBox Is Nothing Then
-        Exit Sub
-    End If
+    ' すべてのタスクと階層のキーを作成
+    For r = lngStartRow To lngEndRow
+        
+        ' 現在のインデックスを取得
+        i = r - lngStartRow + 1
+        ' 現在のWBSレベルセルの値を取得
+        tmpVarLevelCell = tmpVarLevelArray(i, 1)
+        ' 現在のWBSタスクセルの値を取得
+        tmpVarTaskCell = tmpVarTaskArray(i, 1)
+        
+        If tmpVarTaskCell = False Then
+            ' # 行がタスク以外の場合 #
+            If tmpVarLevelCell = 5 Then
+                ' # 行がL5階層の場合 #
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "=" & cfg.COL_L5_LABEL & r & ")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 4 Then
+                ' # 行がL4階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 3 Then
+                ' # 行がL3階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 2 Then
+                ' # 行がL2階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 1 Then
+                ' # 行がL1階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+        End If
+    Next r
     
-    ' 実行1コンボボックスのリストインデックスを先頭に
-    With ws.DropDowns(cfg.NAME_EXE1_COMBOBOX)
-        .ListIndex = 1
-    End With
-    
+    ' L1集計数式をセット
+    tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
+              "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+              "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+    tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))"
+    ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow + 2).Formula = tmpStrFormula
+
 End Sub
 
 
-' ■ Exe2ボタンクリック時に実行される処理
-Public Sub Exe2ButtonClick()
-
-    ' 現在のシートを取得
-    Dim ws As Worksheet
-    Set ws = Application.ActiveSheet
+' ■ 実績残工数を集計する式をセット
+Public Sub SetFormulaForActualRemainingEffort(ws As Worksheet)
 
     ' 変数定義
-    Dim lngSelectedIndex As Long
-    Dim shpExe2ComboBox As Shape
-    
-    ' 実行コンボボックスを取得
-    On Error Resume Next
-    Set shpExe2ComboBox = ws.Shapes(cfg.NAME_EXE2_COMBOBOX)
-    On Error GoTo 0
-    
-    ' 実行コンボボックスが存在しない場合、終了
-    If shpExe2ComboBox Is Nothing Then
-        Exit Sub
-    End If
-    
-    ' 選択中のインデックスを取得
-    lngSelectedIndex = shpExe2ComboBox.ControlFormat.ListIndex
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    ' 一時変数定義
+    Dim r As Long, i As Long
+    Dim tmpStrFormula As String
+    Dim tmpVarLevelArray As Variant, tmpVarLevelCell As Variant
+    Dim tmpVarTaskArray As Variant, tmpVarTaskCell As Variant
+    Dim tmpStrBoolArrayH As String, tmpStrBoolArrayT As String
 
-    ' インデックスに対応する処理を実行
-    Select Case lngSelectedIndex
-        Case 1
-            MsgBox "１つ目を選択（" & ws.Name & "）"
-        Case 2
-            MsgBox "２つ目を選択（" & ws.Name & "）"
-        Case 3
-            MsgBox "３つ目を選択（" & ws.Name & "）"
-        Case 4
-            MsgBox "４つ目を選択（" & ws.Name & "）"
-        Case 5
-            MsgBox "５つ目を選択（" & ws.Name & "）"
-        Case Else
-            MsgBox "項目が選択されていません。"
-    End Select
+    ' 開始行と終了行に値をセット
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' あらかじめWBSレベル列のデータを取得
+    tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
+    ' あらかじめWBSタスク判定列のデータを取得
+    tmpVarTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
+    
+    ' すべてのタスクと階層のキーを作成
+    For r = lngStartRow To lngEndRow
+        
+        ' 現在のインデックスを取得
+        i = r - lngStartRow + 1
+        ' 現在のWBSレベルセルの値を取得
+        tmpVarLevelCell = tmpVarLevelArray(i, 1)
+        ' 現在のWBSタスクセルの値を取得
+        tmpVarTaskCell = tmpVarTaskArray(i, 1)
+        
+        If tmpVarTaskCell = False Then
+            ' # 行がタスク以外の場合 #
+            If tmpVarLevelCell = 5 Then
+                ' # 行がL5階層の場合 #
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "=" & cfg.COL_L5_LABEL & r & ")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 4 Then
+                ' # 行がL4階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 3 Then
+                ' # 行がL3階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 2 Then
+                ' # 行がL2階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 1 Then
+                ' # 行がL1階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r).Formula = tmpStrFormula
+            End If
+        End If
+    Next r
+    
+    ' L1集計数式をセット
+    tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
+              "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+              "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+    tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))"
+    ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow + 2).Formula = tmpStrFormula
 
 End Sub
 
 
-' ■ Reset2ボタンクリック時に実行される処理
-Public Sub Reset2ButtonClick()
-
-    ' 現在のシートを取得
-    Dim ws As Worksheet
-    Set ws = Application.ActiveSheet
+' ■ タスク進捗率を集計する式をセット
+Public Sub SetFormulaForTaskProgressRate(ws As Worksheet)
 
     ' 変数定義
-    Dim lngSelectedIndex As Long
-    Dim shpExe2ComboBox As Shape
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    ' 一時変数定義
+    Dim r As Long, i As Long
+    Dim tmpStrFormula As String
+    Dim tmpVarLevelArray As Variant, tmpVarLevelCell As Variant
+    Dim tmpVarTaskArray As Variant, tmpVarTaskCell As Variant
+    Dim tmpStrBoolArrayH As String, tmpStrBoolArrayT As String
+    Dim tmpStrSumWeightH As String, tmpStrSumWeightT As String
+
+    ' 開始行と終了行に値をセット
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
     
-    ' 実行2コンボボックスを取得
+    ' あらかじめWBSレベル列のデータを取得
+    tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
+    ' あらかじめWBSタスク判定列のデータを取得
+    tmpVarTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
+    
+    ' すべてのタスクと階層のキーを作成
+    For r = lngStartRow To lngEndRow
+        
+        ' 現在のインデックスを取得
+        i = r - lngStartRow + 1
+        ' 現在のWBSレベルセルの値を取得
+        tmpVarLevelCell = tmpVarLevelArray(i, 1)
+        ' 現在のWBSタスクセルの値を取得
+        tmpVarTaskCell = tmpVarTaskArray(i, 1)
+        
+        If tmpVarTaskCell = True Then
+            ' # 行がタスクの場合 #
+            ws.Range(cfg.COL_TASK_PROG_LABEL & r).NumberFormat = "0.0%"
+        Else
+            ' # 行がタスク以外の場合 #
+            If tmpVarLevelCell = 5 Then
+                ' # 行がL5階層の場合 #
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "=" & cfg.COL_L5_LABEL & r & ")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrSumWeightT = "SUM(FILTER(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_PROG_LABEL & lngStartRow & ":" & cfg.COL_TASK_PROG_LABEL & lngEndRow & _
+                          "*(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & ")" & _
+                          "," & tmpStrBoolArrayT & ",0))" & _
+                          "/IF(" & tmpStrSumWeightT & "=0,1," & tmpStrSumWeightT & ")"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_PROG_LABEL & r).NumberFormat = "General"
+                ws.Range(cfg.COL_TASK_PROG_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 4 Then
+                ' # 行がL4階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrSumWeightT = "SUM(FILTER(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                tmpStrSumWeightH = "SUM(FILTER(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))"
+                tmpStrFormula = "=(SUM(FILTER(" & cfg.COL_TASK_PROG_LABEL & lngStartRow & ":" & cfg.COL_TASK_PROG_LABEL & lngEndRow & _
+                          "*(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & ")" & _
+                          "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_TASK_PROG_LABEL & lngStartRow & ":" & cfg.COL_TASK_PROG_LABEL & lngEndRow & _
+                          "*(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & ")" & _
+                          "," & tmpStrBoolArrayT & ",0)))" & _
+                          "/IF(" & tmpStrSumWeightH & "+" & tmpStrSumWeightT & "=0,1," & tmpStrSumWeightH & "+" & tmpStrSumWeightT & ")"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_PROG_LABEL & r).NumberFormat = "General"
+                ws.Range(cfg.COL_TASK_PROG_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 3 Then
+                ' # 行がL3階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrSumWeightT = "SUM(FILTER(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                tmpStrSumWeightH = "SUM(FILTER(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))"
+                tmpStrFormula = "=(SUM(FILTER(" & cfg.COL_TASK_PROG_LABEL & lngStartRow & ":" & cfg.COL_TASK_PROG_LABEL & lngEndRow & _
+                          "*(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & ")" & _
+                          "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_TASK_PROG_LABEL & lngStartRow & ":" & cfg.COL_TASK_PROG_LABEL & lngEndRow & _
+                          "*(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & ")" & _
+                          "," & tmpStrBoolArrayT & ",0)))" & _
+                          "/IF(" & tmpStrSumWeightH & "+" & tmpStrSumWeightT & "=0,1," & tmpStrSumWeightH & "+" & tmpStrSumWeightT & ")"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_PROG_LABEL & r).NumberFormat = "General"
+                ws.Range(cfg.COL_TASK_PROG_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 2 Then
+                ' # 行がL2階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrSumWeightT = "SUM(FILTER(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                tmpStrSumWeightH = "SUM(FILTER(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))"
+                tmpStrFormula = "=(SUM(FILTER(" & cfg.COL_TASK_PROG_LABEL & lngStartRow & ":" & cfg.COL_TASK_PROG_LABEL & lngEndRow & _
+                          "*(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & ")" & _
+                          "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_TASK_PROG_LABEL & lngStartRow & ":" & cfg.COL_TASK_PROG_LABEL & lngEndRow & _
+                          "*(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & ")" & _
+                          "," & tmpStrBoolArrayT & ",0)))" & _
+                          "/IF(" & tmpStrSumWeightH & "+" & tmpStrSumWeightT & "=0,1," & tmpStrSumWeightH & "+" & tmpStrSumWeightT & ")"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_PROG_LABEL & r).NumberFormat = "General"
+                ws.Range(cfg.COL_TASK_PROG_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 1 Then
+                ' # 行がL1階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrSumWeightT = "SUM(FILTER(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                tmpStrSumWeightH = "SUM(FILTER(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))"
+                tmpStrFormula = "=(SUM(FILTER(" & cfg.COL_TASK_PROG_LABEL & lngStartRow & ":" & cfg.COL_TASK_PROG_LABEL & lngEndRow & _
+                          "*(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & ")" & _
+                          "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_TASK_PROG_LABEL & lngStartRow & ":" & cfg.COL_TASK_PROG_LABEL & lngEndRow & _
+                          "*(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & ")" & _
+                          "," & tmpStrBoolArrayT & ",0)))" & _
+                          "/IF(" & tmpStrSumWeightH & "+" & tmpStrSumWeightT & "=0,1," & tmpStrSumWeightH & "+" & tmpStrSumWeightT & ")"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_PROG_LABEL & r).NumberFormat = "General"
+                ws.Range(cfg.COL_TASK_PROG_LABEL & r).Formula = tmpStrFormula
+            End If
+        End If
+    Next r
+    
+    ' L1集計数式をセット
+    tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
+              "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+              "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+    tmpStrSumWeightH = "SUM(FILTER(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))"
+    tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_PROG_LABEL & lngStartRow & ":" & cfg.COL_TASK_PROG_LABEL & lngEndRow & _
+              "*(" & cfg.COL_TASK_WGT_LABEL & lngStartRow & ":" & cfg.COL_TASK_WGT_LABEL & lngEndRow & ")" & _
+              "," & tmpStrBoolArrayH & ",0))" & _
+              "/IF(" & tmpStrSumWeightH & "=0,1," & tmpStrSumWeightH & ")"
+    ws.Range(cfg.COL_TASK_PROG_LABEL & lngEndRow + 2).Formula = tmpStrFormula
+
+End Sub
+
+
+' ■ 工数進捗率を集計する式をセット
+Public Sub SetFormulaForEffortProgressRate(ws As Worksheet)
+
+    ' 変数定義
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    ' 一時変数定義
+    Dim r As Long, i As Long
+    Dim tmpStrFormula As String
+    Dim tmpVarLevelArray As Variant, tmpVarLevelCell As Variant
+    Dim tmpVarTaskArray As Variant, tmpVarTaskCell As Variant
+    Dim tmpStrBoolArrayH As String, tmpStrBoolArrayT As String
+    Dim tmpStrCountH As String, tmpStrCountT As String
+
+    ' 開始行と終了行に値をセット
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' あらかじめWBSレベル列のデータを取得
+    tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
+    ' あらかじめWBSタスク判定列のデータを取得
+    tmpVarTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
+    
+    ' すべてのタスクと階層のキーを作成
+    For r = lngStartRow To lngEndRow
+        
+        ' 現在のインデックスを取得
+        i = r - lngStartRow + 1
+        ' 現在のWBSレベルセルの値を取得
+        tmpVarLevelCell = tmpVarLevelArray(i, 1)
+        ' 現在のWBSタスクセルの値を取得
+        tmpVarTaskCell = tmpVarTaskArray(i, 1)
+        
+        If tmpVarTaskCell = True Then
+            ' # 行がタスクの場合 #
+            tmpStrFormula = "=" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r & _
+            "/IF(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r & "+" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r & "=0," & _
+            "1," & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r & "+" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r & ")"
+            ' 指定された列のセルに数式をセット
+            ws.Range(cfg.COL_EFFORT_PROG_LABEL & r).Formula = tmpStrFormula
+        Else
+            ' # 行がタスク以外の場合 #
+            If tmpVarLevelCell = 5 Then
+                ' # 行がL5階層の場合 #
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "=" & cfg.COL_L5_LABEL & r & ")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrCountT = "IFERROR(COUNT(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ")),0)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & _
+                          "," & tmpStrBoolArrayT & ",0))" & _
+                          "/IF(" & tmpStrCountT & "=0,1," & tmpStrCountT & ")"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_EFFORT_PROG_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 4 Then
+                ' # 行がL4階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrCountH = "IFERROR(COUNT(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ")),0)"
+                tmpStrCountT = "IFERROR(COUNT(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ")),0)"
+                tmpStrFormula = "=(SUM(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & _
+                          "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & _
+                          "," & tmpStrBoolArrayT & ",0)))" & _
+                          "/IF(" & tmpStrCountH & "+" & tmpStrCountT & "=0,1," & tmpStrCountH & "+" & tmpStrCountT & ")"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_EFFORT_PROG_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 3 Then
+                ' # 行がL3階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrCountH = "IFERROR(COUNT(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ")),0)"
+                tmpStrCountT = "IFERROR(COUNT(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ")),0)"
+                tmpStrFormula = "=(SUM(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & _
+                          "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & _
+                          "," & tmpStrBoolArrayT & ",0)))" & _
+                          "/IF(" & tmpStrCountH & "+" & tmpStrCountT & "=0,1," & tmpStrCountH & "+" & tmpStrCountT & ")"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_EFFORT_PROG_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 2 Then
+                ' # 行がL2階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrCountH = "IFERROR(COUNT(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ")),0)"
+                tmpStrCountT = "IFERROR(COUNT(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ")),0)"
+                tmpStrFormula = "=(SUM(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & _
+                          "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & _
+                          "," & tmpStrBoolArrayT & ",0)))" & _
+                          "/IF(" & tmpStrCountH & "+" & tmpStrCountT & "=0,1," & tmpStrCountH & "+" & tmpStrCountT & ")"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_EFFORT_PROG_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 1 Then
+                ' # 行がL1階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrCountH = "IFERROR(COUNT(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ")),0)"
+                tmpStrCountT = "IFERROR(COUNT(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ")),0)"
+                tmpStrFormula = "=(SUM(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & _
+                          "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & _
+                          "," & tmpStrBoolArrayT & ",0)))" & _
+                          "/IF(" & tmpStrCountH & "+" & tmpStrCountT & "=0,1," & tmpStrCountH & "+" & tmpStrCountT & ")"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_EFFORT_PROG_LABEL & r).Formula = tmpStrFormula
+            End If
+        End If
+    Next r
+    
+    ' L1集計数式をセット
+    tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
+              "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+              "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+    tmpStrCountH = "IFERROR(COUNT(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ")),0)"
+    tmpStrFormula = "=SUM(FILTER(" & cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow & _
+              "," & tmpStrBoolArrayH & ",0))" & _
+              "/IF(" & tmpStrCountH & "=0,1," & tmpStrCountH & ")"
+    ws.Range(cfg.COL_EFFORT_PROG_LABEL & lngEndRow + 2).Formula = tmpStrFormula
+
+End Sub
+
+
+' ■ タスク合計件数を集計する式をセット
+Public Sub SetFormulaForTaskCount(ws As Worksheet)
+
+    ' 変数定義
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    ' 一時変数定義
+    Dim r As Long, i As Long
+    Dim tmpStrFormula As String
+    Dim tmpVarLevelArray As Variant, tmpVarLevelCell As Variant
+    Dim tmpVarTaskArray As Variant, tmpVarTaskCell As Variant
+    Dim tmpStrBoolArrayH As String, tmpStrBoolArrayT As String
+
+    ' 開始行と終了行に値をセット
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' あらかじめWBSレベル列のデータを取得
+    tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
+    ' あらかじめWBSタスク判定列のデータを取得
+    tmpVarTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
+    
+    ' すべてのタスクと階層のキーを作成
+    For r = lngStartRow To lngEndRow
+        
+        ' 現在のインデックスを取得
+        i = r - lngStartRow + 1
+        ' 現在のWBSレベルセルの値を取得
+        tmpVarLevelCell = tmpVarLevelArray(i, 1)
+        ' 現在のWBSタスクセルの値を取得
+        tmpVarTaskCell = tmpVarTaskArray(i, 1)
+        
+        If tmpVarTaskCell = True Then
+            ' # 行がタスクの場合 #
+            ws.Range(cfg.COL_TASK_COUNT_LABEL & r).value = 1
+        Else
+            ' # 行がタスク以外の場合 #
+            If tmpVarLevelCell = 5 Then
+                ' # 行がL5階層の場合 #
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "=" & cfg.COL_L5_LABEL & r & ")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_COUNT_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 4 Then
+                ' # 行がL4階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_COUNT_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 3 Then
+                ' # 行がL3階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_COUNT_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 2 Then
+                ' # 行がL2階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_COUNT_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 1 Then
+                ' # 行がL1階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_COUNT_LABEL & r).Formula = tmpStrFormula
+            End If
+        End If
+    Next r
+    
+    ' L1集計数式をセット
+    tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
+              "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+              "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+    tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))"
+    ws.Range(cfg.COL_TASK_COUNT_LABEL & lngEndRow + 2).Formula = tmpStrFormula
+
+End Sub
+
+
+' ■ タスク完了件数を集計する式をセット
+Public Sub SetFormulaForTaskCompCount(ws As Worksheet)
+
+    ' 変数定義
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    ' 一時変数定義
+    Dim r As Long, i As Long
+    Dim tmpStrFormula As String
+    Dim tmpVarLevelArray As Variant, tmpVarLevelCell As Variant
+    Dim tmpVarTaskArray As Variant, tmpVarTaskCell As Variant
+    Dim tmpStrBoolArrayH As String, tmpStrBoolArrayT As String
+
+    ' 開始行と終了行に値をセット
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' あらかじめWBSレベル列のデータを取得
+    tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
+    ' あらかじめWBSタスク判定列のデータを取得
+    tmpVarTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
+    
+    ' すべてのタスクと階層のキーを作成
+    For r = lngStartRow To lngEndRow
+        
+        ' 現在のインデックスを取得
+        i = r - lngStartRow + 1
+        ' 現在のWBSレベルセルの値を取得
+        tmpVarLevelCell = tmpVarLevelArray(i, 1)
+        ' 現在のWBSタスクセルの値を取得
+        tmpVarTaskCell = tmpVarTaskArray(i, 1)
+        
+        If tmpVarTaskCell = True Then
+            ' # 行がタスクの場合 #
+            tmpStrFormula = "=IF(" & cfg.COL_WBS_STATUS_LABEL & r & "=""" & cfg.WBS_STATUS_COMPLETED & """,1,0)"
+            ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & r).Formula = tmpStrFormula
+        Else
+            ' # 行がタスク以外の場合 #
+            If tmpVarLevelCell = 5 Then
+                ' # 行がL5階層の場合 #
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "=" & cfg.COL_L5_LABEL & r & ")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 4 Then
+                ' # 行がL4階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "=" & cfg.COL_L4_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 3 Then
+                ' # 行がL3階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "=" & cfg.COL_L3_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 2 Then
+                ' # 行がL2階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "=" & cfg.COL_L2_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & r).Formula = tmpStrFormula
+            End If
+            If tmpVarLevelCell = 1 Then
+                ' # 行がL1階層の場合 #
+                tmpStrBoolArrayH = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "))*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrBoolArrayT = "(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "=" & cfg.COL_L1_LABEL & r & ")*" & _
+                          "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+                          "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=TRUE)*" & _
+                          "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+                tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
+                          "+SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
+                ' 指定された列のセルに数式をセット
+                ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & r).Formula = tmpStrFormula
+            End If
+        End If
+    Next r
+    
+    ' L1集計数式をセット
+    tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
+              "(" & cfg.COL_L2_LABEL & lngStartRow & ":" & cfg.COL_L2_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L3_LABEL & lngStartRow & ":" & cfg.COL_L3_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L4_LABEL & lngStartRow & ":" & cfg.COL_L4_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_L5_LABEL & lngStartRow & ":" & cfg.COL_L5_LABEL & lngEndRow & "="""")*" & _
+              "(" & cfg.COL_FLG_T_LABEL & lngStartRow & ":" & cfg.COL_FLG_T_LABEL & lngEndRow & "=FALSE)*" & _
+              "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
+    tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))"
+    ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow + 2).Formula = tmpStrFormula
+
+End Sub
+
+
+' ■ 選択中のオプションボタンから行番号を取得
+Private Function GetCheckedOptSingleRow(ws As Worksheet) As Long
+    
+    ' 変数定義
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim rngFoundCell As Range
+    ' 一時変数定義
+    Dim r As Long
+
+    ' 開始行と終了行を取得
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then
+        GetCheckedOptSingleRow = 0
+        Exit Function
+    End If
+    
+    ' lngStartRow から lngEndRow の範囲で cfg.OPT_MARK_T を持つ最初のセルを検索
     On Error Resume Next
-    Set shpExe2ComboBox = ws.Shapes(cfg.NAME_EXE2_COMBOBOX)
+    Set rngFoundCell = ws.Range(ws.Cells(lngStartRow, cfg.COL_OPT), ws.Cells(lngEndRow, cfg.COL_OPT)).Find( _
+        What:=cfg.OPT_MARK_T, _
+        LookAt:=xlWhole, _
+        LookIn:=xlValues, _
+        MatchCase:=True _
+    )
     On Error GoTo 0
     
-    ' 実行2コンボボックスが存在しない場合、終了
-    If shpExe2ComboBox Is Nothing Then
+    ' セルが見つかった場合
+    If Not rngFoundCell Is Nothing Then
+        GetCheckedOptSingleRow = rngFoundCell.row
+        Exit Function
+    End If
+
+    ' ここまで来たらチェックなし
+    GetCheckedOptSingleRow = 0
+End Function
+
+
+' ■ 選択中のチェックボックスから行番号コレクションを取得
+Private Function GetCheckedChkMultpleRows(ws As Worksheet) As Collection
+
+    ' 変数定義
+    Dim rowCollection As New Collection
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim varData As Variant
+    ' 一時変数定義
+    Dim r As Long
+
+    ' 開始行と終了行を取得
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then
+        Set GetCheckedChkMultpleRows = rowCollection
+        Exit Function
+    End If
+
+    ' 該当範囲のセルデータを一括で配列に格納
+    varData = ws.Range(ws.Cells(lngStartRow, cfg.COL_CHK), ws.Cells(lngEndRow, cfg.COL_CHK)).value
+    
+    ' 配列をループして一致する行番号を収集
+    For r = 1 To UBound(varData, 1)  ' 配列の行数分だけループ
+        If varData(r, 1) = cfg.CHK_MARK_T Then
+            rowCollection.Add lngStartRow + r - 1 ' 実際の行番号を追加
+        End If
+    Next r
+
+    ' 結果として行番号のコレクションを返す
+    Set GetCheckedChkMultpleRows = rowCollection
+End Function
+
+
+' ■ 選択した行の下に一行追加
+Public Sub ExecInsertRowBelowSelection(ws As Worksheet)
+
+    ' 変数定義
+    Dim varRangeRows As Variant, lngStartRow As Long
+    Dim lngSelectedRow As Long
+    
+    ' 開始行と終了行を取得
+    varRangeRows = FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    
+    ' 行を追加
+    lngSelectedRow = GetCheckedOptSingleRow(ws)
+    If lngSelectedRow <> 0 Then
+        ' 行を追加
+        ws.Rows(lngSelectedRow + 1).Insert Shift:=xlDown
+    Else
+        MsgBox "選択してください（OPT)。", vbExclamation, "通知"
+    End If
+
+End Sub
+
+
+' ■ 選択行の最終レベルIDをインクリメント
+Public Sub ExecIncrementSelectedLastLevel(ws As Worksheet)
+
+    ' 変数定義
+    Dim lngSelectedRow As Long, intSelectedRowLevel As Integer, blnSelectedRowIsTask As Boolean
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim colTargetIdx As New Collection
+    ' 一時変数定義
+    Dim r As Long, i As Long
+    Dim tmpRngTarget As Range
+    Dim tmpVarTargetArray As Variant
+    Dim tmpVarLevelArray As Variant
+    Dim tmpVarTaskArray As Variant
+    Dim tmpLngSelectedRowL1 As Long, tmpLngSelectedRowL2 As Long, tmpLngSelectedRowL3 As Long, tmpLngSelectedRowL4 As Long, tmpLngSelectedRowL5 As Long, tmpLngSelectedRowTask As Long
+    Dim tmpVarIdx As Variant
+    
+    ' 開始行と終了行を取得
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' 選択した行の番号を取得
+    lngSelectedRow = GetCheckedOptSingleRow(ws)
+    
+    ' ガード条件（未選択の場合は、メッセージを出して終了）
+    If lngSelectedRow = 0 Then
+        MsgBox "選択してください（OPT)。", vbExclamation, "通知"
         Exit Sub
     End If
     
-    ' 実行2コンボボックスのリストインデックスを先頭に
-    With ws.DropDowns(cfg.NAME_EXE2_COMBOBOX)
-        .ListIndex = 1
-    End With
+    ' あらかじめ更新対象範囲列のデータを取得
+    Set tmpRngTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_L1), ws.Cells(lngEndRow, cfg.COL_TASK))
+    tmpVarTargetArray = tmpRngTarget.value
+    ' あらかじめWBSレベル列のデータを取得
+    tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
+    ' あらかじめWBSタスク判定列のデータを取得
+    tmpVarTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
     
+    ' 選択した行のレベルを取得
+    intSelectedRowLevel = tmpVarLevelArray(lngSelectedRow - lngStartRow + 1, 1)
+    ' 選択した行がタスクかどうか取得
+    blnSelectedRowIsTask = tmpVarTaskArray(lngSelectedRow - lngStartRow + 1, 1)
+    
+    ' 選択した行のデータを取得
+    tmpLngSelectedRowL1 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 1)
+    tmpLngSelectedRowL2 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 2)
+    tmpLngSelectedRowL3 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 3)
+    tmpLngSelectedRowL4 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 4)
+    tmpLngSelectedRowL5 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 5)
+    tmpLngSelectedRowTask = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 6)
+    
+    ' 更新対象範囲列のデータを更新
+    If blnSelectedRowIsTask = True Then
+        ' # 選択行がタスクの場合 #
+        ' 対象となるデータインデックスをコレクションに格納
+        For r = lngStartRow To lngEndRow
+            ' 現在のインデックスを取得
+            i = r - lngStartRow + 1
+            ' 対象行か判定してコレクションに格納
+            If intSelectedRowLevel = 5 And _
+                    tmpVarTargetArray(i, 6) >= tmpLngSelectedRowTask And _
+                    tmpVarTargetArray(i, 5) = tmpLngSelectedRowL5 And _
+                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 4 And _
+                    tmpVarTargetArray(i, 6) >= tmpLngSelectedRowTask And _
+                    IsEmpty(tmpVarTargetArray(i, 5)) And _
+                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 3 And _
+                    tmpVarTargetArray(i, 6) >= tmpLngSelectedRowTask And _
+                    IsEmpty(tmpVarTargetArray(i, 5)) And _
+                    IsEmpty(tmpVarTargetArray(i, 4)) And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 2 And _
+                    tmpVarTargetArray(i, 6) >= tmpLngSelectedRowTask And _
+                    IsEmpty(tmpVarTargetArray(i, 5)) And _
+                    IsEmpty(tmpVarTargetArray(i, 4)) And _
+                    IsEmpty(tmpVarTargetArray(i, 3)) And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 1 And _
+                    tmpVarTargetArray(i, 6) >= tmpLngSelectedRowTask And _
+                    IsEmpty(tmpVarTargetArray(i, 5)) And _
+                    IsEmpty(tmpVarTargetArray(i, 4)) And _
+                    IsEmpty(tmpVarTargetArray(i, 3)) And _
+                    IsEmpty(tmpVarTargetArray(i, 2)) And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+        Next r
+        ' 対象となるデータインデックスのみ値を更新する
+        For Each tmpVarIdx In colTargetIdx
+            tmpVarTargetArray(tmpVarIdx, 6) = tmpVarTargetArray(tmpVarIdx, 6) + 1
+        Next tmpVarIdx
+    Else
+        ' # 選択行がタスクでない場合 #
+        ' 対象となるデータインデックスをコレクションに格納
+        For r = lngStartRow To lngEndRow
+            ' 現在のインデックスを取得
+            i = r - lngStartRow + 1
+            ' 対象行か判定してコレクションに格納
+            If intSelectedRowLevel = 5 And _
+                    tmpVarTargetArray(i, 5) >= tmpLngSelectedRowL5 And _
+                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 4 And _
+                    tmpVarTargetArray(i, 4) >= tmpLngSelectedRowL4 And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 3 And _
+                    tmpVarTargetArray(i, 3) >= tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 2 And _
+                    tmpVarTargetArray(i, 2) >= tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 1 And _
+                    tmpVarTargetArray(i, 1) >= tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+        Next r
+        ' 対象となるデータインデックスのみ値を更新する
+        For Each tmpVarIdx In colTargetIdx
+            tmpVarTargetArray(tmpVarIdx, intSelectedRowLevel) = tmpVarTargetArray(tmpVarIdx, intSelectedRowLevel) + 1
+        Next tmpVarIdx
+    End If
+    
+    ' データの更新結果を反映
+    tmpRngTarget.value = tmpVarTargetArray
+
 End Sub
+
+
+' ■ 選択行の最終レベルIDをデクリメント
+Public Sub ExecDecrementSelectedLastLevel(ws As Worksheet)
+
+    ' 変数定義
+    Dim lngSelectedRow As Long, intSelectedRowLevel As Integer, blnSelectedRowIsTask As Boolean, lngSelectedRowLastValue As Long
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim colTargetIdx As New Collection
+    Dim lngFirstMissingFoundValue As Long
+    ' 一時変数定義
+    Dim r As Long, i As Long, v As Long
+    Dim tmpRngTarget As Range
+    Dim tmpVarTargetArray As Variant
+    Dim tmpVarLevelArray As Variant
+    Dim tmpVarTaskArray As Variant
+    Dim tmpLngSelectedRowL1 As Long, tmpLngSelectedRowL2 As Long, tmpLngSelectedRowL3 As Long, tmpLngSelectedRowL4 As Long, tmpLngSelectedRowL5 As Long, tmpLngSelectedRowTask As Long
+    Dim tmpVarIdx As Variant
+    Dim tmpColTargetValue As New Collection
+    Dim tmpVal As Variant, tmpBlnExist As Boolean
+    
+    ' 開始行と終了行を取得
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' 選択した行の番号を取得
+    lngSelectedRow = GetCheckedOptSingleRow(ws)
+    
+    ' ガード条件（未選択の場合は、メッセージを出して終了）
+    If lngSelectedRow = 0 Then
+        MsgBox "選択してください（OPT)。", vbExclamation, "通知"
+        Exit Sub
+    End If
+    
+    ' あらかじめ更新対象範囲列のデータを取得
+    Set tmpRngTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_L1), ws.Cells(lngEndRow, cfg.COL_TASK))
+    tmpVarTargetArray = tmpRngTarget.value
+    ' あらかじめWBSレベル列のデータを取得
+    tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
+    ' あらかじめWBSタスク判定列のデータを取得
+    tmpVarTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
+    
+    ' 選択した行のレベルを取得
+    intSelectedRowLevel = tmpVarLevelArray(lngSelectedRow - lngStartRow + 1, 1)
+    ' 選択した行がタスクかどうか取得
+    blnSelectedRowIsTask = tmpVarTaskArray(lngSelectedRow - lngStartRow + 1, 1)
+    ' 選択した行の末尾の値を取得
+    If blnSelectedRowIsTask Then
+        lngSelectedRowLastValue = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 6)
+    Else
+        lngSelectedRowLastValue = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, intSelectedRowLevel)
+    End If
+    
+    ' 選択した行のデータを取得
+    tmpLngSelectedRowL1 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 1)
+    tmpLngSelectedRowL2 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 2)
+    tmpLngSelectedRowL3 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 3)
+    tmpLngSelectedRowL4 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 4)
+    tmpLngSelectedRowL5 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 5)
+    tmpLngSelectedRowTask = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 6)
+    
+    ' 更新対象範囲列のデータを更新
+    If blnSelectedRowIsTask = True Then
+        ' # 選択行がタスクの場合 #
+        ' 対象となる値をコレクションに格納
+        For r = lngStartRow To lngEndRow
+            ' 現在のインデックスを取得
+            i = r - lngStartRow + 1
+            ' 対象行か判定してコレクションに格納
+            If intSelectedRowLevel = 5 And _
+                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
+                    tmpVarTargetArray(i, 5) = tmpLngSelectedRowL5 And _
+                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                On Error Resume Next
+                tmpColTargetValue.Add tmpVarTargetArray(i, 6), CStr(tmpVarTargetArray(i, 6))
+                On Error GoTo 0
+            End If
+            If intSelectedRowLevel = 4 And _
+                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
+                    IsEmpty(tmpVarTargetArray(i, 5)) And _
+                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                On Error Resume Next
+                tmpColTargetValue.Add tmpVarTargetArray(i, 6), CStr(tmpVarTargetArray(i, 6))
+                On Error GoTo 0
+            End If
+            If intSelectedRowLevel = 3 And _
+                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
+                    IsEmpty(tmpVarTargetArray(i, 5)) And _
+                    IsEmpty(tmpVarTargetArray(i, 4)) And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                On Error Resume Next
+                tmpColTargetValue.Add tmpVarTargetArray(i, 6), CStr(tmpVarTargetArray(i, 6))
+                On Error GoTo 0
+            End If
+            If intSelectedRowLevel = 2 And _
+                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
+                    IsEmpty(tmpVarTargetArray(i, 5)) And _
+                    IsEmpty(tmpVarTargetArray(i, 4)) And _
+                    IsEmpty(tmpVarTargetArray(i, 3)) And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                On Error Resume Next
+                tmpColTargetValue.Add tmpVarTargetArray(i, 6), CStr(tmpVarTargetArray(i, 6))
+                On Error GoTo 0
+            End If
+            If intSelectedRowLevel = 1 And _
+                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
+                    IsEmpty(tmpVarTargetArray(i, 5)) And _
+                    IsEmpty(tmpVarTargetArray(i, 4)) And _
+                    IsEmpty(tmpVarTargetArray(i, 3)) And _
+                    IsEmpty(tmpVarTargetArray(i, 2)) And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                On Error Resume Next
+                tmpColTargetValue.Add tmpVarTargetArray(i, 6), CStr(tmpVarTargetArray(i, 6))
+                On Error GoTo 0
+            End If
+        Next r
+        ' 値コレクションをから最初の存在しない値を取得
+        lngFirstMissingFoundValue = 0
+        For v = lngSelectedRowLastValue To 1 Step -1
+            tmpBlnExist = False
+            For Each tmpVal In tmpColTargetValue
+                If v = tmpVal Then
+                    tmpBlnExist = True
+                    Exit For
+                End If
+            Next tmpVal
+            If tmpBlnExist = False Then
+                lngFirstMissingFoundValue = v
+                Exit For
+            End If
+        Next v
+        ' ガード条件（空き番号が存在しなかったら終了）
+        If lngFirstMissingFoundValue = 0 Then
+            MsgBox "空き番号がありません。", vbExclamation, "通知"
+            Exit Sub
+        End If
+        ' 対象となるデータインデックスをコレクションに格納
+        For r = lngStartRow To lngEndRow
+            ' 現在のインデックスを取得
+            i = r - lngStartRow + 1
+            ' 対象行か判定してコレクションに格納
+            If intSelectedRowLevel = 5 And _
+                    tmpVarTargetArray(i, 6) > lngFirstMissingFoundValue And _
+                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
+                    tmpVarTargetArray(i, 5) = tmpLngSelectedRowL5 And _
+                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 4 And _
+                    tmpVarTargetArray(i, 6) > lngFirstMissingFoundValue And _
+                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
+                    IsEmpty(tmpVarTargetArray(i, 5)) And _
+                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 3 And _
+                    tmpVarTargetArray(i, 6) > lngFirstMissingFoundValue And _
+                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
+                    IsEmpty(tmpVarTargetArray(i, 5)) And _
+                    IsEmpty(tmpVarTargetArray(i, 4)) And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 2 And _
+                    tmpVarTargetArray(i, 6) > lngFirstMissingFoundValue And _
+                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
+                    IsEmpty(tmpVarTargetArray(i, 5)) And _
+                    IsEmpty(tmpVarTargetArray(i, 4)) And _
+                    IsEmpty(tmpVarTargetArray(i, 3)) And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 1 And _
+                    tmpVarTargetArray(i, 6) > lngFirstMissingFoundValue And _
+                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
+                    IsEmpty(tmpVarTargetArray(i, 5)) And _
+                    IsEmpty(tmpVarTargetArray(i, 4)) And _
+                    IsEmpty(tmpVarTargetArray(i, 3)) And _
+                    IsEmpty(tmpVarTargetArray(i, 2)) And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+        Next r
+        ' 対象となるデータインデックスのみ値を更新する
+        For Each tmpVarIdx In colTargetIdx
+            tmpVarTargetArray(tmpVarIdx, 6) = tmpVarTargetArray(tmpVarIdx, 6) - 1
+        Next tmpVarIdx
+    Else
+        ' # 選択行がタスクでない場合 #
+        ' 対象となる値をコレクションに格納
+        For r = lngStartRow To lngEndRow
+            ' 現在のインデックスを取得
+            i = r - lngStartRow + 1
+            ' 対象行か判定してコレクションに格納
+            If intSelectedRowLevel = 5 And _
+                    tmpVarTargetArray(i, 5) <= tmpLngSelectedRowL5 And _
+                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                On Error Resume Next
+                tmpColTargetValue.Add tmpVarTargetArray(i, intSelectedRowLevel), CStr(tmpVarTargetArray(i, intSelectedRowLevel))
+                On Error GoTo 0
+            End If
+            If intSelectedRowLevel = 4 And _
+                    tmpVarTargetArray(i, 4) <= tmpLngSelectedRowL4 And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                On Error Resume Next
+                tmpColTargetValue.Add tmpVarTargetArray(i, intSelectedRowLevel), CStr(tmpVarTargetArray(i, intSelectedRowLevel))
+                On Error GoTo 0
+            End If
+            If intSelectedRowLevel = 3 And _
+                    tmpVarTargetArray(i, 3) <= tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                On Error Resume Next
+                tmpColTargetValue.Add tmpVarTargetArray(i, intSelectedRowLevel), CStr(tmpVarTargetArray(i, intSelectedRowLevel))
+                On Error GoTo 0
+            End If
+            If intSelectedRowLevel = 2 And _
+                    tmpVarTargetArray(i, 2) <= tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                On Error Resume Next
+                tmpColTargetValue.Add tmpVarTargetArray(i, intSelectedRowLevel), CStr(tmpVarTargetArray(i, intSelectedRowLevel))
+                On Error GoTo 0
+            End If
+            If intSelectedRowLevel = 1 And _
+                    tmpVarTargetArray(i, 1) <= tmpLngSelectedRowL1 Then
+                On Error Resume Next
+                tmpColTargetValue.Add tmpVarTargetArray(i, intSelectedRowLevel), CStr(tmpVarTargetArray(i, intSelectedRowLevel))
+                On Error GoTo 0
+            End If
+        Next r
+        ' 値コレクションをから最初の存在しない値を取得
+        lngFirstMissingFoundValue = 0
+        For v = lngSelectedRowLastValue To 1 Step -1
+            tmpBlnExist = False
+            For Each tmpVal In tmpColTargetValue
+                If v = tmpVal Then
+                    tmpBlnExist = True
+                    Exit For
+                End If
+            Next tmpVal
+            If tmpBlnExist = False Then
+                lngFirstMissingFoundValue = v
+                Exit For
+            End If
+        Next v
+        ' ガード条件（空き番号が存在しなかったら終了）
+        If lngFirstMissingFoundValue = 0 Then
+            MsgBox "空き番号がありません。", vbExclamation, "通知"
+            Exit Sub
+        End If
+        ' 対象となるデータインデックスをコレクションに格納
+        For r = lngStartRow To lngEndRow
+            ' 現在のインデックスを取得
+            i = r - lngStartRow + 1
+            ' 対象行か判定してコレクションに格納
+            If intSelectedRowLevel = 5 And _
+                    tmpVarTargetArray(i, 5) > lngFirstMissingFoundValue And _
+                    tmpVarTargetArray(i, 5) <= tmpLngSelectedRowL5 And _
+                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 4 And _
+                    tmpVarTargetArray(i, 4) > lngFirstMissingFoundValue And _
+                    tmpVarTargetArray(i, 4) <= tmpLngSelectedRowL4 And _
+                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 3 And _
+                    tmpVarTargetArray(i, 3) > lngFirstMissingFoundValue And _
+                    tmpVarTargetArray(i, 3) <= tmpLngSelectedRowL3 And _
+                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 2 And _
+                    tmpVarTargetArray(i, 2) > lngFirstMissingFoundValue And _
+                    tmpVarTargetArray(i, 2) <= tmpLngSelectedRowL2 And _
+                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+            If intSelectedRowLevel = 1 And _
+                    tmpVarTargetArray(i, 1) > lngFirstMissingFoundValue And _
+                    tmpVarTargetArray(i, 1) <= tmpLngSelectedRowL1 Then
+                colTargetIdx.Add i, CStr(i)
+            End If
+        Next r
+        ' 対象となるデータインデックスのみ値を更新する
+        For Each tmpVarIdx In colTargetIdx
+            tmpVarTargetArray(tmpVarIdx, intSelectedRowLevel) = tmpVarTargetArray(tmpVarIdx, intSelectedRowLevel) - 1
+        Next tmpVarIdx
+    End If
+    
+    ' データの更新結果を反映
+    tmpRngTarget.value = tmpVarTargetArray
+
+End Sub
+
+
 

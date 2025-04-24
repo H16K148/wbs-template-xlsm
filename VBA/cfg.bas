@@ -17,6 +17,9 @@ Attribute VB_Name = "cfg"
 
 ' ■ 定数定義
 
+' バージョン
+Public Const APP_VERSION As String = "0.1.0"
+
 ' マーク文字列定義
 Public Const CHK_MARK_T As String = "■"
 Public Const CHK_MARK_F As String = "・"
@@ -87,7 +90,7 @@ Public Const COL_WBS_CNT_LABEL As String = "L"
 Public Const COL_LEVEL As Long = 13                '  M列：非表示：WBSレベルカラム：式
 Public Const COL_LEVEL_LABEL As String = "M"
 
-Public Const COL_FLG_T As Long = 14                '  N列：非表示：WBSタスク判定：式
+Public Const COL_FLG_T As Long = 14                '  N列：非表示：WBSタスク判定カラム：式
 Public Const COL_FLG_T_LABEL As String = "N"
 
 Public Const COL_FLG_IC As Long = 15               '  O列：非表示：計算対象判定（IncludeInCalculation）：式
@@ -171,8 +174,14 @@ Public Const COL_ACTUAL_START_LABEL As String = "AN"
 Public Const COL_ACTUAL_END As Long = 41           ' AO列：　表示：実績終了カラム
 Public Const COL_ACTUAL_END_LABEL As String = "AO"
 
-Public Const COL_LAST As Long = 42                 ' AP列：　表示：備考カラム（最終）
-Public Const COL_LAST_LABEL As String = "AP"
+Public Const COL_CATEGORY1 As Long = 42            ' AP列：　表示：カテゴリ1カラム
+Public Const COL_CATEGORY1_LABEL As String = "AP"
+
+Public Const COL_CATEGORY2 As Long = 43            ' AQ列：　表示：カテゴリ2カラム
+Public Const COL_CATEGORY2_LABEL As String = "AQ"
+
+Public Const COL_LAST As Long = 44                 ' AR列：　表示：備考カラム（最終）
+Public Const COL_LAST_LABEL As String = "AR"
 
 
 ' 行定義
