@@ -2020,6 +2020,12 @@ Public Sub ResetBasicFormulas(ws As Worksheet)
     wbslib.SetFormulaForFlgPE ws
     wbslib.SetFormulaForFlgCE ws
     
+    ' 式の更新時、一時的自動計算を行う
+    If Application.Calculation = xlCalculationManual Then
+        Application.Calculation = xlCalculationAutomatic
+        Application.Calculation = xlCalculationManual
+    End If
+    
     wbslib.ExecConvertBasicFormulasToValues ws
     
 End Sub
@@ -2035,6 +2041,12 @@ Public Sub ResetAggregateFormulas(ws As Worksheet)
     wbslib.SetFormulaForEffortProgressRate ws
     wbslib.SetFormulaForTaskCount ws
     wbslib.SetFormulaForTaskCompCount ws
+    
+    ' 式の更新時、一時的自動計算を行う
+    If Application.Calculation = xlCalculationManual Then
+        Application.Calculation = xlCalculationAutomatic
+        Application.Calculation = xlCalculationManual
+    End If
     
     wbslib.ExecConvertAggregateFormulasToValues ws
 
@@ -2782,16 +2794,10 @@ Public Sub ExecBeforeSave(ws As Worksheet)
     ' 保護をアンロック
     wbsui.UnsetSheetProtect ws
     
-    ' タイトル、基本数式のリセット
+    ' タイトルのリセット
     wbsui.ResetTitleRow ws
+    ' 基本数式のリセット
     wbsui.ResetBasicFormulas ws
-    
-    ' 式の更新時、一時的自動計算を行う
-    If Application.Calculation = xlCalculationManual Then
-        Application.Calculation = xlCalculationAutomatic
-        Application.Calculation = xlCalculationManual
-    End If
-
     ' 集計数式リセット
     wbsui.ResetAggregateFormulas ws
     ' 入力フォームをリセット
@@ -2801,16 +2807,15 @@ Public Sub ExecBeforeSave(ws As Worksheet)
     wbsui.ResetDataValidation ws
     wbsui.ResetHorizontalAlignment ws
     wbsui.ResetAutoFilter ws
-    
     ' エラーチェック
     Call wbslib.ExecCheckWbsHasErrors(ws)
-    
     ' 保護を再セット
     wbsui.SetSheetProtect ws
     
     Application.ScreenUpdating = True
     Application.Calculation = xlCalculationAutomatic
     Application.EnableEvents = True
+    
 End Sub
 
 
@@ -2864,4 +2869,5 @@ Sub ResetSheetProtect(ws As Worksheet)
     wbsui.SetSheetProtect ws
     
 End Sub
+
 

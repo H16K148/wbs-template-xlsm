@@ -21,7 +21,7 @@ Attribute VB_Name = "cfg"
 Public Const APP_PASSWORD As String = "h16k148"
 
 ' バージョン
-Public Const APP_VERSION As String = "0.1.0"
+Public Const APP_VERSION As String = "0.1.1"
 
 ' マーク文字列定義
 Public Const CHK_MARK_T As String = "■"
@@ -210,4 +210,5 @@ Public Const WIDTH_RESET1_BUTTON = 55
 Public Const WIDTH_EXE2_COMBOBOX = 400
 Public Const WIDTH_EXE2_BUTTON = 40
 Public Const WIDTH_RESET2_BUTTON = 55
+
 

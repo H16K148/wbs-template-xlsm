@@ -600,6 +600,7 @@ Public Sub SetFormulaForPlannedEffort(ws As Worksheet)
 
     ' 変数定義
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim varFormulas() As Variant
     ' 一時変数定義
     Dim r As Long, i As Long
     Dim tmpStrFormula As String
@@ -614,6 +615,9 @@ Public Sub SetFormulaForPlannedEffort(ws As Worksheet)
 
     ' 開始行と終了行が見つからなければ終了
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' 数式をセットするデータを用意
+    ReDim varFormulas(1 To lngEndRow - lngStartRow + 1, 1 To 1)
     
     ' あらかじめWBSレベル列のデータを取得
     tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
@@ -643,7 +647,7 @@ Public Sub SetFormulaForPlannedEffort(ws As Worksheet)
                           "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_PLANNED_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 4 Then
                 ' # 行がL4階層の場合 #
@@ -664,7 +668,7 @@ Public Sub SetFormulaForPlannedEffort(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_PLANNED_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 3 Then
                 ' # 行がL3階層の場合 #
@@ -685,7 +689,7 @@ Public Sub SetFormulaForPlannedEffort(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_PLANNED_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 2 Then
                 ' # 行がL2階層の場合 #
@@ -706,7 +710,7 @@ Public Sub SetFormulaForPlannedEffort(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_PLANNED_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 1 Then
                 ' # 行がL1階層の場合 #
@@ -727,10 +731,11 @@ Public Sub SetFormulaForPlannedEffort(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_PLANNED_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
         End If
     Next r
+    ws.Range(ws.Cells(lngStartRow, cfg.COL_PLANNED_EFF), ws.Cells(lngEndRow, cfg.COL_PLANNED_EFF)).Formula = varFormulas
     
     ' L1集計数式をセット
     tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
@@ -751,6 +756,7 @@ Public Sub SetFormulaForActualCompletedEffort(ws As Worksheet)
 
     ' 変数定義
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim varFormulas() As Variant
     ' 一時変数定義
     Dim r As Long, i As Long
     Dim tmpStrFormula As String
@@ -765,6 +771,9 @@ Public Sub SetFormulaForActualCompletedEffort(ws As Worksheet)
 
     ' 開始行と終了行が見つからなければ終了
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' 数式をセットするデータを用意
+    ReDim varFormulas(1 To lngEndRow - lngStartRow + 1, 1 To 1)
     
     ' あらかじめWBSレベル列のデータを取得
     tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
@@ -794,7 +803,7 @@ Public Sub SetFormulaForActualCompletedEffort(ws As Worksheet)
                           "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 4 Then
                 ' # 行がL4階層の場合 #
@@ -815,7 +824,7 @@ Public Sub SetFormulaForActualCompletedEffort(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 3 Then
                 ' # 行がL3階層の場合 #
@@ -836,7 +845,7 @@ Public Sub SetFormulaForActualCompletedEffort(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 2 Then
                 ' # 行がL2階層の場合 #
@@ -857,7 +866,7 @@ Public Sub SetFormulaForActualCompletedEffort(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 1 Then
                 ' # 行がL1階層の場合 #
@@ -878,10 +887,11 @@ Public Sub SetFormulaForActualCompletedEffort(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
         End If
     Next r
+    ws.Range(ws.Cells(lngStartRow, cfg.COL_ACTUAL_COMPLETED_EFF), ws.Cells(lngEndRow, cfg.COL_ACTUAL_COMPLETED_EFF)).Formula = varFormulas
     
     ' L1集計数式をセット
     tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
@@ -902,6 +912,7 @@ Public Sub SetFormulaForActualRemainingEffort(ws As Worksheet)
 
     ' 変数定義
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim varFormulas() As Variant
     ' 一時変数定義
     Dim r As Long, i As Long
     Dim tmpStrFormula As String
@@ -916,6 +927,9 @@ Public Sub SetFormulaForActualRemainingEffort(ws As Worksheet)
 
     ' 開始行と終了行が見つからなければ終了
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' 数式をセットするデータを用意
+    ReDim varFormulas(1 To lngEndRow - lngStartRow + 1, 1 To 1)
     
     ' あらかじめWBSレベル列のデータを取得
     tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
@@ -945,7 +959,7 @@ Public Sub SetFormulaForActualRemainingEffort(ws As Worksheet)
                           "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 4 Then
                 ' # 行がL4階層の場合 #
@@ -966,7 +980,7 @@ Public Sub SetFormulaForActualRemainingEffort(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 3 Then
                 ' # 行がL3階層の場合 #
@@ -987,7 +1001,7 @@ Public Sub SetFormulaForActualRemainingEffort(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 2 Then
                 ' # 行がL2階層の場合 #
@@ -1008,7 +1022,7 @@ Public Sub SetFormulaForActualRemainingEffort(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 1 Then
                 ' # 行がL1階層の場合 #
@@ -1029,10 +1043,11 @@ Public Sub SetFormulaForActualRemainingEffort(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
         End If
     Next r
+    ws.Range(ws.Cells(lngStartRow, cfg.COL_ACTUAL_REMAINING_EFF), ws.Cells(lngEndRow, cfg.COL_ACTUAL_REMAINING_EFF)).Formula = varFormulas
     
     ' L1集計数式をセット
     tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
@@ -1053,9 +1068,12 @@ Public Sub SetFormulaForTaskProgressRate(ws As Worksheet)
 
     ' 変数定義
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim varFormulas() As Variant
+    Dim varNumberFormats() As Variant
     ' 一時変数定義
     Dim r As Long, i As Long
     Dim tmpStrFormula As String
+    Dim tmpVarTaskProgArray As Variant
     Dim tmpVarLevelArray As Variant, tmpVarLevelCell As Variant
     Dim tmpVarTaskArray As Variant, tmpVarTaskCell As Variant
     Dim tmpStrBoolArrayH As String, tmpStrBoolArrayT As String
@@ -1069,6 +1087,12 @@ Public Sub SetFormulaForTaskProgressRate(ws As Worksheet)
     ' 開始行と終了行が見つからなければ終了
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
     
+    ' 数式をセットするデータを用意
+    ReDim varFormulas(1 To lngEndRow - lngStartRow + 1, 1 To 1)
+    ReDim varNumberFormats(1 To lngEndRow - lngStartRow + 1, 1 To 1)
+    
+    ' あらかじめ項目消化率列のデータを取得
+    tmpVarTaskProgArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_TASK_PROG), ws.Cells(lngEndRow, cfg.COL_TASK_PROG)).value
     ' あらかじめWBSレベル列のデータを取得
     tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
     ' あらかじめWBSタスク判定列のデータを取得
@@ -1086,7 +1110,8 @@ Public Sub SetFormulaForTaskProgressRate(ws As Worksheet)
         
         If tmpVarTaskCell = True Then
             ' # 行がタスクの場合 #
-            ws.Range(cfg.COL_TASK_PROG_LABEL & r).NumberFormat = "0.0%"
+            varNumberFormats(i, 1) = "0.0%"
+            varFormulas(i, 1) = tmpVarTaskProgArray(i, 1)
         Else
             ' # 行がタスク以外の場合 #
             If tmpVarLevelCell = 5 Then
@@ -1104,8 +1129,8 @@ Public Sub SetFormulaForTaskProgressRate(ws As Worksheet)
                           "," & tmpStrBoolArrayT & ",0))" & _
                           "/IF(" & tmpStrSumWeightT & "=0,1," & tmpStrSumWeightT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_PROG_LABEL & r).NumberFormat = "General"
-                ws.Range(cfg.COL_TASK_PROG_LABEL & r).Formula = tmpStrFormula
+                varNumberFormats(i, 1) = "General"
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 4 Then
                 ' # 行がL4階層の場合 #
@@ -1133,8 +1158,8 @@ Public Sub SetFormulaForTaskProgressRate(ws As Worksheet)
                           "," & tmpStrBoolArrayT & ",0)))" & _
                           "/IF(" & tmpStrSumWeightH & "+" & tmpStrSumWeightT & "=0,1," & tmpStrSumWeightH & "+" & tmpStrSumWeightT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_PROG_LABEL & r).NumberFormat = "General"
-                ws.Range(cfg.COL_TASK_PROG_LABEL & r).Formula = tmpStrFormula
+                varNumberFormats(i, 1) = "General"
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 3 Then
                 ' # 行がL3階層の場合 #
@@ -1162,8 +1187,8 @@ Public Sub SetFormulaForTaskProgressRate(ws As Worksheet)
                           "," & tmpStrBoolArrayT & ",0)))" & _
                           "/IF(" & tmpStrSumWeightH & "+" & tmpStrSumWeightT & "=0,1," & tmpStrSumWeightH & "+" & tmpStrSumWeightT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_PROG_LABEL & r).NumberFormat = "General"
-                ws.Range(cfg.COL_TASK_PROG_LABEL & r).Formula = tmpStrFormula
+                varNumberFormats(i, 1) = "General"
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 2 Then
                 ' # 行がL2階層の場合 #
@@ -1191,8 +1216,8 @@ Public Sub SetFormulaForTaskProgressRate(ws As Worksheet)
                           "," & tmpStrBoolArrayT & ",0)))" & _
                           "/IF(" & tmpStrSumWeightH & "+" & tmpStrSumWeightT & "=0,1," & tmpStrSumWeightH & "+" & tmpStrSumWeightT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_PROG_LABEL & r).NumberFormat = "General"
-                ws.Range(cfg.COL_TASK_PROG_LABEL & r).Formula = tmpStrFormula
+                varNumberFormats(i, 1) = "General"
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 1 Then
                 ' # 行がL1階層の場合 #
@@ -1220,11 +1245,13 @@ Public Sub SetFormulaForTaskProgressRate(ws As Worksheet)
                           "," & tmpStrBoolArrayT & ",0)))" & _
                           "/IF(" & tmpStrSumWeightH & "+" & tmpStrSumWeightT & "=0,1," & tmpStrSumWeightH & "+" & tmpStrSumWeightT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_PROG_LABEL & r).NumberFormat = "General"
-                ws.Range(cfg.COL_TASK_PROG_LABEL & r).Formula = tmpStrFormula
+                varNumberFormats(i, 1) = "General"
+                varFormulas(i, 1) = tmpStrFormula
             End If
         End If
     Next r
+    ws.Range(ws.Cells(lngStartRow, cfg.COL_TASK_PROG), ws.Cells(lngEndRow, cfg.COL_TASK_PROG)).NumberFormat = varNumberFormats
+    ws.Range(ws.Cells(lngStartRow, cfg.COL_TASK_PROG), ws.Cells(lngEndRow, cfg.COL_TASK_PROG)).Formula = varFormulas
     
     ' L1集計数式をセット
     tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
@@ -1249,6 +1276,7 @@ Public Sub SetFormulaForEffortProgressRate(ws As Worksheet)
 
     ' 変数定義
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim varFormulas() As Variant
     ' 一時変数定義
     Dim r As Long, i As Long
     Dim tmpStrFormula As String
@@ -1264,6 +1292,9 @@ Public Sub SetFormulaForEffortProgressRate(ws As Worksheet)
 
     ' 開始行と終了行が見つからなければ終了
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' 数式をセットするデータを用意
+    ReDim varFormulas(1 To lngEndRow - lngStartRow + 1, 1 To 1)
     
     ' あらかじめWBSレベル列のデータを取得
     tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
@@ -1286,7 +1317,7 @@ Public Sub SetFormulaForEffortProgressRate(ws As Worksheet)
             "/IF(" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r & "+" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r & "=0," & _
             "1," & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & r & "+" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & r & ")"
             ' 指定された列のセルに数式をセット
-            ws.Range(cfg.COL_EFFORT_PROG_LABEL & r).Formula = tmpStrFormula
+            varFormulas(i, 1) = tmpStrFormula
         Else
             ' # 行がタスク以外の場合 #
             If tmpVarLevelCell = 5 Then
@@ -1303,7 +1334,7 @@ Public Sub SetFormulaForEffortProgressRate(ws As Worksheet)
                           "," & tmpStrBoolArrayT & ",0))" & _
                           "/IF(" & tmpStrCountT & "=0,1," & tmpStrCountT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_EFFORT_PROG_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 4 Then
                 ' # 行がL4階層の場合 #
@@ -1329,7 +1360,7 @@ Public Sub SetFormulaForEffortProgressRate(ws As Worksheet)
                           "," & tmpStrBoolArrayT & ",0)))" & _
                           "/IF(" & tmpStrCountH & "+" & tmpStrCountT & "=0,1," & tmpStrCountH & "+" & tmpStrCountT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_EFFORT_PROG_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 3 Then
                 ' # 行がL3階層の場合 #
@@ -1355,7 +1386,7 @@ Public Sub SetFormulaForEffortProgressRate(ws As Worksheet)
                           "," & tmpStrBoolArrayT & ",0)))" & _
                           "/IF(" & tmpStrCountH & "+" & tmpStrCountT & "=0,1," & tmpStrCountH & "+" & tmpStrCountT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_EFFORT_PROG_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 2 Then
                 ' # 行がL2階層の場合 #
@@ -1381,7 +1412,7 @@ Public Sub SetFormulaForEffortProgressRate(ws As Worksheet)
                           "," & tmpStrBoolArrayT & ",0)))" & _
                           "/IF(" & tmpStrCountH & "+" & tmpStrCountT & "=0,1," & tmpStrCountH & "+" & tmpStrCountT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_EFFORT_PROG_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 1 Then
                 ' # 行がL1階層の場合 #
@@ -1407,10 +1438,11 @@ Public Sub SetFormulaForEffortProgressRate(ws As Worksheet)
                           "," & tmpStrBoolArrayT & ",0)))" & _
                           "/IF(" & tmpStrCountH & "+" & tmpStrCountT & "=0,1," & tmpStrCountH & "+" & tmpStrCountT & ")"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_EFFORT_PROG_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
         End If
     Next r
+    ws.Range(ws.Cells(lngStartRow, cfg.COL_EFFORT_PROG), ws.Cells(lngEndRow, cfg.COL_EFFORT_PROG)).Formula = varFormulas
     
     ' L1集計数式をセット
     tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
@@ -1434,6 +1466,7 @@ Public Sub SetFormulaForTaskCount(ws As Worksheet)
 
     ' 変数定義
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim varFormulas() As Variant
     ' 一時変数定義
     Dim r As Long, i As Long
     Dim tmpStrFormula As String
@@ -1448,6 +1481,9 @@ Public Sub SetFormulaForTaskCount(ws As Worksheet)
 
     ' 開始行と終了行が見つからなければ終了
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' 数式をセットするデータを用意
+    ReDim varFormulas(1 To lngEndRow - lngStartRow + 1, 1 To 1)
     
     ' あらかじめWBSレベル列のデータを取得
     tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
@@ -1466,7 +1502,7 @@ Public Sub SetFormulaForTaskCount(ws As Worksheet)
         
         If tmpVarTaskCell = True Then
             ' # 行がタスクの場合 #
-            ws.Range(cfg.COL_TASK_COUNT_LABEL & r).value = 1
+            varFormulas(i, 1) = 1
         Else
             ' # 行がタスク以外の場合 #
             If tmpVarLevelCell = 5 Then
@@ -1480,7 +1516,7 @@ Public Sub SetFormulaForTaskCount(ws As Worksheet)
                           "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_COUNT_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 4 Then
                 ' # 行がL4階層の場合 #
@@ -1501,7 +1537,7 @@ Public Sub SetFormulaForTaskCount(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_COUNT_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 3 Then
                 ' # 行がL3階層の場合 #
@@ -1522,7 +1558,7 @@ Public Sub SetFormulaForTaskCount(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_COUNT_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 2 Then
                 ' # 行がL2階層の場合 #
@@ -1543,7 +1579,7 @@ Public Sub SetFormulaForTaskCount(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_COUNT_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 1 Then
                 ' # 行がL1階層の場合 #
@@ -1564,10 +1600,11 @@ Public Sub SetFormulaForTaskCount(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_COUNT_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
         End If
     Next r
+    ws.Range(ws.Cells(lngStartRow, cfg.COL_TASK_COUNT), ws.Cells(lngEndRow, cfg.COL_TASK_COUNT)).Formula = varFormulas
     
     ' L1集計数式をセット
     tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
@@ -1588,6 +1625,7 @@ Public Sub SetFormulaForTaskCompCount(ws As Worksheet)
 
     ' 変数定義
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim varFormulas() As Variant
     ' 一時変数定義
     Dim r As Long, i As Long
     Dim tmpStrFormula As String
@@ -1602,6 +1640,9 @@ Public Sub SetFormulaForTaskCompCount(ws As Worksheet)
 
     ' 開始行と終了行が見つからなければ終了
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' 数式をセットするデータを用意
+    ReDim varFormulas(1 To lngEndRow - lngStartRow + 1, 1 To 1)
     
     ' あらかじめWBSレベル列のデータを取得
     tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
@@ -1621,7 +1662,7 @@ Public Sub SetFormulaForTaskCompCount(ws As Worksheet)
         If tmpVarTaskCell = True Then
             ' # 行がタスクの場合 #
             tmpStrFormula = "=IF(" & cfg.COL_WBS_STATUS_LABEL & r & "=""" & cfg.WBS_STATUS_COMPLETED & """,1,0)"
-            ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & r).Formula = tmpStrFormula
+            varFormulas(i, 1) = tmpStrFormula
         Else
             ' # 行がタスク以外の場合 #
             If tmpVarLevelCell = 5 Then
@@ -1635,7 +1676,7 @@ Public Sub SetFormulaForTaskCompCount(ws As Worksheet)
                           "(" & cfg.COL_FLG_IC_LABEL & lngStartRow & ":" & cfg.COL_FLG_IC_LABEL & lngEndRow & "=TRUE)"
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 4 Then
                 ' # 行がL4階層の場合 #
@@ -1656,7 +1697,7 @@ Public Sub SetFormulaForTaskCompCount(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 3 Then
                 ' # 行がL3階層の場合 #
@@ -1677,7 +1718,7 @@ Public Sub SetFormulaForTaskCompCount(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 2 Then
                 ' # 行がL2階層の場合 #
@@ -1698,7 +1739,7 @@ Public Sub SetFormulaForTaskCompCount(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
             If tmpVarLevelCell = 1 Then
                 ' # 行がL1階層の場合 #
@@ -1719,10 +1760,11 @@ Public Sub SetFormulaForTaskCompCount(ws As Worksheet)
                 tmpStrFormula = "=SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayH & ",0))" & _
                           "+SUM(FILTER(" & cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow & "," & tmpStrBoolArrayT & ",0))"
                 ' 指定された列のセルに数式をセット
-                ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & r).Formula = tmpStrFormula
+                varFormulas(i, 1) = tmpStrFormula
             End If
         End If
     Next r
+    ws.Range(ws.Cells(lngStartRow, cfg.COL_TASK_COMP_COUNT), ws.Cells(lngEndRow, cfg.COL_TASK_COMP_COUNT)).Formula = varFormulas
     
     ' L1集計数式をセット
     tmpStrBoolArrayH = "(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ":" & cfg.COL_L1_LABEL & lngEndRow & "))*" & _
@@ -3044,3 +3086,4 @@ Function CustomFuncGetLevel(varE As Variant, varF As Variant, varG As Variant, v
         End If
     End If
 End Function
+
