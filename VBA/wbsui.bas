@@ -1625,7 +1625,7 @@ Private Function CreateValidationListString(ws As Worksheet, defineRange As Rang
         tmpDefineArray = Split(strDefine, ",")
         For i = LBound(tmpDefineArray) To UBound(tmpDefineArray)
             tmpTrimmedValue = Trim(tmpDefineArray(i))
-            If Len(tmpTrimmedValue) > 0 Then
+            If Len(tmpTrimmedValue) > 0 And tmpTrimmedValue <> "-" Then
                 ' Collection のキーに値を追加（重複はエラーになるため On Error Resume Next で無視）
                 On Error Resume Next
                 colUniqueList.Add tmpTrimmedValue, tmpTrimmedValue
@@ -1640,7 +1640,7 @@ Private Function CreateValidationListString(ws As Worksheet, defineRange As Rang
         For r = LBound(tmpDataArray, 1) To UBound(tmpDataArray, 1)
             For c = LBound(tmpDataArray, 2) To UBound(tmpDataArray, 2)
                 tmpVal = Trim(CStr(tmpDataArray(r, c)))
-                If Len(tmpVal) > 0 Then
+                If Len(tmpVal) > 0 And tmpVal <> "-" Then
                     On Error Resume Next
                     colUniqueList.Add tmpVal, tmpVal
                     On Error GoTo 0
@@ -1721,7 +1721,10 @@ Public Sub ResetHorizontalAlignment(ws As Worksheet)
     ws.Range(cfg.COL_ERR_LABEL & lngStartRow & ":" & cfg.COL_TASK_LABEL & lngEndRow).HorizontalAlignment = xlCenter
     
     ' タスク集計合計～カテゴリ2の配置
-    ws.Range(cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_CATEGORY2_LABEL & lngEndRow).HorizontalAlignment = xlCenter
+    ws.Range(cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow).HorizontalAlignment = xlRight
+
+    ' WBSステータス～カテゴリ2の配置
+    ws.Range(cfg.COL_WBS_STATUS_LABEL & lngStartRow & ":" & cfg.COL_CATEGORY2_LABEL & lngEndRow).HorizontalAlignment = xlCenter
 
     ' 成果物の配置
     ws.Range(cfg.COL_OUTPUT_LABEL & lngStartRow & ":" & cfg.COL_OUTPUT_LABEL & lngEndRow).HorizontalAlignment = xlLeft
@@ -1798,11 +1801,11 @@ Public Sub ResetExecuteForm(ws As Worksheet, Optional blnShouldClearOptMemory As
     Set shpExe1ComboBox = ws.Shapes.AddFormControl(xlDropDown, dblExe1ComboBoxLeft, dblExe1ComboBoxTop, dblExe1ComboBoxWidth, dblExe1ComboBoxHeight)
     shpExe1ComboBox.Name = cfg.NAME_EXE1_COMBOBOX
     With shpExe1ComboBox.ControlFormat
-        .AddItem "すべて再計算"
-        .AddItem "オートフィルターをリセット"
-        .AddItem "階層番号で全体をソート"
-        .AddItem "書式・入力規則をリセット"
         .AddItem "入力フォームをリセット"
+        .AddItem "オートフィルターをリセット"
+        .AddItem "書式・入力規則をリセット"
+        .AddItem "階層番号で全体をソート"
+        .AddItem "すべて再計算"
         .AddItem "エラーチェック"
     End With
     With ws.DropDowns(cfg.NAME_EXE1_COMBOBOX)
@@ -1871,8 +1874,8 @@ Public Sub ResetExecuteForm(ws As Worksheet, Optional blnShouldClearOptMemory As
         .AddItem "【OPT】 選択した行の下に一行追加"
         .AddItem "【OPT】 選択した階層番号の末尾を＋１"
         .AddItem "【OPT】 選択した階層番号の末尾を－１"
-        .AddItem "【CHK】 チェックした２箇所の階層番号の末尾番号を交換　※ チェックが同階層である階層行の２箇所でなかった場合は不可 ※"
-        .AddItem "【CHK】 チェックした行を削除　※ 子階層や子タスクがある場合は不可 ※"
+        .AddItem "【CHK】 チェックした２箇所の階層番号の末尾番号を交換　※ 同階層の２箇所でない場合は不可 ※"
+        .AddItem "【CHK】 チェックした行を削除　※ 孫階層がある場合は不可 ※"
     End With
     With ws.DropDowns(cfg.NAME_EXE2_COMBOBOX)
         .ListIndex = 1
@@ -2017,6 +2020,8 @@ Public Sub ResetBasicFormulas(ws As Worksheet)
     wbslib.SetFormulaForFlgPE ws
     wbslib.SetFormulaForFlgCE ws
     
+    wbslib.ExecConvertBasicFormulasToValues ws
+    
 End Sub
 
 
@@ -2030,6 +2035,8 @@ Public Sub ResetAggregateFormulas(ws As Worksheet)
     wbslib.SetFormulaForEffortProgressRate ws
     wbslib.SetFormulaForTaskCount ws
     wbslib.SetFormulaForTaskCompCount ws
+    
+    wbslib.ExecConvertAggregateFormulasToValues ws
 
 End Sub
 
@@ -2161,9 +2168,13 @@ Public Sub Exe1ButtonClick()
     ' 選択中のインデックスを取得
     lngSelectedIndex = shpExe1ComboBox.ControlFormat.ListIndex
 
+    ' 保護をアンロック
+    wbsui.UnsetSheetProtect ws
+    
     ' インデックスに対応する処理を実行
     Select Case lngSelectedIndex
         Case 1
+            ' # 入力フォームをリセット #
             Application.ScreenUpdating = False
             Application.Calculation = xlCalculationManual
             Application.EnableEvents = False
@@ -2178,13 +2189,14 @@ Public Sub Exe1ButtonClick()
                 Application.Calculation = xlCalculationManual
             End If
             
-            ' 集計数式のリセット
-            wbsui.ResetAggregateFormulas ws
+            ' 入力フォームをリセット
+            wbsui.ResetExecuteForm ws, True
             
             Application.ScreenUpdating = True
             Application.Calculation = xlCalculationAutomatic
             Application.EnableEvents = True
         Case 2
+            ' # オートフィルターをリセット #
             Application.ScreenUpdating = False
             Application.Calculation = xlCalculationManual
             Application.EnableEvents = False
@@ -2206,27 +2218,7 @@ Public Sub Exe1ButtonClick()
             Application.Calculation = xlCalculationAutomatic
             Application.EnableEvents = True
         Case 3
-            Application.ScreenUpdating = False
-            Application.Calculation = xlCalculationManual
-            Application.EnableEvents = False
-            
-            ' タイトル、基本数式のリセット
-            wbsui.ResetTitleRow ws
-            wbsui.ResetBasicFormulas ws
-            
-            ' 式の更新時、一時的自動計算を行う
-            If Application.Calculation = xlCalculationManual Then
-                Application.Calculation = xlCalculationAutomatic
-                Application.Calculation = xlCalculationManual
-            End If
-            
-            ' ソートを実施
-            wbslib.ExecSortWbsRange ws
-            
-            Application.ScreenUpdating = True
-            Application.Calculation = xlCalculationAutomatic
-            Application.EnableEvents = True
-        Case 4
+            ' # 書式・入力規則をリセット #
             Application.ScreenUpdating = False
             Application.Calculation = xlCalculationManual
             Application.EnableEvents = False
@@ -2250,7 +2242,8 @@ Public Sub Exe1ButtonClick()
             Application.ScreenUpdating = True
             Application.Calculation = xlCalculationAutomatic
             Application.EnableEvents = True
-        Case 5
+        Case 4
+            ' # 階層番号で全体をソート #
             Application.ScreenUpdating = False
             Application.Calculation = xlCalculationManual
             Application.EnableEvents = False
@@ -2265,13 +2258,40 @@ Public Sub Exe1ButtonClick()
                 Application.Calculation = xlCalculationManual
             End If
             
-            ' 入力フォームをリセット
-            wbsui.ResetExecuteForm ws, True
+            ' ソートを実施
+            wbslib.ExecSortWbsRange ws
+            
+            Application.ScreenUpdating = True
+            Application.Calculation = xlCalculationAutomatic
+            Application.EnableEvents = True
+        Case 5
+            ' # すべて再計算 #
+            Application.ScreenUpdating = False
+            Application.Calculation = xlCalculationManual
+            Application.EnableEvents = False
+            
+            ' タイトル、基本数式のリセット
+            wbsui.ResetTitleRow ws
+            wbsui.ResetBasicFormulas ws
+            
+            ' 式の更新時、一時的自動計算を行う
+            If Application.Calculation = xlCalculationManual Then
+                Application.Calculation = xlCalculationAutomatic
+                Application.Calculation = xlCalculationManual
+            End If
+            
+            If wbslib.ExecCheckWbsHasErrors(ws, False) = False Then
+                ' 集計数式のリセット
+                wbsui.ResetAggregateFormulas ws
+            Else
+                MsgBox "エラーを解消してください。", vbExclamation
+            End If
             
             Application.ScreenUpdating = True
             Application.Calculation = xlCalculationAutomatic
             Application.EnableEvents = True
         Case 6
+            ' # エラーチェック #
             Application.ScreenUpdating = False
             Application.Calculation = xlCalculationManual
             Application.EnableEvents = False
@@ -2287,7 +2307,7 @@ Public Sub Exe1ButtonClick()
             End If
             
             ' エラーチェック
-            wbslib.ExecCheckWbsErrors ws
+            Call wbslib.ExecCheckWbsHasErrors(ws)
             
             Application.ScreenUpdating = True
             Application.Calculation = xlCalculationAutomatic
@@ -2295,6 +2315,9 @@ Public Sub Exe1ButtonClick()
         Case Else
             MsgBox "項目が選択されていません。"
     End Select
+    
+    ' 保護を再セット
+    wbsui.SetSheetProtect ws
 
 End Sub
 
@@ -2352,9 +2375,13 @@ Public Sub Exe2ButtonClick()
     ' 選択中のインデックスを取得
     lngSelectedIndex = shpExe2ComboBox.ControlFormat.ListIndex
 
+    ' 保護をアンロック
+    wbsui.UnsetSheetProtect ws
+    
     ' インデックスに対応する処理を実行
     Select Case lngSelectedIndex
         Case 1
+            ' # 選択した行の下に一行追加 #
             Application.ScreenUpdating = False
             Application.Calculation = xlCalculationManual
             Application.EnableEvents = False
@@ -2369,14 +2396,16 @@ Public Sub Exe2ButtonClick()
                 Application.Calculation = xlCalculationManual
             End If
             
-            ' 選択した行の下に一行追加
-            wbslib.ExecInsertRowBelowSelection ws
-            
-            ' 初期値入力
-            wbsui.SetInitialValue ws
-            
-            ' 基本数式リセット
-            wbsui.ResetBasicFormulas ws
+            If wbslib.ExecCheckWbsHasErrors(ws, False) = False Then
+                ' 選択した行の下に一行追加
+                wbslib.ExecInsertRowBelowSelection ws
+                ' 初期値入力
+                wbsui.SetInitialValue ws
+                ' 基本数式リセット
+                wbsui.ResetBasicFormulas ws
+            Else
+                MsgBox "エラーを解消してください。", vbExclamation
+            End If
             
             ' 式の更新時、一時的自動計算を行う
             If Application.Calculation = xlCalculationManual Then
@@ -2388,12 +2417,13 @@ Public Sub Exe2ButtonClick()
             wbsui.ResetAggregateFormulas ws
             
             ' エラーチェック
-            wbslib.ExecCheckWbsErrors ws
+            Call wbslib.ExecCheckWbsHasErrors(ws)
             
             Application.ScreenUpdating = True
             Application.Calculation = xlCalculationAutomatic
             Application.EnableEvents = True
         Case 2
+            ' # 選択した階層番号の末尾を＋１ #
             Application.ScreenUpdating = False
             Application.Calculation = xlCalculationManual
             Application.EnableEvents = False
@@ -2408,14 +2438,16 @@ Public Sub Exe2ButtonClick()
                 Application.Calculation = xlCalculationManual
             End If
             
-            ' 選択した行の末尾のインデックスを+1
-            wbslib.ExecIncrementSelectedLastLevel ws
-            
-            ' 初期値入力
-            wbsui.SetInitialValue ws
-            
-            ' 基本数式リセット
-            wbsui.ResetBasicFormulas ws
+            If wbslib.ExecCheckWbsHasErrors(ws, False) = False Then
+                ' 選択した行の末尾のインデックスを+1
+                wbslib.ExecIncrementSelectedLastLevel ws
+                ' 初期値入力
+                wbsui.SetInitialValue ws
+                ' 基本数式リセット
+                wbsui.ResetBasicFormulas ws
+            Else
+                MsgBox "エラーを解消してください。", vbExclamation
+            End If
             
             ' 式の更新時、一時的自動計算を行う
             If Application.Calculation = xlCalculationManual Then
@@ -2427,12 +2459,13 @@ Public Sub Exe2ButtonClick()
             wbsui.ResetAggregateFormulas ws
             
             ' エラーチェック
-            wbslib.ExecCheckWbsErrors ws
+            Call wbslib.ExecCheckWbsHasErrors(ws)
             
             Application.ScreenUpdating = True
             Application.Calculation = xlCalculationAutomatic
             Application.EnableEvents = True
         Case 3
+            ' # 選択した階層番号の末尾を－１ #
             Application.ScreenUpdating = False
             Application.Calculation = xlCalculationManual
             Application.EnableEvents = False
@@ -2447,14 +2480,16 @@ Public Sub Exe2ButtonClick()
                 Application.Calculation = xlCalculationManual
             End If
             
-            ' 選択した行の末尾のインデックスを-1
-            wbslib.ExecDecrementSelectedLastLevel ws
-            
-            ' 初期値入力
-            wbsui.SetInitialValue ws
-            
-            ' 基本数式リセット
-            wbsui.ResetBasicFormulas ws
+            If wbslib.ExecCheckWbsHasErrors(ws, False) = False Then
+                ' 選択した行の末尾のインデックスを-1
+                wbslib.ExecDecrementSelectedLastLevel ws
+                ' 初期値入力
+                wbsui.SetInitialValue ws
+                ' 基本数式リセット
+                wbsui.ResetBasicFormulas ws
+            Else
+                MsgBox "エラーを解消してください。", vbExclamation
+            End If
             
             ' 式の更新時、一時的自動計算を行う
             If Application.Calculation = xlCalculationManual Then
@@ -2466,18 +2501,101 @@ Public Sub Exe2ButtonClick()
             wbsui.ResetAggregateFormulas ws
             
             ' エラーチェック
-            wbslib.ExecCheckWbsErrors ws
+            Call wbslib.ExecCheckWbsHasErrors(ws)
             
             Application.ScreenUpdating = True
             Application.Calculation = xlCalculationAutomatic
             Application.EnableEvents = True
         Case 4
-            MsgBox "４つ目を選択（" & ws.Name & "）"
+            ' # チェックした２箇所の階層番号の末尾番号を交換 #
+            Application.ScreenUpdating = False
+            Application.Calculation = xlCalculationManual
+            Application.EnableEvents = False
+            
+            ' タイトル、基本数式のリセット
+            wbsui.ResetTitleRow ws
+            wbsui.ResetBasicFormulas ws
+            
+            ' 式の更新時、一時的自動計算を行う
+            If Application.Calculation = xlCalculationManual Then
+                Application.Calculation = xlCalculationAutomatic
+                Application.Calculation = xlCalculationManual
+            End If
+            
+            If wbslib.ExecCheckWbsHasErrors(ws, False) = False Then
+                ' チェックした２箇所の階層番号の末尾番号を交換
+                wbslib.ExecSwapCheckedLastLevel ws
+                ' 初期値入力
+                wbsui.SetInitialValue ws
+                ' 基本数式リセット
+                wbsui.ResetBasicFormulas ws
+            Else
+                MsgBox "エラーを解消してください。", vbExclamation
+            End If
+            
+            ' 式の更新時、一時的自動計算を行う
+            If Application.Calculation = xlCalculationManual Then
+                Application.Calculation = xlCalculationAutomatic
+                Application.Calculation = xlCalculationManual
+            End If
+            
+            ' 集計数式リセット
+            wbsui.ResetAggregateFormulas ws
+            
+            ' エラーチェック
+            Call wbslib.ExecCheckWbsHasErrors(ws)
+            
+            Application.ScreenUpdating = True
+            Application.Calculation = xlCalculationAutomatic
+            Application.EnableEvents = True
         Case 5
-            MsgBox "５つ目を選択（" & ws.Name & "）"
+            ' # チェックした行を削除 #
+            Application.ScreenUpdating = False
+            Application.Calculation = xlCalculationManual
+            Application.EnableEvents = False
+            
+            ' タイトル、基本数式のリセット
+            wbsui.ResetTitleRow ws
+            wbsui.ResetBasicFormulas ws
+            
+            ' 式の更新時、一時的自動計算を行う
+            If Application.Calculation = xlCalculationManual Then
+                Application.Calculation = xlCalculationAutomatic
+                Application.Calculation = xlCalculationManual
+            End If
+            
+            If wbslib.ExecCheckWbsHasErrors(ws, False) = False Then
+                ' チェックした行を削除
+                wbslib.ExecRemoveCheckedRows ws
+                ' 初期値入力
+                wbsui.SetInitialValue ws
+                ' 基本数式リセット
+                wbsui.ResetBasicFormulas ws
+            Else
+                MsgBox "エラーを解消してください。", vbExclamation
+            End If
+            
+            ' 式の更新時、一時的自動計算を行う
+            If Application.Calculation = xlCalculationManual Then
+                Application.Calculation = xlCalculationAutomatic
+                Application.Calculation = xlCalculationManual
+            End If
+            
+            ' 集計数式リセット
+            wbsui.ResetAggregateFormulas ws
+            
+            ' エラーチェック
+            Call wbslib.ExecCheckWbsHasErrors(ws)
+            
+            Application.ScreenUpdating = True
+            Application.Calculation = xlCalculationAutomatic
+            Application.EnableEvents = True
         Case Else
             MsgBox "項目が選択されていません。"
     End Select
+    
+    ' 保護を再セット
+    wbsui.SetSheetProtect ws
 
 End Sub
 
@@ -2539,6 +2657,12 @@ Private Sub InitDoubleClickHandlerToSheet(ws As Worksheet)
     codeLines.Add "' See the License for the specific language governing permissions and"
     codeLines.Add "' limitations under the License."
     codeLines.Add "' ------------------------------------------------------------------------------"
+    codeLines.Add ""
+    codeLines.Add ""
+    codeLines.Add "' ◆ WBSシートであることを示す関数を定義"
+    codeLines.Add "Public Function IsWBS() As Boolean"
+    codeLines.Add "    IsWBS = True"
+    codeLines.Add "End Function"
     codeLines.Add ""
     codeLines.Add ""
     codeLines.Add "' ◆ CHK と OPT のダブルクリックイベントを実装"
@@ -2645,5 +2769,99 @@ Private Sub InitDoubleClickHandlerToSheet(ws As Worksheet)
         Next i
     End With
 
+End Sub
+
+
+' ■ ブックの保存時に実行される処理の定義
+Public Sub ExecBeforeSave(ws As Worksheet)
+
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+    Application.EnableEvents = False
+    
+    ' 保護をアンロック
+    wbsui.UnsetSheetProtect ws
+    
+    ' タイトル、基本数式のリセット
+    wbsui.ResetTitleRow ws
+    wbsui.ResetBasicFormulas ws
+    
+    ' 式の更新時、一時的自動計算を行う
+    If Application.Calculation = xlCalculationManual Then
+        Application.Calculation = xlCalculationAutomatic
+        Application.Calculation = xlCalculationManual
+    End If
+
+    ' 集計数式リセット
+    wbsui.ResetAggregateFormulas ws
+    ' 入力フォームをリセット
+    wbsui.ResetExecuteForm ws, False
+    ' 書式・入力規則をリセット
+    wbsui.ResetConditionalFormatting ws
+    wbsui.ResetDataValidation ws
+    wbsui.ResetHorizontalAlignment ws
+    wbsui.ResetAutoFilter ws
+    
+    ' エラーチェック
+    Call wbslib.ExecCheckWbsHasErrors(ws)
+    
+    ' 保護を再セット
+    wbsui.SetSheetProtect ws
+    
+    Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.EnableEvents = True
+End Sub
+
+
+' ■ シートプロテクトを解除
+Sub UnsetSheetProtect(ws As Worksheet)
+    
+    ' 保護解除
+    ws.Unprotect Password:=cfg.APP_PASSWORD
+
+End Sub
+
+
+' ■ シートプロテクトを更新
+Sub SetSheetProtect(ws As Worksheet)
+    
+    ' 変数定義
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    
+    ' 開始行と終了行に値をセット
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' すべてのセルをロック
+    ws.Cells.Locked = True
+    
+    ' 編集許可したい範囲だけロック解除
+    ws.Rows(cfg.ROW_TITLE).Locked = False
+    ws.Range(cfg.COL_EFFORT_PROG_LABEL & cfg.ROW_CTRL1 & ":" & cfg.COL_EFFORT_PROG_LABEL & cfg.ROW_CTRL2).Locked = False
+    ws.Range(cfg.COL_CATEGORY2_LABEL & cfg.ROW_CTRL1 & ":" & cfg.COL_CATEGORY2_LABEL & cfg.ROW_CTRL2).Locked = False
+    ws.Range(cfg.COL_CHK_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow).Locked = False
+    
+    ' シート保護をかけなおし（マクロ操作だけOK）
+    ws.Protect Password:=cfg.APP_PASSWORD, _
+               UserInterfaceOnly:=True, _
+               AllowInsertingRows:=False, _
+               AllowDeletingRows:=False, _
+               AllowFormattingCells:=False, _
+               AllowSorting:=False, _
+               AllowFiltering:=True
+End Sub
+
+
+' ■ シートプロテクトを更新
+Sub ResetSheetProtect(ws As Worksheet)
+    
+    wbsui.UnsetSheetProtect ws
+    wbsui.SetSheetProtect ws
+    
 End Sub
 

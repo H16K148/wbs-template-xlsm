@@ -17,6 +17,9 @@ Attribute VB_Name = "cfg"
 
 ' ■ 定数定義
 
+' 解除パスワード
+Public Const APP_PASSWORD As String = "h16k148"
+
 ' バージョン
 Public Const APP_VERSION As String = "0.1.0"
 
@@ -204,7 +207,7 @@ Public Const NAME_RESET2_BUTTON   As String = "Reset2Button"
 Public Const WIDTH_EXE1_COMBOBOX = 250
 Public Const WIDTH_EXE1_BUTTON = 40
 Public Const WIDTH_RESET1_BUTTON = 55
-Public Const WIDTH_EXE2_COMBOBOX = 500
+Public Const WIDTH_EXE2_COMBOBOX = 400
 Public Const WIDTH_EXE2_BUTTON = 40
 Public Const WIDTH_RESET2_BUTTON = 55
 

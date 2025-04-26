@@ -68,9 +68,10 @@ End Function
 
 
 ' ■ エラーチェックを実施
-Public Sub ExecCheckWbsErrors(ws As Worksheet)
+Public Function ExecCheckWbsHasErrors(ws As Worksheet, Optional ByVal blnShowMessage As Boolean = True) As Boolean
 
     ' 変数定義
+    Dim blnResult As Boolean
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
     Dim blnHasError As Boolean
     Dim intErrorCount As Integer
@@ -108,8 +109,11 @@ Public Sub ExecCheckWbsErrors(ws As Worksheet)
     lngStartRow = varRangeRows(0)
     lngEndRow = varRangeRows(1)
 
-    ' 開始行と終了行が見つからなければ終了
-    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    ' 開始行と終了行が見つからなければエラー終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then
+        ExecCheckWbsHasErrors = True
+        Exit Function
+    End If
 
     ' ERR 列の E をクリア
     ws.Range(ws.Cells(lngStartRow, cfg.COL_ERR), ws.Cells(lngEndRow, cfg.COL_ERR)).ClearContents
@@ -262,11 +266,12 @@ Public Sub ExecCheckWbsErrors(ws As Worksheet)
     End If
     
     ' エラーがあればメッセージ表示
-    If intErrorCount > 0 Then
+    If blnShowMessage = True And intErrorCount > 0 Then
         MsgBox intErrorCount & " 件の異常を検出しました。", vbExclamation, "エラーチェック"
     End If
     
-End Sub
+    ExecCheckWbsHasErrors = blnHasError
+End Function
 
 
 ' ■ データ範囲をソートする
@@ -309,13 +314,21 @@ Public Sub SetFormulaForWbsIdx(ws As Worksheet)
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
 
     ' 数式を作成
-    strFormula = "=IF(" & cfg.COL_ERR_LABEL & lngStartRow & "=""E"",""ERROR""," & _
-                    "IF(" & cfg.COL_L1_LABEL & lngStartRow & "="""",""XXX.XXX.XXX.XXX.XXX.XXX"", CONCAT(TEXT(" & cfg.COL_L1_LABEL & lngStartRow & ",""000"")," & _
-                    "IF(" & cfg.COL_L2_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_L2_LABEL & lngStartRow & ",""000""))," & _
-                    "IF(" & cfg.COL_L3_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_L3_LABEL & lngStartRow & ",""000""))," & _
-                    "IF(" & cfg.COL_L4_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_L4_LABEL & lngStartRow & ",""000""))," & _
-                    "IF(" & cfg.COL_L5_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_L5_LABEL & lngStartRow & ",""000""))," & _
-                    "IF(" & cfg.COL_TASK_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_TASK_LABEL & lngStartRow & ",""000"")))))"
+    ' strFormula = "=IF(" & cfg.COL_ERR_LABEL & lngStartRow & "=""E"",""ERROR""," & _
+    '                 "IF(" & cfg.COL_L1_LABEL & lngStartRow & "="""",""XXX.XXX.XXX.XXX.XXX.XXX"", CONCAT(TEXT(" & cfg.COL_L1_LABEL & lngStartRow & ",""000"")," & _
+    '                 "IF(" & cfg.COL_L2_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_L2_LABEL & lngStartRow & ",""000""))," & _
+    '                 "IF(" & cfg.COL_L3_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_L3_LABEL & lngStartRow & ",""000""))," & _
+    '                 "IF(" & cfg.COL_L4_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_L4_LABEL & lngStartRow & ",""000""))," & _
+    '                 "IF(" & cfg.COL_L5_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_L5_LABEL & lngStartRow & ",""000""))," & _
+    '                 "IF(" & cfg.COL_TASK_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_TASK_LABEL & lngStartRow & ",""000"")))))"
+    strFormula = "=CustomFormatWbsIdx(" & _
+                    cfg.COL_ERR_LABEL & lngStartRow & "," & _
+                    cfg.COL_L1_LABEL & lngStartRow & "," & _
+                    cfg.COL_L2_LABEL & lngStartRow & "," & _
+                    cfg.COL_L3_LABEL & lngStartRow & "," & _
+                    cfg.COL_L4_LABEL & lngStartRow & "," & _
+                    cfg.COL_L5_LABEL & lngStartRow & "," & _
+                    cfg.COL_TASK_LABEL & lngStartRow & ")"
 
     ' 一括で対象範囲を取得
     With ws.Range(cfg.COL_WBS_IDX_LABEL & lngStartRow & ":" & cfg.COL_WBS_IDX_LABEL & lngEndRow)
@@ -376,13 +389,21 @@ Public Sub SetFormulaForWbsId(ws As Worksheet)
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
 
     ' 数式を作成
-    strFormula = "=IF(" & cfg.COL_ERR_LABEL & lngStartRow & "=""E"",""ERROR""," & _
-                    "IF(" & cfg.COL_L1_LABEL & lngStartRow & "="""","""",CONCAT(" & cfg.COL_L1_LABEL & lngStartRow & "," & _
-                    "IF(" & cfg.COL_L2_LABEL & lngStartRow & "="""","""","".""&" & cfg.COL_L2_LABEL & lngStartRow & " ), " & _
-                    "IF(" & cfg.COL_L3_LABEL & lngStartRow & "="""","""","".""&" & cfg.COL_L3_LABEL & lngStartRow & " ), " & _
-                    "IF(" & cfg.COL_L4_LABEL & lngStartRow & "="""","""","".""&" & cfg.COL_L4_LABEL & lngStartRow & " ), " & _
-                    "IF(" & cfg.COL_L5_LABEL & lngStartRow & "="""","""","".""&" & cfg.COL_L5_LABEL & lngStartRow & " ), " & _
-                    "IF(" & cfg.COL_TASK_LABEL & lngStartRow & "="""","""","".T""&" & cfg.COL_TASK_LABEL & lngStartRow & " ))))"
+    ' strFormula = "=IF(" & cfg.COL_ERR_LABEL & lngStartRow & "=""E"",""ERROR""," & _
+    '                 "IF(" & cfg.COL_L1_LABEL & lngStartRow & "="""","""",CONCAT(" & cfg.COL_L1_LABEL & lngStartRow & "," & _
+    '                 "IF(" & cfg.COL_L2_LABEL & lngStartRow & "="""","""","".""&" & cfg.COL_L2_LABEL & lngStartRow & " ), " & _
+    '                 "IF(" & cfg.COL_L3_LABEL & lngStartRow & "="""","""","".""&" & cfg.COL_L3_LABEL & lngStartRow & " ), " & _
+    '                 "IF(" & cfg.COL_L4_LABEL & lngStartRow & "="""","""","".""&" & cfg.COL_L4_LABEL & lngStartRow & " ), " & _
+    '                 "IF(" & cfg.COL_L5_LABEL & lngStartRow & "="""","""","".""&" & cfg.COL_L5_LABEL & lngStartRow & " ), " & _
+    '                 "IF(" & cfg.COL_TASK_LABEL & lngStartRow & "="""","""","".T""&" & cfg.COL_TASK_LABEL & lngStartRow & " ))))"
+    strFormula = "=CustomFormatWbsId(" & _
+                    cfg.COL_ERR_LABEL & lngStartRow & "," & _
+                    cfg.COL_L1_LABEL & lngStartRow & "," & _
+                    cfg.COL_L2_LABEL & lngStartRow & "," & _
+                    cfg.COL_L3_LABEL & lngStartRow & "," & _
+                    cfg.COL_L4_LABEL & lngStartRow & "," & _
+                    cfg.COL_L5_LABEL & lngStartRow & "," & _
+                    cfg.COL_TASK_LABEL & lngStartRow & ")"
 
     ' 一括で対象範囲を取得
     With ws.Range(cfg.COL_WBS_ID_LABEL & lngStartRow & ":" & cfg.COL_WBS_ID_LABEL & lngEndRow)
@@ -411,16 +432,22 @@ Public Sub SetFormulaForLevel(ws As Worksheet)
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
 
     ' 数式を作成
-    strFormula = "=IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ")," & cfg.COL_L2_LABEL & lngStartRow & "=""""," & cfg.COL_L3_LABEL & lngStartRow & "=""""," & _
-                    cfg.COL_L4_LABEL & lngStartRow & "=""""," & cfg.COL_L5_LABEL & lngStartRow & "=""""),1," & _
-                    "IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & ")," & cfg.COL_L3_LABEL & lngStartRow & "=""""," & _
-                    cfg.COL_L4_LABEL & lngStartRow & "=""""," & cfg.COL_L5_LABEL & lngStartRow & "=""""),2," & _
-                    "IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & ")," & _
-                    cfg.COL_L4_LABEL & lngStartRow & "=""""," & cfg.COL_L5_LABEL & lngStartRow & "=""""),3," & _
-                    "IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & "),ISNUMBER(" & _
-                    cfg.COL_L4_LABEL & lngStartRow & ")," & cfg.COL_L5_LABEL & lngStartRow & "=""""),4," & _
-                    "IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & "),ISNUMBER(" & _
-                    cfg.COL_L4_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L5_LABEL & lngStartRow & ")),5,0)))))"
+    ' strFormula = "=IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ")," & cfg.COL_L2_LABEL & lngStartRow & "=""""," & cfg.COL_L3_LABEL & lngStartRow & "=""""," & _
+    '                 cfg.COL_L4_LABEL & lngStartRow & "=""""," & cfg.COL_L5_LABEL & lngStartRow & "=""""),1," & _
+    '                 "IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & ")," & cfg.COL_L3_LABEL & lngStartRow & "=""""," & _
+    '                 cfg.COL_L4_LABEL & lngStartRow & "=""""," & cfg.COL_L5_LABEL & lngStartRow & "=""""),2," & _
+    '                 "IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & ")," & _
+    '                 cfg.COL_L4_LABEL & lngStartRow & "=""""," & cfg.COL_L5_LABEL & lngStartRow & "=""""),3," & _
+    '                 "IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & "),ISNUMBER(" & _
+    '                 cfg.COL_L4_LABEL & lngStartRow & ")," & cfg.COL_L5_LABEL & lngStartRow & "=""""),4," & _
+    '                 "IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & "),ISNUMBER(" & _
+    '                 cfg.COL_L4_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L5_LABEL & lngStartRow & ")),5,0)))))"
+    strFormula = "=CustomFuncGetLevel(" & _
+                    cfg.COL_L1_LABEL & lngStartRow & "," & _
+                    cfg.COL_L2_LABEL & lngStartRow & "," & _
+                    cfg.COL_L3_LABEL & lngStartRow & "," & _
+                    cfg.COL_L4_LABEL & lngStartRow & "," & _
+                    cfg.COL_L5_LABEL & lngStartRow & ")"
 
     ' 一括で対象範囲を取得
     With ws.Range(cfg.COL_LEVEL_LABEL & lngStartRow & ":" & cfg.COL_LEVEL_LABEL & lngEndRow)
@@ -1794,6 +1821,8 @@ Public Sub ExecInsertRowBelowSelection(ws As Worksheet)
     ' 変数定義
     Dim varRangeRows As Variant, lngStartRow As Long
     Dim lngSelectedRow As Long
+    ' 一時変数定義
+    Dim tmpLngCol As Long
     
     ' 開始行と終了行を取得
     varRangeRows = FindDataRangeRows(ws)
@@ -1804,6 +1833,12 @@ Public Sub ExecInsertRowBelowSelection(ws As Worksheet)
     If lngSelectedRow <> 0 Then
         ' 行を追加
         ws.Rows(lngSelectedRow + 1).Insert Shift:=xlDown
+        ' 1列ずつチェックして、基本数式だけコピー
+        For tmpLngCol = cfg.COL_WBS_IDX To cfg.COL_WBS_ID
+            If ws.Cells(lngSelectedRow, tmpLngCol).HasFormula Then
+                ws.Cells(lngSelectedRow + 1, tmpLngCol).Formula = ws.Cells(lngSelectedRow, tmpLngCol).Formula
+            End If
+        Next tmpLngCol
     Else
         MsgBox "選択してください（OPT)。", vbExclamation, "通知"
     End If
@@ -1815,16 +1850,16 @@ End Sub
 Public Sub ExecIncrementSelectedLastLevel(ws As Worksheet)
 
     ' 変数定義
-    Dim lngSelectedRow As Long, intSelectedRowLevel As Integer, blnSelectedRowIsTask As Boolean
+    Dim lngSelectedRow As Long, intSelectedLevel As Integer, blnSelectedIsTask As Boolean
+    Dim varSelectedL1 As Variant, varSelectedL2 As Variant, varSelectedL3 As Variant, varSelectedL4 As Variant, varSelectedL5 As Variant, varSelectedTask As Variant
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
     Dim colTargetIdx As New Collection
+    Dim rngTarget As Range
+    Dim varTargetArray As Variant
+    Dim varLevelArray As Variant
+    Dim varTaskArray As Variant
     ' 一時変数定義
     Dim r As Long, i As Long
-    Dim tmpRngTarget As Range
-    Dim tmpVarTargetArray As Variant
-    Dim tmpVarLevelArray As Variant
-    Dim tmpVarTaskArray As Variant
-    Dim tmpLngSelectedRowL1 As Long, tmpLngSelectedRowL2 As Long, tmpLngSelectedRowL3 As Long, tmpLngSelectedRowL4 As Long, tmpLngSelectedRowL5 As Long, tmpLngSelectedRowTask As Long
     Dim tmpVarIdx As Variant
     
     ' 開始行と終了行を取得
@@ -1845,83 +1880,82 @@ Public Sub ExecIncrementSelectedLastLevel(ws As Worksheet)
     End If
     
     ' あらかじめ更新対象範囲列のデータを取得
-    Set tmpRngTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_L1), ws.Cells(lngEndRow, cfg.COL_TASK))
-    tmpVarTargetArray = tmpRngTarget.value
+    Set rngTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_L1), ws.Cells(lngEndRow, cfg.COL_TASK))
+    varTargetArray = rngTarget.value
     ' あらかじめWBSレベル列のデータを取得
-    tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
+    varLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
     ' あらかじめWBSタスク判定列のデータを取得
-    tmpVarTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
+    varTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
     
     ' 選択した行のレベルを取得
-    intSelectedRowLevel = tmpVarLevelArray(lngSelectedRow - lngStartRow + 1, 1)
+    intSelectedLevel = varLevelArray(lngSelectedRow - lngStartRow + 1, 1)
     ' 選択した行がタスクかどうか取得
-    blnSelectedRowIsTask = tmpVarTaskArray(lngSelectedRow - lngStartRow + 1, 1)
-    
+    blnSelectedIsTask = varTaskArray(lngSelectedRow - lngStartRow + 1, 1)
     ' 選択した行のデータを取得
-    tmpLngSelectedRowL1 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 1)
-    tmpLngSelectedRowL2 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 2)
-    tmpLngSelectedRowL3 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 3)
-    tmpLngSelectedRowL4 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 4)
-    tmpLngSelectedRowL5 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 5)
-    tmpLngSelectedRowTask = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 6)
+    varSelectedL1 = varTargetArray(lngSelectedRow - lngStartRow + 1, 1)
+    varSelectedL2 = varTargetArray(lngSelectedRow - lngStartRow + 1, 2)
+    varSelectedL3 = varTargetArray(lngSelectedRow - lngStartRow + 1, 3)
+    varSelectedL4 = varTargetArray(lngSelectedRow - lngStartRow + 1, 4)
+    varSelectedL5 = varTargetArray(lngSelectedRow - lngStartRow + 1, 5)
+    varSelectedTask = varTargetArray(lngSelectedRow - lngStartRow + 1, 6)
     
     ' 更新対象範囲列のデータを更新
-    If blnSelectedRowIsTask = True Then
+    If blnSelectedIsTask = True Then
         ' # 選択行がタスクの場合 #
         ' 対象となるデータインデックスをコレクションに格納
         For r = lngStartRow To lngEndRow
             ' 現在のインデックスを取得
             i = r - lngStartRow + 1
             ' 対象行か判定してコレクションに格納
-            If intSelectedRowLevel = 5 And _
-                    tmpVarTargetArray(i, 6) >= tmpLngSelectedRowTask And _
-                    tmpVarTargetArray(i, 5) = tmpLngSelectedRowL5 And _
-                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 5 And _
+                    varTargetArray(i, 6) >= varSelectedTask And _
+                    varTargetArray(i, 5) = varSelectedL5 And _
+                    varTargetArray(i, 4) = varSelectedL4 And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 4 And _
-                    tmpVarTargetArray(i, 6) >= tmpLngSelectedRowTask And _
-                    IsEmpty(tmpVarTargetArray(i, 5)) And _
-                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 4 And _
+                    varTargetArray(i, 6) >= varSelectedTask And _
+                    IsEmpty(varTargetArray(i, 5)) And _
+                    varTargetArray(i, 4) = varSelectedL4 And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 3 And _
-                    tmpVarTargetArray(i, 6) >= tmpLngSelectedRowTask And _
-                    IsEmpty(tmpVarTargetArray(i, 5)) And _
-                    IsEmpty(tmpVarTargetArray(i, 4)) And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 3 And _
+                    varTargetArray(i, 6) >= varSelectedTask And _
+                    IsEmpty(varTargetArray(i, 5)) And _
+                    IsEmpty(varTargetArray(i, 4)) And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 2 And _
-                    tmpVarTargetArray(i, 6) >= tmpLngSelectedRowTask And _
-                    IsEmpty(tmpVarTargetArray(i, 5)) And _
-                    IsEmpty(tmpVarTargetArray(i, 4)) And _
-                    IsEmpty(tmpVarTargetArray(i, 3)) And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 2 And _
+                    varTargetArray(i, 6) >= varSelectedTask And _
+                    IsEmpty(varTargetArray(i, 5)) And _
+                    IsEmpty(varTargetArray(i, 4)) And _
+                    IsEmpty(varTargetArray(i, 3)) And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 1 And _
-                    tmpVarTargetArray(i, 6) >= tmpLngSelectedRowTask And _
-                    IsEmpty(tmpVarTargetArray(i, 5)) And _
-                    IsEmpty(tmpVarTargetArray(i, 4)) And _
-                    IsEmpty(tmpVarTargetArray(i, 3)) And _
-                    IsEmpty(tmpVarTargetArray(i, 2)) And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 1 And _
+                    varTargetArray(i, 6) >= varSelectedTask And _
+                    IsEmpty(varTargetArray(i, 5)) And _
+                    IsEmpty(varTargetArray(i, 4)) And _
+                    IsEmpty(varTargetArray(i, 3)) And _
+                    IsEmpty(varTargetArray(i, 2)) And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
         Next r
         ' 対象となるデータインデックスのみ値を更新する
         For Each tmpVarIdx In colTargetIdx
-            tmpVarTargetArray(tmpVarIdx, 6) = tmpVarTargetArray(tmpVarIdx, 6) + 1
+            varTargetArray(tmpVarIdx, 6) = varTargetArray(tmpVarIdx, 6) + 1
         Next tmpVarIdx
     Else
         ' # 選択行がタスクでない場合 #
@@ -1930,45 +1964,45 @@ Public Sub ExecIncrementSelectedLastLevel(ws As Worksheet)
             ' 現在のインデックスを取得
             i = r - lngStartRow + 1
             ' 対象行か判定してコレクションに格納
-            If intSelectedRowLevel = 5 And _
-                    tmpVarTargetArray(i, 5) >= tmpLngSelectedRowL5 And _
-                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 5 And _
+                    varTargetArray(i, 5) >= varSelectedL5 And _
+                    varTargetArray(i, 4) = varSelectedL4 And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 4 And _
-                    tmpVarTargetArray(i, 4) >= tmpLngSelectedRowL4 And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 4 And _
+                    varTargetArray(i, 4) >= varSelectedL4 And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 3 And _
-                    tmpVarTargetArray(i, 3) >= tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 3 And _
+                    varTargetArray(i, 3) >= varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 2 And _
-                    tmpVarTargetArray(i, 2) >= tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 2 And _
+                    varTargetArray(i, 2) >= varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 1 And _
-                    tmpVarTargetArray(i, 1) >= tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 1 And _
+                    varTargetArray(i, 1) >= varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
         Next r
         ' 対象となるデータインデックスのみ値を更新する
         For Each tmpVarIdx In colTargetIdx
-            tmpVarTargetArray(tmpVarIdx, intSelectedRowLevel) = tmpVarTargetArray(tmpVarIdx, intSelectedRowLevel) + 1
+            varTargetArray(tmpVarIdx, intSelectedLevel) = varTargetArray(tmpVarIdx, intSelectedLevel) + 1
         Next tmpVarIdx
     End If
     
     ' データの更新結果を反映
-    tmpRngTarget.value = tmpVarTargetArray
+    rngTarget.value = varTargetArray
 
 End Sub
 
@@ -1977,20 +2011,20 @@ End Sub
 Public Sub ExecDecrementSelectedLastLevel(ws As Worksheet)
 
     ' 変数定義
-    Dim lngSelectedRow As Long, intSelectedRowLevel As Integer, blnSelectedRowIsTask As Boolean, lngSelectedRowLastValue As Long
+    Dim lngSelectedRow As Long, intSelectedLevel As Integer, blnSelectedIsTask As Boolean, varSelectedLastValue As Variant
+    Dim varSelectedL1 As Variant, varSelectedL2 As Variant, varSelectedL3 As Variant, varSelectedL4 As Variant, varSelectedL5 As Variant, varSelectedTask As Variant
     Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
     Dim colTargetIdx As New Collection
     Dim lngFirstMissingFoundValue As Long
+    Dim rngTarget As Range
+    Dim varTargetArray As Variant
+    Dim varLevelArray As Variant
+    Dim varTaskArray As Variant
+    Dim colTargetValue As New Collection
     ' 一時変数定義
     Dim r As Long, i As Long, v As Long
-    Dim tmpRngTarget As Range
-    Dim tmpVarTargetArray As Variant
-    Dim tmpVarLevelArray As Variant
-    Dim tmpVarTaskArray As Variant
-    Dim tmpLngSelectedRowL1 As Long, tmpLngSelectedRowL2 As Long, tmpLngSelectedRowL3 As Long, tmpLngSelectedRowL4 As Long, tmpLngSelectedRowL5 As Long, tmpLngSelectedRowTask As Long
     Dim tmpVarIdx As Variant
-    Dim tmpColTargetValue As New Collection
-    Dim tmpVal As Variant, tmpBlnExist As Boolean
+    Dim tmpVarValue As Variant, tmpBlnExist As Boolean
     
     ' 開始行と終了行を取得
     varRangeRows = wbslib.FindDataRangeRows(ws)
@@ -2010,106 +2044,106 @@ Public Sub ExecDecrementSelectedLastLevel(ws As Worksheet)
     End If
     
     ' あらかじめ更新対象範囲列のデータを取得
-    Set tmpRngTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_L1), ws.Cells(lngEndRow, cfg.COL_TASK))
-    tmpVarTargetArray = tmpRngTarget.value
+    Set rngTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_L1), ws.Cells(lngEndRow, cfg.COL_TASK))
+    varTargetArray = rngTarget.value
     ' あらかじめWBSレベル列のデータを取得
-    tmpVarLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
+    varLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
     ' あらかじめWBSタスク判定列のデータを取得
-    tmpVarTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
+    varTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
     
     ' 選択した行のレベルを取得
-    intSelectedRowLevel = tmpVarLevelArray(lngSelectedRow - lngStartRow + 1, 1)
+    intSelectedLevel = varLevelArray(lngSelectedRow - lngStartRow + 1, 1)
     ' 選択した行がタスクかどうか取得
-    blnSelectedRowIsTask = tmpVarTaskArray(lngSelectedRow - lngStartRow + 1, 1)
+    blnSelectedIsTask = varTaskArray(lngSelectedRow - lngStartRow + 1, 1)
     ' 選択した行の末尾の値を取得
-    If blnSelectedRowIsTask Then
-        lngSelectedRowLastValue = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 6)
+    If blnSelectedIsTask Then
+        varSelectedLastValue = varTargetArray(lngSelectedRow - lngStartRow + 1, 6)
     Else
-        lngSelectedRowLastValue = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, intSelectedRowLevel)
+        varSelectedLastValue = varTargetArray(lngSelectedRow - lngStartRow + 1, intSelectedLevel)
     End If
     
     ' 選択した行のデータを取得
-    tmpLngSelectedRowL1 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 1)
-    tmpLngSelectedRowL2 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 2)
-    tmpLngSelectedRowL3 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 3)
-    tmpLngSelectedRowL4 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 4)
-    tmpLngSelectedRowL5 = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 5)
-    tmpLngSelectedRowTask = tmpVarTargetArray(lngSelectedRow - lngStartRow + 1, 6)
+    varSelectedL1 = varTargetArray(lngSelectedRow - lngStartRow + 1, 1)
+    varSelectedL2 = varTargetArray(lngSelectedRow - lngStartRow + 1, 2)
+    varSelectedL3 = varTargetArray(lngSelectedRow - lngStartRow + 1, 3)
+    varSelectedL4 = varTargetArray(lngSelectedRow - lngStartRow + 1, 4)
+    varSelectedL5 = varTargetArray(lngSelectedRow - lngStartRow + 1, 5)
+    varSelectedTask = varTargetArray(lngSelectedRow - lngStartRow + 1, 6)
     
     ' 更新対象範囲列のデータを更新
-    If blnSelectedRowIsTask = True Then
+    If blnSelectedIsTask = True Then
         ' # 選択行がタスクの場合 #
         ' 対象となる値をコレクションに格納
         For r = lngStartRow To lngEndRow
             ' 現在のインデックスを取得
             i = r - lngStartRow + 1
             ' 対象行か判定してコレクションに格納
-            If intSelectedRowLevel = 5 And _
-                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
-                    tmpVarTargetArray(i, 5) = tmpLngSelectedRowL5 And _
-                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 5 And _
+                    varTargetArray(i, 6) <= varSelectedTask And _
+                    varTargetArray(i, 5) = varSelectedL5 And _
+                    varTargetArray(i, 4) = varSelectedL4 And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 On Error Resume Next
-                tmpColTargetValue.Add tmpVarTargetArray(i, 6), CStr(tmpVarTargetArray(i, 6))
+                colTargetValue.Add varTargetArray(i, 6), CStr(varTargetArray(i, 6))
                 On Error GoTo 0
             End If
-            If intSelectedRowLevel = 4 And _
-                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
-                    IsEmpty(tmpVarTargetArray(i, 5)) And _
-                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 4 And _
+                    varTargetArray(i, 6) <= varSelectedTask And _
+                    IsEmpty(varTargetArray(i, 5)) And _
+                    varTargetArray(i, 4) = varSelectedL4 And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 On Error Resume Next
-                tmpColTargetValue.Add tmpVarTargetArray(i, 6), CStr(tmpVarTargetArray(i, 6))
+                colTargetValue.Add varTargetArray(i, 6), CStr(varTargetArray(i, 6))
                 On Error GoTo 0
             End If
-            If intSelectedRowLevel = 3 And _
-                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
-                    IsEmpty(tmpVarTargetArray(i, 5)) And _
-                    IsEmpty(tmpVarTargetArray(i, 4)) And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 3 And _
+                    varTargetArray(i, 6) <= varSelectedTask And _
+                    IsEmpty(varTargetArray(i, 5)) And _
+                    IsEmpty(varTargetArray(i, 4)) And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 On Error Resume Next
-                tmpColTargetValue.Add tmpVarTargetArray(i, 6), CStr(tmpVarTargetArray(i, 6))
+                colTargetValue.Add varTargetArray(i, 6), CStr(varTargetArray(i, 6))
                 On Error GoTo 0
             End If
-            If intSelectedRowLevel = 2 And _
-                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
-                    IsEmpty(tmpVarTargetArray(i, 5)) And _
-                    IsEmpty(tmpVarTargetArray(i, 4)) And _
-                    IsEmpty(tmpVarTargetArray(i, 3)) And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 2 And _
+                    varTargetArray(i, 6) <= varSelectedTask And _
+                    IsEmpty(varTargetArray(i, 5)) And _
+                    IsEmpty(varTargetArray(i, 4)) And _
+                    IsEmpty(varTargetArray(i, 3)) And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 On Error Resume Next
-                tmpColTargetValue.Add tmpVarTargetArray(i, 6), CStr(tmpVarTargetArray(i, 6))
+                colTargetValue.Add varTargetArray(i, 6), CStr(varTargetArray(i, 6))
                 On Error GoTo 0
             End If
-            If intSelectedRowLevel = 1 And _
-                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
-                    IsEmpty(tmpVarTargetArray(i, 5)) And _
-                    IsEmpty(tmpVarTargetArray(i, 4)) And _
-                    IsEmpty(tmpVarTargetArray(i, 3)) And _
-                    IsEmpty(tmpVarTargetArray(i, 2)) And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 1 And _
+                    varTargetArray(i, 6) <= varSelectedTask And _
+                    IsEmpty(varTargetArray(i, 5)) And _
+                    IsEmpty(varTargetArray(i, 4)) And _
+                    IsEmpty(varTargetArray(i, 3)) And _
+                    IsEmpty(varTargetArray(i, 2)) And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 On Error Resume Next
-                tmpColTargetValue.Add tmpVarTargetArray(i, 6), CStr(tmpVarTargetArray(i, 6))
+                colTargetValue.Add varTargetArray(i, 6), CStr(varTargetArray(i, 6))
                 On Error GoTo 0
             End If
         Next r
         ' 値コレクションをから最初の存在しない値を取得
         lngFirstMissingFoundValue = 0
-        For v = lngSelectedRowLastValue To 1 Step -1
+        For v = varSelectedLastValue To 1 Step -1
             tmpBlnExist = False
-            For Each tmpVal In tmpColTargetValue
-                If v = tmpVal Then
+            For Each tmpVarValue In colTargetValue
+                If v = tmpVarValue Then
                     tmpBlnExist = True
                     Exit For
                 End If
-            Next tmpVal
+            Next tmpVarValue
             If tmpBlnExist = False Then
                 lngFirstMissingFoundValue = v
                 Exit For
@@ -2125,60 +2159,60 @@ Public Sub ExecDecrementSelectedLastLevel(ws As Worksheet)
             ' 現在のインデックスを取得
             i = r - lngStartRow + 1
             ' 対象行か判定してコレクションに格納
-            If intSelectedRowLevel = 5 And _
-                    tmpVarTargetArray(i, 6) > lngFirstMissingFoundValue And _
-                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
-                    tmpVarTargetArray(i, 5) = tmpLngSelectedRowL5 And _
-                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 5 And _
+                    varTargetArray(i, 6) > lngFirstMissingFoundValue And _
+                    varTargetArray(i, 6) <= varSelectedTask And _
+                    varTargetArray(i, 5) = varSelectedL5 And _
+                    varTargetArray(i, 4) = varSelectedL4 And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 4 And _
-                    tmpVarTargetArray(i, 6) > lngFirstMissingFoundValue And _
-                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
-                    IsEmpty(tmpVarTargetArray(i, 5)) And _
-                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 4 And _
+                    varTargetArray(i, 6) > lngFirstMissingFoundValue And _
+                    varTargetArray(i, 6) <= varSelectedTask And _
+                    IsEmpty(varTargetArray(i, 5)) And _
+                    varTargetArray(i, 4) = varSelectedL4 And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 3 And _
-                    tmpVarTargetArray(i, 6) > lngFirstMissingFoundValue And _
-                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
-                    IsEmpty(tmpVarTargetArray(i, 5)) And _
-                    IsEmpty(tmpVarTargetArray(i, 4)) And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 3 And _
+                    varTargetArray(i, 6) > lngFirstMissingFoundValue And _
+                    varTargetArray(i, 6) <= varSelectedTask And _
+                    IsEmpty(varTargetArray(i, 5)) And _
+                    IsEmpty(varTargetArray(i, 4)) And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 2 And _
-                    tmpVarTargetArray(i, 6) > lngFirstMissingFoundValue And _
-                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
-                    IsEmpty(tmpVarTargetArray(i, 5)) And _
-                    IsEmpty(tmpVarTargetArray(i, 4)) And _
-                    IsEmpty(tmpVarTargetArray(i, 3)) And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 2 And _
+                    varTargetArray(i, 6) > lngFirstMissingFoundValue And _
+                    varTargetArray(i, 6) <= varSelectedTask And _
+                    IsEmpty(varTargetArray(i, 5)) And _
+                    IsEmpty(varTargetArray(i, 4)) And _
+                    IsEmpty(varTargetArray(i, 3)) And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 1 And _
-                    tmpVarTargetArray(i, 6) > lngFirstMissingFoundValue And _
-                    tmpVarTargetArray(i, 6) <= tmpLngSelectedRowTask And _
-                    IsEmpty(tmpVarTargetArray(i, 5)) And _
-                    IsEmpty(tmpVarTargetArray(i, 4)) And _
-                    IsEmpty(tmpVarTargetArray(i, 3)) And _
-                    IsEmpty(tmpVarTargetArray(i, 2)) And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 1 And _
+                    varTargetArray(i, 6) > lngFirstMissingFoundValue And _
+                    varTargetArray(i, 6) <= varSelectedTask And _
+                    IsEmpty(varTargetArray(i, 5)) And _
+                    IsEmpty(varTargetArray(i, 4)) And _
+                    IsEmpty(varTargetArray(i, 3)) And _
+                    IsEmpty(varTargetArray(i, 2)) And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
         Next r
         ' 対象となるデータインデックスのみ値を更新する
         For Each tmpVarIdx In colTargetIdx
-            tmpVarTargetArray(tmpVarIdx, 6) = tmpVarTargetArray(tmpVarIdx, 6) - 1
+            varTargetArray(tmpVarIdx, 6) = varTargetArray(tmpVarIdx, 6) - 1
         Next tmpVarIdx
     Else
         ' # 選択行がタスクでない場合 #
@@ -2187,57 +2221,57 @@ Public Sub ExecDecrementSelectedLastLevel(ws As Worksheet)
             ' 現在のインデックスを取得
             i = r - lngStartRow + 1
             ' 対象行か判定してコレクションに格納
-            If intSelectedRowLevel = 5 And _
-                    tmpVarTargetArray(i, 5) <= tmpLngSelectedRowL5 And _
-                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 5 And _
+                    varTargetArray(i, 5) <= varSelectedL5 And _
+                    varTargetArray(i, 4) = varSelectedL4 And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 On Error Resume Next
-                tmpColTargetValue.Add tmpVarTargetArray(i, intSelectedRowLevel), CStr(tmpVarTargetArray(i, intSelectedRowLevel))
+                colTargetValue.Add varTargetArray(i, intSelectedLevel), CStr(varTargetArray(i, intSelectedLevel))
                 On Error GoTo 0
             End If
-            If intSelectedRowLevel = 4 And _
-                    tmpVarTargetArray(i, 4) <= tmpLngSelectedRowL4 And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 4 And _
+                    varTargetArray(i, 4) <= varSelectedL4 And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 On Error Resume Next
-                tmpColTargetValue.Add tmpVarTargetArray(i, intSelectedRowLevel), CStr(tmpVarTargetArray(i, intSelectedRowLevel))
+                colTargetValue.Add varTargetArray(i, intSelectedLevel), CStr(varTargetArray(i, intSelectedLevel))
                 On Error GoTo 0
             End If
-            If intSelectedRowLevel = 3 And _
-                    tmpVarTargetArray(i, 3) <= tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 3 And _
+                    varTargetArray(i, 3) <= varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 On Error Resume Next
-                tmpColTargetValue.Add tmpVarTargetArray(i, intSelectedRowLevel), CStr(tmpVarTargetArray(i, intSelectedRowLevel))
+                colTargetValue.Add varTargetArray(i, intSelectedLevel), CStr(varTargetArray(i, intSelectedLevel))
                 On Error GoTo 0
             End If
-            If intSelectedRowLevel = 2 And _
-                    tmpVarTargetArray(i, 2) <= tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 2 And _
+                    varTargetArray(i, 2) <= varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 On Error Resume Next
-                tmpColTargetValue.Add tmpVarTargetArray(i, intSelectedRowLevel), CStr(tmpVarTargetArray(i, intSelectedRowLevel))
+                colTargetValue.Add varTargetArray(i, intSelectedLevel), CStr(varTargetArray(i, intSelectedLevel))
                 On Error GoTo 0
             End If
-            If intSelectedRowLevel = 1 And _
-                    tmpVarTargetArray(i, 1) <= tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 1 And _
+                    varTargetArray(i, 1) <= varSelectedL1 Then
                 On Error Resume Next
-                tmpColTargetValue.Add tmpVarTargetArray(i, intSelectedRowLevel), CStr(tmpVarTargetArray(i, intSelectedRowLevel))
+                colTargetValue.Add varTargetArray(i, intSelectedLevel), CStr(varTargetArray(i, intSelectedLevel))
                 On Error GoTo 0
             End If
         Next r
         ' 値コレクションをから最初の存在しない値を取得
         lngFirstMissingFoundValue = 0
-        For v = lngSelectedRowLastValue To 1 Step -1
+        For v = varSelectedLastValue To 1 Step -1
             tmpBlnExist = False
-            For Each tmpVal In tmpColTargetValue
-                If v = tmpVal Then
+            For Each tmpVarValue In colTargetValue
+                If v = tmpVarValue Then
                     tmpBlnExist = True
                     Exit For
                 End If
-            Next tmpVal
+            Next tmpVarValue
             If tmpBlnExist = False Then
                 lngFirstMissingFoundValue = v
                 Exit For
@@ -2253,52 +2287,760 @@ Public Sub ExecDecrementSelectedLastLevel(ws As Worksheet)
             ' 現在のインデックスを取得
             i = r - lngStartRow + 1
             ' 対象行か判定してコレクションに格納
-            If intSelectedRowLevel = 5 And _
-                    tmpVarTargetArray(i, 5) > lngFirstMissingFoundValue And _
-                    tmpVarTargetArray(i, 5) <= tmpLngSelectedRowL5 And _
-                    tmpVarTargetArray(i, 4) = tmpLngSelectedRowL4 And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 5 And _
+                    varTargetArray(i, 5) > lngFirstMissingFoundValue And _
+                    varTargetArray(i, 5) <= varSelectedL5 And _
+                    varTargetArray(i, 4) = varSelectedL4 And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 4 And _
-                    tmpVarTargetArray(i, 4) > lngFirstMissingFoundValue And _
-                    tmpVarTargetArray(i, 4) <= tmpLngSelectedRowL4 And _
-                    tmpVarTargetArray(i, 3) = tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 4 And _
+                    varTargetArray(i, 4) > lngFirstMissingFoundValue And _
+                    varTargetArray(i, 4) <= varSelectedL4 And _
+                    varTargetArray(i, 3) = varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 3 And _
-                    tmpVarTargetArray(i, 3) > lngFirstMissingFoundValue And _
-                    tmpVarTargetArray(i, 3) <= tmpLngSelectedRowL3 And _
-                    tmpVarTargetArray(i, 2) = tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 3 And _
+                    varTargetArray(i, 3) > lngFirstMissingFoundValue And _
+                    varTargetArray(i, 3) <= varSelectedL3 And _
+                    varTargetArray(i, 2) = varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 2 And _
-                    tmpVarTargetArray(i, 2) > lngFirstMissingFoundValue And _
-                    tmpVarTargetArray(i, 2) <= tmpLngSelectedRowL2 And _
-                    tmpVarTargetArray(i, 1) = tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 2 And _
+                    varTargetArray(i, 2) > lngFirstMissingFoundValue And _
+                    varTargetArray(i, 2) <= varSelectedL2 And _
+                    varTargetArray(i, 1) = varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
-            If intSelectedRowLevel = 1 And _
-                    tmpVarTargetArray(i, 1) > lngFirstMissingFoundValue And _
-                    tmpVarTargetArray(i, 1) <= tmpLngSelectedRowL1 Then
+            If intSelectedLevel = 1 And _
+                    varTargetArray(i, 1) > lngFirstMissingFoundValue And _
+                    varTargetArray(i, 1) <= varSelectedL1 Then
                 colTargetIdx.Add i, CStr(i)
             End If
         Next r
         ' 対象となるデータインデックスのみ値を更新する
         For Each tmpVarIdx In colTargetIdx
-            tmpVarTargetArray(tmpVarIdx, intSelectedRowLevel) = tmpVarTargetArray(tmpVarIdx, intSelectedRowLevel) - 1
+            varTargetArray(tmpVarIdx, intSelectedLevel) = varTargetArray(tmpVarIdx, intSelectedLevel) - 1
         Next tmpVarIdx
     End If
     
     ' データの更新結果を反映
-    tmpRngTarget.value = tmpVarTargetArray
+    rngTarget.value = varTargetArray
 
 End Sub
 
 
+' ■ チェックした２点の最終レベルIDを交換する
+Public Sub ExecSwapCheckedLastLevel(ws As Worksheet)
 
+    ' 変数定義
+    Dim lngChecked1Row As Long, intChecked1Level As Integer, blnChecked1IsTask As Boolean, varChecked1LastValue As Variant, varChecked1Id As Variant
+    Dim varChecked1L1 As Variant, varChecked1L2 As Variant, varChecked1L3 As Variant, varChecked1L4 As Variant, varChecked1L5 As Variant, varChecked1Task As Variant
+    Dim lngChecked2Row As Long, intChecked2Level As Integer, blnChecked2IsTask As Boolean, varChecked2LastValue As Variant, varChecked2Id As Variant
+    Dim varChecked2L1 As Variant, varChecked2L2 As Variant, varChecked2L3 As Variant, varChecked2L4 As Variant, varChecked2L5 As Variant, varChecked2Task As Variant
+    Dim colCheckedRows As Collection
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim rngTarget As Range
+    Dim varTargetArray As Variant
+    Dim varLevelArray As Variant
+    Dim varTaskArray As Variant
+    Dim varIdArray As Variant
+    ' 一時変数定義
+    Dim r As Long, i As Long, v As Long
+    
+    ' 開始行と終了行を取得
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+
+    ' チェックされている行番号を取得
+    Set colCheckedRows = GetCheckedChkMultpleRows(ws)
+    
+    ' ガード条件（チェックが２つでなかった場合は終了）
+    If colCheckedRows.Count <> 2 Then
+        MsgBox "交換したい２つをチェックしてください（CHK)。" & vbCrLf & "（" & colCheckedRows.Count & " 箇所が選択されています）", vbExclamation, "通知"
+        Exit Sub
+    End If
+    
+    ' あらかじめ更新対象範囲列のデータを取得
+    Set rngTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_L1), ws.Cells(lngEndRow, cfg.COL_TASK))
+    varTargetArray = rngTarget.value
+    ' あらかじめWBSレベル列のデータを取得
+    varLevelArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_LEVEL), ws.Cells(lngEndRow, cfg.COL_LEVEL)).value
+    ' あらかじめWBSタスク判定列のデータを取得
+    varTaskArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_T), ws.Cells(lngEndRow, cfg.COL_FLG_T)).value
+    ' あらかじめWBS-ID列のデータを取得
+    varIdArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_WBS_ID), ws.Cells(lngEndRow, cfg.COL_WBS_ID)).value
+
+    ' ■ チェック1情報収集
+    lngChecked1Row = colCheckedRows.item(1)
+    ' 選択した行のレベルを取得
+    intChecked1Level = varLevelArray(lngChecked1Row - lngStartRow + 1, 1)
+    ' 選択した行がタスクかどうか取得
+    blnChecked1IsTask = varTaskArray(lngChecked1Row - lngStartRow + 1, 1)
+    ' 選択した行の末尾の値を取得
+    If blnChecked1IsTask Then
+        varChecked1LastValue = varTargetArray(lngChecked1Row - lngStartRow + 1, 6)
+    Else
+        varChecked1LastValue = varTargetArray(lngChecked1Row - lngStartRow + 1, intChecked1Level)
+    End If
+    ' 選択した行のIDを取得
+    varChecked1Id = varIdArray(lngChecked1Row - lngStartRow + 1, 1)
+    ' 選択した行のデータを取得
+    varChecked1L1 = varTargetArray(lngChecked1Row - lngStartRow + 1, 1)
+    varChecked1L2 = varTargetArray(lngChecked1Row - lngStartRow + 1, 2)
+    varChecked1L3 = varTargetArray(lngChecked1Row - lngStartRow + 1, 3)
+    varChecked1L4 = varTargetArray(lngChecked1Row - lngStartRow + 1, 4)
+    varChecked1L5 = varTargetArray(lngChecked1Row - lngStartRow + 1, 5)
+    varChecked1Task = varTargetArray(lngChecked1Row - lngStartRow + 1, 6)
+
+    ' ■ チェック2情報収集
+    lngChecked2Row = colCheckedRows.item(2)
+    ' 選択した行のレベルを取得
+    intChecked2Level = varLevelArray(lngChecked2Row - lngStartRow + 1, 1)
+    ' 選択した行がタスクかどうか取得
+    blnChecked2IsTask = varTaskArray(lngChecked2Row - lngStartRow + 1, 1)
+    ' 選択した行の末尾の値を取得
+    If blnChecked2IsTask Then
+        varChecked2LastValue = varTargetArray(lngChecked2Row - lngStartRow + 1, 6)
+    Else
+        varChecked2LastValue = varTargetArray(lngChecked2Row - lngStartRow + 1, intChecked2Level)
+    End If
+    ' 選択した行のIDを取得
+    varChecked2Id = varIdArray(lngChecked2Row - lngStartRow + 1, 1)
+    ' 選択した行のデータを取得
+    varChecked2L1 = varTargetArray(lngChecked2Row - lngStartRow + 1, 1)
+    varChecked2L2 = varTargetArray(lngChecked2Row - lngStartRow + 1, 2)
+    varChecked2L3 = varTargetArray(lngChecked2Row - lngStartRow + 1, 3)
+    varChecked2L4 = varTargetArray(lngChecked2Row - lngStartRow + 1, 4)
+    varChecked2L5 = varTargetArray(lngChecked2Row - lngStartRow + 1, 5)
+    varChecked2Task = varTargetArray(lngChecked2Row - lngStartRow + 1, 6)
+    
+    ' ガード条件（２つの階層及びタスクか否かが一致しない場合、終了）
+    If (intChecked1Level <> intChecked2Level) Or (blnChecked1IsTask <> blnChecked2IsTask) Then
+        MsgBox "交換候補の階層およびタスクかどうかが一致しません（CHK)。" & vbCrLf & _
+        vbCrLf & "チェック1: 階層=" & intChecked1Level & ", タスク=" & blnChecked1IsTask & _
+        vbCrLf & "チェック2: 階層=" & intChecked2Level & ", タスク=" & blnChecked2IsTask & _
+        "", vbExclamation, "通知"
+        Exit Sub
+    End If
+    
+    ' ガード条件（２つの末尾番号以外の階層番号が一致しない場合、終了）
+    If blnChecked1IsTask = True Then
+        If varChecked1L1 <> varChecked2L1 Or varChecked1L2 <> varChecked2L2 Or varChecked1L3 <> varChecked2L3 Or varChecked1L4 <> varChecked2L4 Or varChecked1L5 <> varChecked2L5 Then
+            MsgBox "交換候補の末尾番号以外の階層番号が一致しません（CHK)。" & vbCrLf & _
+            vbCrLf & "チェック1: " & varChecked1Id & _
+            vbCrLf & "チェック2: " & varChecked2Id & _
+            "", vbExclamation, "通知"
+            Exit Sub
+        End If
+    ElseIf intRowLevel1 = 5 Then
+        If varChecked1L1 <> varChecked2L1 Or varChecked1L2 <> varChecked2L2 Or varChecked1L3 <> varChecked2L3 Or varChecked1L4 <> varChecked2L4 Then
+            MsgBox "交換候補の末尾番号以外の階層番号が一致しません（CHK)。" & vbCrLf & _
+            vbCrLf & "チェック1: " & varChecked1Id & _
+            vbCrLf & "チェック2: " & varChecked2Id & _
+            "", vbExclamation, "通知"
+            Exit Sub
+        End If
+    ElseIf intRowLevel1 = 4 Then
+        If varChecked1L1 <> varChecked2L1 Or varChecked1L2 <> varChecked2L2 Or varChecked1L3 <> varChecked2L3 Then
+            MsgBox "交換候補の末尾番号以外の階層番号が一致しません（CHK)。" & vbCrLf & _
+            vbCrLf & "チェック1: " & varChecked1Id & _
+            vbCrLf & "チェック2: " & varChecked2Id & _
+            "", vbExclamation, "通知"
+            Exit Sub
+        End If
+    ElseIf intRowLevel1 = 3 Then
+        If varChecked1L1 <> varChecked2L1 Or varChecked1L2 <> varChecked2L2 Then
+            MsgBox "交換候補の末尾番号以外の階層番号が一致しません（CHK)。" & vbCrLf & _
+            vbCrLf & "チェック1: " & varChecked1Id & _
+            vbCrLf & "チェック2: " & varChecked2Id & _
+            "", vbExclamation, "通知"
+            Exit Sub
+        End If
+    ElseIf intRowLevel1 = 2 Then
+        If varChecked1L1 <> varChecked2L1 Then
+            MsgBox "交換候補の末尾番号以外の階層番号が一致しません（CHK)。" & vbCrLf & _
+            vbCrLf & "チェック1: " & varChecked1Id & _
+            vbCrLf & "チェック2: " & varChecked2Id & _
+            "", vbExclamation, "通知"
+            Exit Sub
+        End If
+    End If
+    
+    ' 値の交換を実施
+    For r = lngStartRow To lngEndRow
+        
+        ' 現在のインデックスを取得
+        i = r - lngStartRow + 1
+        
+        ' 交換した値をセット
+        If blnChecked1IsTask = True Then
+            If varChecked1L1 = varTargetArray(i, 1) And _
+                    varChecked1L2 = varTargetArray(i, 2) And _
+                    varChecked1L3 = varTargetArray(i, 3) And _
+                    varChecked1L4 = varTargetArray(i, 4) And _
+                    varChecked1L5 = varTargetArray(i, 5) Then
+                If varTargetArray(i, 6) = varChecked1Task Then
+                    varTargetArray(i, 6) = varChecked2Task
+                ElseIf varTargetArray(i, 6) = varChecked2Task Then
+                    varTargetArray(i, 6) = varChecked1Task
+                End If
+            End If
+        ElseIf intChecked1Level = 5 Then
+            If varChecked1L1 = varTargetArray(i, 1) And _
+                    varChecked1L2 = varTargetArray(i, 2) And _
+                    varChecked1L3 = varTargetArray(i, 3) And _
+                    varChecked1L4 = varTargetArray(i, 4) Then
+                If varTargetArray(i, 5) = varChecked1L5 Then
+                    varTargetArray(i, 5) = varChecked2L5
+                ElseIf varTargetArray(i, 5) = varChecked2L5 Then
+                    varTargetArray(i, 5) = varChecked1L5
+                End If
+            End If
+        ElseIf intChecked1Level = 4 Then
+            If varChecked1L1 = varTargetArray(i, 1) And _
+                    varChecked1L2 = varTargetArray(i, 2) And _
+                    varChecked1L3 = varTargetArray(i, 3) Then
+                If varTargetArray(i, 4) = varChecked1L4 Then
+                    varTargetArray(i, 4) = varChecked2L4
+                ElseIf varTargetArray(i, 4) = varChecked2L4 Then
+                    varTargetArray(i, 4) = varChecked1L4
+                End If
+            End If
+        ElseIf intChecked1Level = 3 Then
+            If varChecked1L1 = varTargetArray(i, 1) And _
+                    varChecked1L2 = varTargetArray(i, 2) Then
+                If varTargetArray(i, 3) = varChecked1L3 Then
+                    varTargetArray(i, 3) = varChecked2L3
+                ElseIf varTargetArray(i, 3) = varChecked2L3 Then
+                    varTargetArray(i, 3) = varChecked1L3
+                End If
+            End If
+        ElseIf intChecked1Level = 2 Then
+            If varChecked1L1 = varTargetArray(i, 1) Then
+                If varTargetArray(i, 2) = varChecked1L2 Then
+                    varTargetArray(i, 2) = varChecked2L2
+                ElseIf varTargetArray(i, 2) = varChecked2L2 Then
+                    varTargetArray(i, 2) = varChecked1L2
+                End If
+            End If
+        ElseIf intChecked1Level = 1 Then
+            If varTargetArray(i, 1) = varChecked1L1 Then
+                varTargetArray(i, 1) = varChecked2L1
+            ElseIf varTargetArray(i, 1) = varChecked2L1 Then
+                varTargetArray(i, 1) = varChecked1L1
+            End If
+        End If
+    Next r
+    
+    ' 値を反映
+    rngTarget.value = varTargetArray
+    
+End Sub
+
+
+' ■ 指定の階層配列を対象に、指定インデックスにあるデータの子階層にあたるインデックスのコレクションを取得
+Private Function GetTargetChildIdxs(varTargetArray As Variant, lngTargetIdx As Long) As Collection
+    
+    ' 変数定義
+    Dim colResultIdxs As New Collection
+    Dim intTargetLevel As Integer, blnTargetTask As Boolean
+    Dim varTargetL1 As Variant, varTargetL2 As Variant, varTargetL3 As Variant, varTargetL4 As Variant, varTargetL5 As Variant, varTargetTask As Variant
+    ' 一時変数定義
+    Dim i As Long
+    
+    ' ガード条件（入力されたインデックスが0以下の場合は終了）
+    If lngTargetIdx <= 0 Then
+        Set GetTargetChildIdxs = colResultIdxs
+        Exit Function
+    End If
+    
+    ' ガード条件（入力された階層配列の列数が6でない場合は終了）
+    If UBound(varTargetArray, 2) <> 6 Then
+        Set GetTargetChildIdxs = colResultIdxs
+        Exit Function
+    End If
+    
+    ' ガード条件（入力された階層配列の行数を越えたインデックスを指定された場合は終了）
+    If UBound(varTargetArray, 1) < lngTargetIdx Then
+        Set GetTargetChildIdxs = colResultIdxs
+        Exit Function
+    End If
+    
+    ' 指定インデックスの値を取得
+    varTargetL1 = varTargetArray(lngTargetIdx, 1)
+    varTargetL2 = varTargetArray(lngTargetIdx, 2)
+    varTargetL3 = varTargetArray(lngTargetIdx, 3)
+    varTargetL4 = varTargetArray(lngTargetIdx, 4)
+    varTargetL5 = varTargetArray(lngTargetIdx, 5)
+    varTargetTask = varTargetArray(lngTargetIdx, 6)
+    ' タスク状態の取得
+    If IsEmpty(varTargetTask) Then
+        blnTargetTask = False
+    Else
+        blnTargetTask = True
+    End If
+    ' レベルの取得
+    If IsNumeric(varTargetL1) And Not IsNull(varTargetL1) And Not IsEmpty(varTargetL1) And _
+            IsNumeric(varTargetL2) And Not IsNull(varTargetL2) And Not IsEmpty(varTargetL2) And _
+            IsNumeric(varTargetL3) And Not IsNull(varTargetL3) And Not IsEmpty(varTargetL3) And _
+            IsNumeric(varTargetL4) And Not IsNull(varTargetL4) And Not IsEmpty(varTargetL4) And _
+            IsNumeric(varTargetL5) And Not IsNull(varTargetL5) And Not IsEmpty(varTargetL5) Then
+        intTargetLevel = 5
+    ElseIf IsNumeric(varTargetL1) And Not IsNull(varTargetL1) And Not IsEmpty(varTargetL1) And _
+            IsNumeric(varTargetL2) And Not IsNull(varTargetL2) And Not IsEmpty(varTargetL2) And _
+            IsNumeric(varTargetL3) And Not IsNull(varTargetL3) And Not IsEmpty(varTargetL3) And _
+            IsNumeric(varTargetL4) And Not IsNull(varTargetL4) And Not IsEmpty(varTargetL4) And _
+            IsEmpty(varTargetL5) Then
+        intTargetLevel = 4
+    ElseIf IsNumeric(varTargetL1) And Not IsNull(varTargetL1) And Not IsEmpty(varTargetL1) And _
+            IsNumeric(varTargetL2) And Not IsNull(varTargetL2) And Not IsEmpty(varTargetL2) And _
+            IsNumeric(varTargetL3) And Not IsNull(varTargetL3) And Not IsEmpty(varTargetL3) And _
+            IsEmpty(varTargetL4) And _
+            IsEmpty(varTargetL5) Then
+        intTargetLevel = 3
+    ElseIf IsNumeric(varTargetL1) And Not IsNull(varTargetL1) And Not IsEmpty(varTargetL1) And _
+            IsNumeric(varTargetL2) And Not IsNull(varTargetL2) And Not IsEmpty(varTargetL2) And _
+            IsEmpty(varTargetL3) And _
+            IsEmpty(varTargetL4) And _
+            IsEmpty(varTargetL5) Then
+        intTargetLevel = 2
+    ElseIf IsNumeric(varTargetL1) And Not IsNull(varTargetL1) And Not IsEmpty(varTargetL1) And _
+            IsEmpty(varTargetL2) And _
+            IsEmpty(varTargetL3) And _
+            IsEmpty(varTargetL4) And _
+            IsEmpty(varTargetL5) Then
+        intTargetLevel = 1
+    Else
+        ' # 階層に問題がある場合 #
+        Set GetTargetChildIdxs = colResultIdxs
+        Exit Function
+    End If
+    
+    ' ガード条件（タスクの場合は終了）
+    If blnTargetTask = True Then
+        ' # タスクには子階層がないため #
+        Set GetTargetChildIdxs = colResultIdxs
+        Exit Function
+    End If
+    
+    ' 該当するインデックスを収集
+    For i = 1 To UBound(varTargetArray, 1)
+        If intTargetLevel = 5 And _
+                varTargetL1 = varTargetArray(i, 1) And _
+                varTargetL2 = varTargetArray(i, 2) And _
+                varTargetL3 = varTargetArray(i, 3) And _
+                varTargetL4 = varTargetArray(i, 4) And _
+                varTargetL5 = varTargetArray(i, 5) And _
+                IsNumeric(varTargetArray(i, 6)) And Not IsNull(varTargetArray(i, 6)) And Not IsEmpty(varTargetArray(i, 6)) Then
+            ' # L5の場合、L5のタスクならば追加 #
+            colResultIdxs.Add i, CStr(i)
+        ElseIf intTargetLevel = 4 And _
+                varTargetL1 = varTargetArray(i, 1) And _
+                varTargetL2 = varTargetArray(i, 2) And _
+                varTargetL3 = varTargetArray(i, 3) And _
+                varTargetL4 = varTargetArray(i, 4) And _
+                IsEmpty(varTargetArray(i, 5)) And _
+                IsNumeric(varTargetArray(i, 6)) And Not IsNull(varTargetArray(i, 6)) And Not IsEmpty(varTargetArray(i, 6)) Then
+            ' # L4の場合、L4のタスクならば追加 #
+            colResultIdxs.Add i, CStr(i)
+        ElseIf intTargetLevel = 4 And _
+                varTargetL1 = varTargetArray(i, 1) And _
+                varTargetL2 = varTargetArray(i, 2) And _
+                varTargetL3 = varTargetArray(i, 3) And _
+                varTargetL4 = varTargetArray(i, 4) And _
+                IsNumeric(varTargetArray(i, 5)) And Not IsNull(varTargetArray(i, 5)) And Not IsEmpty(varTargetArray(i, 5)) And _
+                IsEmpty(varTargetArray(i, 6)) Then
+            ' # L4の場合、L4の子であるL5ならば追加 #
+            colResultIdxs.Add i, CStr(i)
+        ElseIf intTargetLevel = 3 And _
+                varTargetL1 = varTargetArray(i, 1) And _
+                varTargetL2 = varTargetArray(i, 2) And _
+                varTargetL3 = varTargetArray(i, 3) And _
+                IsEmpty(varTargetArray(i, 4)) And _
+                IsEmpty(varTargetArray(i, 5)) And _
+                IsNumeric(varTargetArray(i, 6)) And Not IsNull(varTargetArray(i, 6)) And Not IsEmpty(varTargetArray(i, 6)) Then
+            ' # L3の場合、L3のタスクならば追加 #
+            colResultIdxs.Add i, CStr(i)
+        ElseIf intTargetLevel = 3 And _
+                varTargetL1 = varTargetArray(i, 1) And _
+                varTargetL2 = varTargetArray(i, 2) And _
+                varTargetL3 = varTargetArray(i, 3) And _
+                IsNumeric(varTargetArray(i, 4)) And Not IsNull(varTargetArray(i, 4)) And Not IsEmpty(varTargetArray(i, 4)) And _
+                IsEmpty(varTargetArray(i, 5)) And _
+                IsEmpty(varTargetArray(i, 6)) Then
+            ' # L3の場合、L3の子であるL4ならば追加 #
+            colResultIdxs.Add i, CStr(i)
+        ElseIf intTargetLevel = 2 And _
+                varTargetL1 = varTargetArray(i, 1) And _
+                varTargetL2 = varTargetArray(i, 2) And _
+                IsEmpty(varTargetArray(i, 3)) And _
+                IsEmpty(varTargetArray(i, 4)) And _
+                IsEmpty(varTargetArray(i, 5)) And _
+                IsNumeric(varTargetArray(i, 6)) And Not IsNull(varTargetArray(i, 6)) And Not IsEmpty(varTargetArray(i, 6)) Then
+            ' # L2の場合、L2のタスクならば追加 #
+            colResultIdxs.Add i, CStr(i)
+        ElseIf intTargetLevel = 2 And _
+                varTargetL1 = varTargetArray(i, 1) And _
+                varTargetL2 = varTargetArray(i, 2) And _
+                IsNumeric(varTargetArray(i, 3)) And Not IsNull(varTargetArray(i, 3)) And Not IsEmpty(varTargetArray(i, 3)) And _
+                IsEmpty(varTargetArray(i, 4)) And _
+                IsEmpty(varTargetArray(i, 5)) And _
+                IsEmpty(varTargetArray(i, 6)) Then
+            ' # L2の場合、L2の子であるL3ならば追加 #
+            colResultIdxs.Add i, CStr(i)
+        ElseIf intTargetLevel = 1 And _
+                varTargetL1 = varTargetArray(i, 1) And _
+                IsEmpty(varTargetArray(i, 2)) And _
+                IsEmpty(varTargetArray(i, 3)) And _
+                IsEmpty(varTargetArray(i, 4)) And _
+                IsEmpty(varTargetArray(i, 5)) And _
+                IsNumeric(varTargetArray(i, 6)) And Not IsNull(varTargetArray(i, 6)) And Not IsEmpty(varTargetArray(i, 6)) Then
+            ' # L1の場合、L1のタスクならば追加 #
+            colResultIdxs.Add i, CStr(i)
+        ElseIf intTargetLevel = 1 And _
+                varTargetL1 = varTargetArray(i, 1) And _
+                IsNumeric(varTargetArray(i, 2)) And Not IsNull(varTargetArray(i, 2)) And Not IsEmpty(varTargetArray(i, 2)) And _
+                IsEmpty(varTargetArray(i, 3)) And _
+                IsEmpty(varTargetArray(i, 4)) And _
+                IsEmpty(varTargetArray(i, 5)) And _
+                IsEmpty(varTargetArray(i, 6)) Then
+            ' # L1の場合、L1の子であるL2ならば追加 #
+            colResultIdxs.Add i, CStr(i)
+        End If
+    Next i
+    
+    Set GetTargetChildIdxs = colResultIdxs
+End Function
+
+
+
+' ■ チェックした行を削除する
+Public Sub ExecRemoveCheckedRows(ws As Worksheet)
+
+    ' 変数定義
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim colCheckedRows As Collection
+    Dim rngTarget As Range
+    Dim varTargetArray As Variant
+    Dim varChildExistArray As Variant
+    Dim rngChk As Range
+    Dim varChkArray As Variant
+    Dim varIdArray As Variant
+    Dim colRemoveRows As New Collection
+    Dim rngRemoveTarget As Range
+    ' 一時変数定義
+    Dim tmpVarCheckedItem As Variant
+    Dim tmpVarChildIdx As Variant
+    Dim i As Long
+    Dim tmpColChilds As Collection
+    Dim tmpVar As Variant
+    Dim answer As VbMsgBoxResult
+
+    ' 開始行と終了行を取得
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+
+    ' チェックされている行番号を取得
+    Set colCheckedRows = GetCheckedChkMultpleRows(ws)
+    
+    ' あらかじめチェック対象範囲列のデータを取得
+    varTargetArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_L1), ws.Cells(lngEndRow, cfg.COL_TASK)).value
+    ' あらかじめWBS子有無判定列のデータを取得
+    varChildExistArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_FLG_CE), ws.Cells(lngEndRow, cfg.COL_FLG_CE)).value
+    ' あらかじめチェック列のデータを取得
+    Set rngChk = ws.Range(ws.Cells(lngStartRow, cfg.COL_CHK), ws.Cells(lngEndRow, cfg.COL_CHK))
+    varChkArray = rngChk.value
+    ' あらかじめWBS-ID列のデータを取得
+    varIdArray = ws.Range(ws.Cells(lngStartRow, cfg.COL_WBS_ID), ws.Cells(lngEndRow, cfg.COL_WBS_ID)).value
+    
+    ' チェックされた行ごとに削除可能かチェックを実施
+    For Each tmpVarCheckedItem In colCheckedRows
+        ' 現在のインデックスを取得
+        i = tmpVarCheckedItem - lngStartRow + 1
+        ' 子があるかどうか
+        If varChildExistArray(i, 1) Then
+            ' # 子が存在する場合 #
+            Set tmpColChilds = GetTargetChildIdxs(varTargetArray, i)
+            For Each tmpVarChildIdx In tmpColChilds
+                tmpVar = varChildExistArray(tmpVarChildIdx, 1)
+                If tmpVar = True Then
+                    ' # 孫が存在する場合 #
+                    MsgBox "孫階層が存在するため削除できません。" & vbCrLf & _
+                    "", vbExclamation, "通知"
+                    Exit Sub
+                Else
+                    ' # 孫が存在しない場合 #
+                    On Error Resume Next
+                    colRemoveRows.Add (tmpVarChildIdx + lngStartRow - 1), CStr(tmpVarChildIdx + lngStartRow - 1)
+                    On Error GoTo 0
+                End If
+            Next tmpVarChildIdx
+            On Error Resume Next
+            colRemoveRows.Add tmpVarCheckedItem, CStr(tmpVarCheckedItem)
+            On Error GoTo 0
+        Else
+            ' # 子が存在しない場合 #
+            On Error Resume Next
+            colRemoveRows.Add tmpVarCheckedItem, CStr(tmpVarCheckedItem)
+            On Error GoTo 0
+        End If
+    Next tmpVarCheckedItem
+    
+    ' チェック列を更新する
+    For Each tmpVar In colRemoveRows
+        varChkArray(tmpVar - lngStartRow + 1, 1) = cfg.CHK_MARK_T
+    Next tmpVar
+    rngChk.value = varChkArray
+    
+    ' 一時的に描画を再開
+    If Application.ScreenUpdating = False And Application.EnableEvents = False Then
+        Application.ScreenUpdating = True
+        Application.EnableEvents = True
+        Application.Wait (Now + TimeValue("00:00:01"))
+        Application.ScreenUpdating = False
+        Application.EnableEvents = False
+    End If
+    
+    ' 確認の上、削除を実行
+    answer = MsgBox("本当に削除してもよいですか？", vbOKCancel + vbQuestion, "確認")
+    If answer = vbOK Then
+        ' 削除対象範囲を用意
+        For Each tmpVar In colRemoveRows
+            If rngRemoveTarget Is Nothing Then
+                Set rngRemoveTarget = Rows(tmpVar)
+            Else
+                Set rngRemoveTarget = Union(rngRemoveTarget, Rows(tmpVar))
+            End If
+        Next tmpVar
+        ' 一括削除を実行
+        If Not rngRemoveTarget Is Nothing Then rngRemoveTarget.Delete
+    End If
+
+End Sub
+
+
+' ■ 基本数式を数値に変換する
+Public Sub ExecConvertBasicFormulasToValues(ws As Worksheet)
+
+    ' 変数定義
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    ' 一時変数定義
+    Dim r As Long
+    Dim tmpRange As Range
+    Dim tmpVariant As Variant
+    
+    ' 開始行と終了行を取得
+    varRangeRows = FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' ■ 全行にアクセスが必要なコストの高い数式を数値に変換
+    ' WBS_CNTの式→値
+    Set tmpRange = ws.Range(cfg.COL_WBS_CNT_LABEL & lngStartRow & ":" & cfg.COL_WBS_CNT_LABEL & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "General"
+    tmpRange.value = tmpVariant
+    
+    ' FLG_PEの式→値
+    Set tmpRange = ws.Range(cfg.COL_FLG_PE_LABEL & lngStartRow & ":" & cfg.COL_FLG_PE_LABEL & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "General"
+    tmpRange.value = tmpVariant
+    
+    ' FLG_CEの式→値
+    Set tmpRange = ws.Range(cfg.COL_FLG_CE_LABEL & lngStartRow & ":" & cfg.COL_FLG_CE_LABEL & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "General"
+    tmpRange.value = tmpVariant
+
+End Sub
+
+
+' ■ 集計数式を数値に変換する
+Public Sub ExecConvertAggregateFormulasToValues(ws As Worksheet)
+
+    ' 変数定義
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    ' 一時変数定義
+    Dim r As Long
+    Dim tmpRange As Range
+    Dim tmpVariant As Variant
+    
+    ' 開始行と終了行を取得
+    varRangeRows = FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+        
+    ' タスク集計合計の式→値
+    Set tmpRange = ws.Range(cfg.COL_TASK_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COUNT_LABEL & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "General"
+    tmpRange.value = tmpVariant
+    
+    ' タスク集計完了の式→値
+    Set tmpRange = ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & lngStartRow & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "General"
+    tmpRange.value = tmpVariant
+    
+    ' 工数進捗率の式→値
+    Set tmpRange = ws.Range(cfg.COL_EFFORT_PROG_LABEL & lngStartRow & ":" & cfg.COL_EFFORT_PROG_LABEL & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "0.0%"
+    tmpRange.value = tmpVariant
+    
+    ' 項目消化率の式→値
+    Set tmpRange = ws.Range(cfg.COL_TASK_PROG_LABEL & lngStartRow & ":" & cfg.COL_TASK_PROG_LABEL & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "0.0%"
+    tmpRange.value = tmpVariant
+    
+    ' 予定工数の式→値
+    Set tmpRange = ws.Range(cfg.COL_PLANNED_EFF_LABEL & lngStartRow & ":" & cfg.COL_PLANNED_EFF_LABEL & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "General"
+    tmpRange.value = tmpVariant
+    
+    ' 実績残工数の式→値
+    Set tmpRange = ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "General"
+    tmpRange.value = tmpVariant
+    
+    ' 実績済工数の式→値
+    Set tmpRange = ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngStartRow & ":" & cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow)
+    tmpVariant = tmpRange.value
+    tmpRange.NumberFormat = "General"
+    tmpRange.value = tmpVariant
+           
+    ' 特定のセルの式を値に変換
+    ws.Range(cfg.COL_TASK_COUNT_LABEL & lngEndRow + 2).value = ws.Range(cfg.COL_TASK_COUNT_LABEL & lngEndRow + 2).value
+    ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow + 2).value = ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & lngEndRow + 2).value
+    ws.Range(cfg.COL_EFFORT_PROG_LABEL & lngEndRow + 2).value = ws.Range(cfg.COL_EFFORT_PROG_LABEL & lngEndRow + 2).value
+    ws.Range(cfg.COL_TASK_PROG_LABEL & lngEndRow + 2).value = ws.Range(cfg.COL_TASK_PROG_LABEL & lngEndRow + 2).value
+    ws.Range(cfg.COL_PLANNED_EFF_LABEL & lngEndRow + 2).value = ws.Range(cfg.COL_PLANNED_EFF_LABEL & lngEndRow + 2).value
+    ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow + 2).value = ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngEndRow + 2).value
+    ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow + 2).value = ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngEndRow + 2).value
+
+End Sub
+
+
+' ■ カスタムフォーマット関数（WBS-IDX用）
+Function CustomFormatWbsIdx(varB As Variant, varE As Variant, varF As Variant, varG As Variant, varH As Variant, varI As Variant, varJ As Variant) As String
+    
+    ' 変数定義
+    Dim strResult As String
+    Dim varValues As Variant
+    ' 一時変数定義
+    Dim parts(0 To 5) As String
+    Dim i As Integer
+
+    ' もしvarBが"E"なら"ERROR"を返す
+    If varB = "E" Then
+        CustomFormat = "ERROR"
+        Exit Function
+    End If
+
+    ' もしvarEが空なら固定文字列を返す
+    If varE = "" Then
+        CustomFormatWbsIdx = "XXX.XXX.XXX.XXX.XXX.XXX"
+        Exit Function
+    End If
+
+    ' 各値を配列にまとめる
+    varValues = Array(varE, varF, varG, varH, varI, varJ)
+
+    ' 各要素をループして処理
+    For i = 0 To 5
+        If varValues(i) = "" Then
+            parts(i) = "---"
+        Else
+            parts(i) = Format(varValues(i), "000")
+        End If
+    Next i
+
+    ' 結合して結果を作成
+    strResult = parts(0) & "." & parts(1) & "." & parts(2) & "." & parts(3) & "." & parts(4) & "." & parts(5)
+
+    CustomFormatWbsIdx = strResult
+End Function
+
+
+' ■ カスタムフォーマット関数（WBS-ID用）
+Function CustomFormatWbsId(varB As Variant, varE As Variant, varF As Variant, varG As Variant, varH As Variant, varI As Variant, varJ As Variant) As String
+    
+    ' 変数定義
+    Dim strResult As String
+
+    ' もしvarBが"E"なら"ERROR"を返す
+    If varB = "E" Then
+        CustomFormatWbsId = "ERROR"
+        Exit Function
+    End If
+
+    ' もしvarEが空なら空文字を返す
+    If varE = "" Then
+        CustomFormatWbsId = ""
+        Exit Function
+    End If
+
+    ' 連結処理
+    strResult = varE
+
+    If varF <> "" Then strResult = strResult & "." & varF
+    If varG <> "" Then strResult = strResult & "." & varG
+    If varH <> "" Then strResult = strResult & "." & varH
+    If varI <> "" Then strResult = strResult & "." & varI
+    If varJ <> "" Then strResult = strResult & ".T" & varJ
+
+    CustomFormatWbsId = strResult
+End Function
+
+
+' ■ カスタム関数（LEVEL）
+Function CustomFuncGetLevel(varE As Variant, varF As Variant, varG As Variant, varH As Variant, varI As Variant) As Integer
+    
+    ' デフォルトは0
+    CustomFuncGetLevel = 0
+    
+    ' 順番にチェックしていく
+    If IsNumeric(varE) And Not IsEmpty(varE) And Not IsNull(varE) Then
+        If varF = "" Then
+            CustomFuncGetLevel = 1
+        ElseIf IsNumeric(varF) Then
+            If varG = "" Then
+                CustomFuncGetLevel = 2
+            ElseIf IsNumeric(varG) Then
+                If varH = "" Then
+                    CustomFuncGetLevel = 3
+                ElseIf IsNumeric(varH) Then
+                    If varI = "" Then
+                        CustomFuncGetLevel = 4
+                    ElseIf IsNumeric(varI) Then
+                        CustomFuncGetLevel = 5
+                    End If
+                End If
+            End If
+        End If
+    End If
+End Function
