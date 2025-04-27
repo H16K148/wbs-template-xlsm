@@ -21,7 +21,7 @@ Attribute VB_Name = "cfg"
 Public Const APP_PASSWORD As String = "h16k148"
 
 ' バージョン
-Public Const APP_VERSION As String = "0.1.1"
+Public Const APP_VERSION As String = "0.1.2"
 
 ' マーク文字列定義
 Public Const CHK_MARK_T As String = "■"

@@ -2010,15 +2010,23 @@ End Sub
 
 ' ■ 基本数式のリセット
 Public Sub ResetBasicFormulas(ws As Worksheet)
+
+    ' Dim dblStartTime As Double
+    ' Dim dblEndTime As Double
     
-    wbslib.SetFormulaForWbsIdx ws
-    wbslib.SetFormulaForWbsCnt ws
-    wbslib.SetFormulaForWbsId ws
-    wbslib.SetFormulaForLevel ws
-    wbslib.SetFormulaForFlgT ws
-    wbslib.SetFormulaForFlgIC ws
-    wbslib.SetFormulaForFlgPE ws
-    wbslib.SetFormulaForFlgCE ws
+    ' dblStartTime = Timer
+    
+    ' （基本数式セットの最適化以前のコード）
+    ' wbslib.SetFormulaForWbsIdx ws
+    ' wbslib.SetFormulaForWbsCnt ws
+    ' wbslib.SetFormulaForWbsId ws
+    ' wbslib.SetFormulaForLevel ws
+    ' wbslib.SetFormulaForFlgT ws
+    ' wbslib.SetFormulaForFlgIC ws
+    ' wbslib.SetFormulaForFlgPE ws
+    ' wbslib.SetFormulaForFlgCE ws
+    
+    wbslib.SetFormulaToControlColumn ws
     
     ' 式の更新時、一時的自動計算を行う
     If Application.Calculation = xlCalculationManual Then
@@ -2027,6 +2035,9 @@ Public Sub ResetBasicFormulas(ws As Worksheet)
     End If
     
     wbslib.ExecConvertBasicFormulasToValues ws
+    
+    ' dblEndTime = Timer
+    ' Debug.Print "経過時間: " & Format((dblEndTime - dblStartTime), "0.000") & " 秒"
     
 End Sub
 

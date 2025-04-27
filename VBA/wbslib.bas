@@ -314,13 +314,6 @@ Public Sub SetFormulaForWbsIdx(ws As Worksheet)
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
 
     ' 数式を作成
-    ' strFormula = "=IF(" & cfg.COL_ERR_LABEL & lngStartRow & "=""E"",""ERROR""," & _
-    '                 "IF(" & cfg.COL_L1_LABEL & lngStartRow & "="""",""XXX.XXX.XXX.XXX.XXX.XXX"", CONCAT(TEXT(" & cfg.COL_L1_LABEL & lngStartRow & ",""000"")," & _
-    '                 "IF(" & cfg.COL_L2_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_L2_LABEL & lngStartRow & ",""000""))," & _
-    '                 "IF(" & cfg.COL_L3_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_L3_LABEL & lngStartRow & ",""000""))," & _
-    '                 "IF(" & cfg.COL_L4_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_L4_LABEL & lngStartRow & ",""000""))," & _
-    '                 "IF(" & cfg.COL_L5_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_L5_LABEL & lngStartRow & ",""000""))," & _
-    '                 "IF(" & cfg.COL_TASK_LABEL & lngStartRow & "="""","".---"", ""."" & TEXT(" & cfg.COL_TASK_LABEL & lngStartRow & ",""000"")))))"
     strFormula = "=CustomFormatWbsIdx(" & _
                     cfg.COL_ERR_LABEL & lngStartRow & "," & _
                     cfg.COL_L1_LABEL & lngStartRow & "," & _
@@ -389,13 +382,6 @@ Public Sub SetFormulaForWbsId(ws As Worksheet)
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
 
     ' 数式を作成
-    ' strFormula = "=IF(" & cfg.COL_ERR_LABEL & lngStartRow & "=""E"",""ERROR""," & _
-    '                 "IF(" & cfg.COL_L1_LABEL & lngStartRow & "="""","""",CONCAT(" & cfg.COL_L1_LABEL & lngStartRow & "," & _
-    '                 "IF(" & cfg.COL_L2_LABEL & lngStartRow & "="""","""","".""&" & cfg.COL_L2_LABEL & lngStartRow & " ), " & _
-    '                 "IF(" & cfg.COL_L3_LABEL & lngStartRow & "="""","""","".""&" & cfg.COL_L3_LABEL & lngStartRow & " ), " & _
-    '                 "IF(" & cfg.COL_L4_LABEL & lngStartRow & "="""","""","".""&" & cfg.COL_L4_LABEL & lngStartRow & " ), " & _
-    '                 "IF(" & cfg.COL_L5_LABEL & lngStartRow & "="""","""","".""&" & cfg.COL_L5_LABEL & lngStartRow & " ), " & _
-    '                 "IF(" & cfg.COL_TASK_LABEL & lngStartRow & "="""","""","".T""&" & cfg.COL_TASK_LABEL & lngStartRow & " ))))"
     strFormula = "=CustomFormatWbsId(" & _
                     cfg.COL_ERR_LABEL & lngStartRow & "," & _
                     cfg.COL_L1_LABEL & lngStartRow & "," & _
@@ -432,16 +418,6 @@ Public Sub SetFormulaForLevel(ws As Worksheet)
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
 
     ' 数式を作成
-    ' strFormula = "=IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & ")," & cfg.COL_L2_LABEL & lngStartRow & "=""""," & cfg.COL_L3_LABEL & lngStartRow & "=""""," & _
-    '                 cfg.COL_L4_LABEL & lngStartRow & "=""""," & cfg.COL_L5_LABEL & lngStartRow & "=""""),1," & _
-    '                 "IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & ")," & cfg.COL_L3_LABEL & lngStartRow & "=""""," & _
-    '                 cfg.COL_L4_LABEL & lngStartRow & "=""""," & cfg.COL_L5_LABEL & lngStartRow & "=""""),2," & _
-    '                 "IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & ")," & _
-    '                 cfg.COL_L4_LABEL & lngStartRow & "=""""," & cfg.COL_L5_LABEL & lngStartRow & "=""""),3," & _
-    '                 "IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & "),ISNUMBER(" & _
-    '                 cfg.COL_L4_LABEL & lngStartRow & ")," & cfg.COL_L5_LABEL & lngStartRow & "=""""),4," & _
-    '                 "IF(AND(ISNUMBER(" & cfg.COL_L1_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L2_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L3_LABEL & lngStartRow & "),ISNUMBER(" & _
-    '                 cfg.COL_L4_LABEL & lngStartRow & "),ISNUMBER(" & cfg.COL_L5_LABEL & lngStartRow & ")),5,0)))))"
     strFormula = "=CustomFuncGetLevel(" & _
                     cfg.COL_L1_LABEL & lngStartRow & "," & _
                     cfg.COL_L2_LABEL & lngStartRow & "," & _
@@ -2897,19 +2873,16 @@ Public Sub ExecConvertBasicFormulasToValues(ws As Worksheet)
     ' WBS_CNTの式→値
     Set tmpRange = ws.Range(cfg.COL_WBS_CNT_LABEL & lngStartRow & ":" & cfg.COL_WBS_CNT_LABEL & lngEndRow)
     tmpVariant = tmpRange.value
-    tmpRange.NumberFormat = "General"
     tmpRange.value = tmpVariant
     
     ' FLG_PEの式→値
     Set tmpRange = ws.Range(cfg.COL_FLG_PE_LABEL & lngStartRow & ":" & cfg.COL_FLG_PE_LABEL & lngEndRow)
     tmpVariant = tmpRange.value
-    tmpRange.NumberFormat = "General"
     tmpRange.value = tmpVariant
     
     ' FLG_CEの式→値
     Set tmpRange = ws.Range(cfg.COL_FLG_CE_LABEL & lngStartRow & ":" & cfg.COL_FLG_CE_LABEL & lngEndRow)
     tmpVariant = tmpRange.value
-    tmpRange.NumberFormat = "General"
     tmpRange.value = tmpVariant
 
 End Sub
@@ -3086,4 +3059,115 @@ Function CustomFuncGetLevel(varE As Variant, varF As Variant, varG As Variant, v
         End If
     End If
 End Function
+
+
+' ■ 制御に使用する列に数式をまとめてセット
+Public Sub SetFormulaToControlColumn(ws As Worksheet)
+
+    ' 変数定義
+    Dim varRangeRows As Variant, lngStartRow As Long, lngEndRow As Long
+    Dim varFormulas() As Variant
+    ' 一時変数を定義
+    Dim i As Long, j As Long
+    Dim tmpLngRow As Long
+
+    ' 開始行と終了行に値をセット
+    varRangeRows = wbslib.FindDataRangeRows(ws)
+    lngStartRow = varRangeRows(0)
+    lngEndRow = varRangeRows(1)
+
+    ' 開始行と終了行が見つからなければ終了
+    If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
+    
+    ' 数式をセットするデータを用意
+    ReDim varFormulas(1 To lngEndRow - lngStartRow + 1, 1 To cfg.COL_WBS_ID - cfg.COL_WBS_IDX + 1)
+
+    ' 数式をセット
+    For i = 1 To cfg.COL_WBS_ID - cfg.COL_WBS_IDX + 1
+        For j = 1 To lngEndRow - lngStartRow + 1
+            tmpLngRow = lngStartRow + j - 1
+            Select Case i
+                Case 1
+                    ' # WBS_IDX #
+                    varFormulas(j, i) = "=CustomFormatWbsIdx(" & _
+                                            cfg.COL_ERR_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L1_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L2_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L3_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L4_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L5_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_TASK_LABEL & tmpLngRow & ")"
+                Case 2
+                    ' # WBS_CNT #
+                    varFormulas(j, i) = "=COUNTIF(" & _
+                                            cfg.COL_WBS_IDX_LABEL & "$" & lngStartRow & ":" & _
+                                            cfg.COL_WBS_IDX_LABEL & "$" & lngEndRow & "," & _
+                                            cfg.COL_WBS_IDX_LABEL & tmpLngRow & ")"
+                Case 3
+                    ' # LEVEL #
+                    varFormulas(j, i) = "=CustomFuncGetLevel(" & _
+                                            cfg.COL_L1_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L2_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L3_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L4_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L5_LABEL & tmpLngRow & ")"
+                Case 4
+                    ' # FLG_T #
+                    varFormulas(j, i) = "=AND(" & _
+                                            cfg.COL_TASK_LABEL & tmpLngRow & "<>"""",ISNUMBER(" & _
+                                            cfg.COL_TASK_LABEL & tmpLngRow & "))"
+                Case 5
+                    ' # FLG_IC #
+                    varFormulas(j, i) = "=NOT(OR(" & _
+                                            cfg.COL_WBS_STATUS_LABEL & tmpLngRow & "=""" & cfg.WBS_STATUS_DELETED & """," & _
+                                            cfg.COL_WBS_STATUS_LABEL & tmpLngRow & "=""" & cfg.WBS_STATUS_TRANSFERRED & """," & _
+                                            cfg.COL_WBS_STATUS_LABEL & tmpLngRow & "=""" & cfg.WBS_STATUS_SHELVED & """," & _
+                                            cfg.COL_WBS_STATUS_LABEL & tmpLngRow & "=""" & cfg.WBS_STATUS_REJECTED & """" & "))"
+                Case 6
+                    ' # FLG_PE #
+                    varFormulas(j, i) = "=AND(" & _
+                                            cfg.COL_LEVEL_LABEL & tmpLngRow & ">0," & _
+                                            cfg.COL_WBS_ID_LABEL & tmpLngRow & "<>"""",IFERROR(ISNUMBER(MATCH(IFERROR(LEFT(" & _
+                                            cfg.COL_WBS_ID_LABEL & tmpLngRow & ",FIND(""~"",SUBSTITUTE(" & _
+                                            cfg.COL_WBS_ID_LABEL & tmpLngRow & ",""."",""~"",LEN(" & _
+                                            cfg.COL_WBS_ID_LABEL & tmpLngRow & ")-LEN(SUBSTITUTE(" & _
+                                            cfg.COL_WBS_ID_LABEL & tmpLngRow & ",""."",""""))))-1)," & _
+                                            cfg.COL_WBS_ID_LABEL & tmpLngRow & ")," & _
+                                            cfg.COL_WBS_ID_LABEL & "$" & lngStartRow & ":" & _
+                                            cfg.COL_WBS_ID_LABEL & "$" & lngEndRow & _
+                                            ",0)),FALSE))"
+                Case 7
+                    ' # FLG_CE #
+                    varFormulas(j, i) = "=AND(" & _
+                                            cfg.COL_LEVEL_LABEL & tmpLngRow & ">0," & _
+                                            cfg.COL_FLG_T_LABEL & tmpLngRow & "=FALSE," & _
+                                            cfg.COL_WBS_ID_LABEL & tmpLngRow & "<>"""",IFERROR(SUMPRODUCT(--(LEFT(" & _
+                                            cfg.COL_WBS_ID_LABEL & "$" & lngStartRow & ":" & _
+                                            cfg.COL_WBS_ID_LABEL & "$" & lngEndRow & ",LEN(" & _
+                                            cfg.COL_WBS_ID_LABEL & tmpLngRow & "&"".""))=" & _
+                                            cfg.COL_WBS_ID_LABEL & tmpLngRow & "&"".""))>0,FALSE))"
+
+                Case 8
+                    ' # WBS_ID #
+                    varFormulas(j, i) = "=CustomFormatWbsId(" & _
+                                            cfg.COL_ERR_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L1_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L2_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L3_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L4_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_L5_LABEL & tmpLngRow & "," & _
+                                            cfg.COL_TASK_LABEL & tmpLngRow & ")"
+            End Select
+        Next j
+    Next i
+
+    ' 一括で対象範囲に対し処理を行う
+    With ws.Range(cfg.COL_WBS_IDX_LABEL & lngStartRow & ":" & cfg.COL_WBS_ID_LABEL & lngEndRow)
+        ' 書式を一括で設定
+        .NumberFormat = "General"
+        ' 式をセット
+        .Formula = varFormulas
+    End With
+
+End Sub
 
