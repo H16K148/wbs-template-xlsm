@@ -38,7 +38,7 @@ Private Sub CommandButton1_Click()
     
     ' ワークシートを新規作成
     Set ws = Worksheets.Add
-    ws.Name = "WBS-" & InitWBS.TextBox1.value
+    ws.Name = "WBS-" & InitWBS.TextBox1.Value
     
     ' ワークシートを初期化
     wbsui.InitSheet ws

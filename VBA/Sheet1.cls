@@ -72,16 +72,16 @@ Private Sub Worksheet_BeforeDoubleClick(ByVal Target As Range, Cancel As Boolean
 
     ' CHK 処理
     If lngClickedColumn = cfg.COL_CHK Then
-        varClicked = ws.Cells(lngClickedRow, cfg.COL_CHK).value
+        varClicked = ws.Cells(lngClickedRow, cfg.COL_CHK).Value
 
         Application.ScreenUpdating = False
         Application.Calculation = xlCalculationManual
         Application.EnableEvents = False
 
         If varClicked = cfg.CHK_MARK_T Then
-            ws.Cells(lngClickedRow, cfg.COL_CHK).value = cfg.CHK_MARK_F
+            ws.Cells(lngClickedRow, cfg.COL_CHK).Value = cfg.CHK_MARK_F
         Else
-            ws.Cells(lngClickedRow, cfg.COL_CHK).value = cfg.CHK_MARK_T
+            ws.Cells(lngClickedRow, cfg.COL_CHK).Value = cfg.CHK_MARK_T
         End If
 
         Application.ScreenUpdating = True
@@ -95,7 +95,7 @@ Private Sub Worksheet_BeforeDoubleClick(ByVal Target As Range, Cancel As Boolean
     ' OPT 処理 (高速化版)
     If lngClickedColumn = cfg.COL_OPT Then
         ' クリックした値を取得
-        varClicked = ws.Cells(lngClickedRow, cfg.COL_OPT).value
+        varClicked = ws.Cells(lngClickedRow, cfg.COL_OPT).Value
         If varClicked <> cfg.OPT_MARK_T Then ' クリックされたセルが cfg.OPT_MARK_T でない場合のみ処理
             ' lngStartRow から lngEndRow の範囲で cfg.OPT_MARK_T を持つ最初のセルを検索
             On Error Resume Next
@@ -108,12 +108,12 @@ Private Sub Worksheet_BeforeDoubleClick(ByVal Target As Range, Cancel As Boolean
 
             ' cfg.OPT_MARK_T を持つセルが見つかったら cfg.OPT_MARK_F に変更
             If Not rngFoundCell Is Nothing Then
-                rngFoundCell.value = cfg.OPT_MARK_F
+                rngFoundCell.Value = cfg.OPT_MARK_F
             End If
 
             ' クリックされたセルの値を cfg.OPT_MARK_T に変更
-            ws.Cells(lngClickedRow, cfg.COL_OPT).value = cfg.OPT_MARK_T
-            ws.Cells(lngStartRow - 1, cfg.COL_OPT).value = lngClickedRow
+            ws.Cells(lngClickedRow, cfg.COL_OPT).Value = cfg.OPT_MARK_T
+            ws.Cells(lngStartRow - 1, cfg.COL_OPT).Value = lngClickedRow
 
             Application.ScreenUpdating = True
             Application.Calculation = xlCalculationAutomatic

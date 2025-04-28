@@ -35,11 +35,20 @@ Public Sub InitSheet(ws As Worksheet)
     ' ダミーデータを投入
     InputDammyData ws
     
+    ' 初期値をセット
+    SetInitialValue ws
+    
     ' タイトルセルのリセット
     ResetTitleRow ws
     
     ' 基本数式のリセット
     ResetBasicFormulas ws
+    
+    ' 式の更新時、一時的自動計算を行う
+    If Application.Calculation = xlCalculationManual Then
+        Application.Calculation = xlCalculationAutomatic
+        Application.Calculation = xlCalculationManual
+    End If
     
     ' 集計数式のリセット
     ResetAggregateFormulas ws
@@ -55,9 +64,6 @@ Public Sub InitSheet(ws As Worksheet)
         
     ' フォーム関連のリセット
     ResetExecuteForm ws
-    
-    ' 初期値をセット
-    SetInitialValue ws
     
     ' オートフィルターのリセット
     ResetAutoFilter ws
@@ -99,16 +105,16 @@ Private Sub InputDammyData(ws As Worksheet)
     If lngStartRow = 0 Or lngEndRow = 0 Or lngStartRow >= lngEndRow Then Exit Sub
     
     ' 組織名の入力
-    ws.Cells(cfg.ROW_CTRL1, cfg.COL_EFFORT_PROG).value = "A社,B社,C社"
+    ws.Cells(cfg.ROW_CTRL1, cfg.COL_EFFORT_PROG).Value = "A社,B社,C社"
     
     ' 担当名の入力
-    ws.Cells(cfg.ROW_CTRL2, cfg.COL_EFFORT_PROG).value = "佐藤一郎,鈴木二郎,高橋三郎"
+    ws.Cells(cfg.ROW_CTRL2, cfg.COL_EFFORT_PROG).Value = "佐藤一郎,鈴木二郎,高橋三郎"
     
     ' カテゴリ1の入力
-    ws.Cells(cfg.ROW_CTRL1, cfg.COL_CATEGORY2).value = "A,B,C"
+    ws.Cells(cfg.ROW_CTRL1, cfg.COL_CATEGORY2).Value = "A,B,C"
     
     ' カテゴリ2の入力
-    ws.Cells(cfg.ROW_CTRL2, cfg.COL_CATEGORY2).value = "D,E,F"
+    ws.Cells(cfg.ROW_CTRL2, cfg.COL_CATEGORY2).Value = "D,E,F"
     
     ' タスク番号を入力
     tmpEndFlg = False            ' 強制終了フラグ
@@ -121,9 +127,10 @@ Private Sub InputDammyData(ws As Worksheet)
             Exit For
         End If
         ' 階層1の行入力
-        ws.Cells(tmpCurrentRow, cfg.COL_L1).value = i
+        ws.Cells(tmpCurrentRow, cfg.COL_L1).Value = i
         If i = 1 Then
-            ws.Cells(tmpCurrentRow, cfg.COL_L1_TEXT).value = "階層1 テキスト"
+            ws.Cells(tmpCurrentRow, cfg.COL_L1_TEXT).Value = "階層1 テキスト"
+            ws.Cells(tmpCurrentRow, cfg.COL_TASK_WGT).Value = Int(3 * Rnd) + 1
         End If
         tmpCurrentRow = tmpCurrentRow + 1
         ' 階層1のタスク行入力
@@ -134,17 +141,30 @@ Private Sub InputDammyData(ws As Worksheet)
                 Exit For
             End If
             ' 階層1タスクの行入力
-            ws.Cells(tmpCurrentRow, cfg.COL_L1).value = i
-            ws.Cells(tmpCurrentRow, cfg.COL_TASK).value = n
+            ws.Cells(tmpCurrentRow, cfg.COL_L1).Value = i
+            ws.Cells(tmpCurrentRow, cfg.COL_TASK).Value = n
             If n = 1 Then
-                ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層1タスク テキスト1"
-                ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = cfg.WBS_STATUS_DELETED
+                ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層1タスク テキスト1"
+                ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = cfg.WBS_STATUS_DELETED
+                ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                ws.Cells(tmpCurrentRow, cfg.COL_TASK_WGT).Value = Int(3 * Rnd) + 1
+                ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
             ElseIf n = 2 Then
-                ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層1タスク テキスト2"
-                ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = cfg.WBS_STATUS_REJECTED
+                ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層1タスク テキスト2"
+                ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = cfg.WBS_STATUS_REJECTED
+                ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
             ElseIf n = 3 Then
-                ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層1タスク テキスト3"
-                ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = "-"
+                ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層1タスク テキスト3"
+                ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = "-"
+                ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
             End If
             tmpCurrentRow = tmpCurrentRow + 1
         Next n
@@ -156,10 +176,10 @@ Private Sub InputDammyData(ws As Worksheet)
                 Exit For
             End If
             ' 階層2の行入力
-            ws.Cells(tmpCurrentRow, cfg.COL_L1).value = i
-            ws.Cells(tmpCurrentRow, cfg.COL_L2).value = j
+            ws.Cells(tmpCurrentRow, cfg.COL_L1).Value = i
+            ws.Cells(tmpCurrentRow, cfg.COL_L2).Value = j
             If j = 1 Then
-                ws.Cells(tmpCurrentRow, cfg.COL_L2_TEXT).value = "階層2 テキスト"
+                ws.Cells(tmpCurrentRow, cfg.COL_L2_TEXT).Value = "階層2 テキスト"
             End If
             tmpCurrentRow = tmpCurrentRow + 1
             ' 階層2のタスク行入力
@@ -170,18 +190,30 @@ Private Sub InputDammyData(ws As Worksheet)
                     Exit For
                 End If
                 ' 階層2タスクの行入力
-                ws.Cells(tmpCurrentRow, cfg.COL_L1).value = i
-                ws.Cells(tmpCurrentRow, cfg.COL_L2).value = j
-                ws.Cells(tmpCurrentRow, cfg.COL_TASK).value = n
+                ws.Cells(tmpCurrentRow, cfg.COL_L1).Value = i
+                ws.Cells(tmpCurrentRow, cfg.COL_L2).Value = j
+                ws.Cells(tmpCurrentRow, cfg.COL_TASK).Value = n
                 If n = 1 Then
-                    ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層2タスク テキスト1"
-                    ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = cfg.WBS_STATUS_ON_HOLD
+                    ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層2タスク テキスト1"
+                    ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = cfg.WBS_STATUS_ON_HOLD
+                    ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                    ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                    ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                    ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
                 ElseIf n = 2 Then
-                    ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層2タスク テキスト2"
-                    ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = cfg.WBS_STATUS_SHELVED
+                    ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層2タスク テキスト2"
+                    ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = cfg.WBS_STATUS_SHELVED
+                    ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                    ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                    ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                    ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
                 ElseIf n = 3 Then
-                    ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層2タスク テキスト3"
-                    ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = "-"
+                    ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層2タスク テキスト3"
+                    ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = "-"
+                    ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                    ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                    ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                    ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
                 End If
                 tmpCurrentRow = tmpCurrentRow + 1
             Next n
@@ -193,11 +225,11 @@ Private Sub InputDammyData(ws As Worksheet)
                     Exit For
                 End If
                 ' 階層3の行入力
-                ws.Cells(tmpCurrentRow, cfg.COL_L1).value = i
-                ws.Cells(tmpCurrentRow, cfg.COL_L2).value = j
-                ws.Cells(tmpCurrentRow, cfg.COL_L3).value = k
+                ws.Cells(tmpCurrentRow, cfg.COL_L1).Value = i
+                ws.Cells(tmpCurrentRow, cfg.COL_L2).Value = j
+                ws.Cells(tmpCurrentRow, cfg.COL_L3).Value = k
                 If k = 1 Then
-                    ws.Cells(tmpCurrentRow, cfg.COL_L3_TEXT).value = "階層3 テキスト"
+                    ws.Cells(tmpCurrentRow, cfg.COL_L3_TEXT).Value = "階層3 テキスト"
                 End If
                 tmpCurrentRow = tmpCurrentRow + 1
                 ' 階層3のタスク行入力
@@ -208,19 +240,32 @@ Private Sub InputDammyData(ws As Worksheet)
                         Exit For
                     End If
                     ' 階層3タスクの行入力
-                    ws.Cells(tmpCurrentRow, cfg.COL_L1).value = i
-                    ws.Cells(tmpCurrentRow, cfg.COL_L2).value = j
-                    ws.Cells(tmpCurrentRow, cfg.COL_L3).value = k
-                    ws.Cells(tmpCurrentRow, cfg.COL_TASK).value = n
+                    ws.Cells(tmpCurrentRow, cfg.COL_L1).Value = i
+                    ws.Cells(tmpCurrentRow, cfg.COL_L2).Value = j
+                    ws.Cells(tmpCurrentRow, cfg.COL_L3).Value = k
+                    ws.Cells(tmpCurrentRow, cfg.COL_TASK).Value = n
                     If n = 1 Then
-                        ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層3タスク テキスト1"
-                        ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = cfg.WBS_STATUS_TRANSFERRED
+                        ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層3タスク テキスト1"
+                        ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = cfg.WBS_STATUS_TRANSFERRED
+                        ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                        ws.Cells(tmpCurrentRow, cfg.COL_TASK_WGT).Value = Int(3 * Rnd) + 1
+                        ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                        ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                        ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
                     ElseIf n = 2 Then
-                        ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層3タスク テキスト2"
-                        ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = cfg.WBS_STATUS_NOT_STARTED
+                        ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層3タスク テキスト2"
+                        ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = cfg.WBS_STATUS_NOT_STARTED
+                        ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                        ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                        ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                        ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
                     ElseIf n = 3 Then
-                        ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層3タスク テキスト3"
-                        ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = "-"
+                        ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層3タスク テキスト3"
+                        ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = "-"
+                        ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                        ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                        ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                        ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
                     End If
                     tmpCurrentRow = tmpCurrentRow + 1
                 Next n
@@ -232,12 +277,13 @@ Private Sub InputDammyData(ws As Worksheet)
                         Exit For
                     End If
                     ' 階層4の行入力
-                    ws.Cells(tmpCurrentRow, cfg.COL_L1).value = i
-                    ws.Cells(tmpCurrentRow, cfg.COL_L2).value = j
-                    ws.Cells(tmpCurrentRow, cfg.COL_L3).value = k
-                    ws.Cells(tmpCurrentRow, cfg.COL_L4).value = l
+                    ws.Cells(tmpCurrentRow, cfg.COL_L1).Value = i
+                    ws.Cells(tmpCurrentRow, cfg.COL_L2).Value = j
+                    ws.Cells(tmpCurrentRow, cfg.COL_L3).Value = k
+                    ws.Cells(tmpCurrentRow, cfg.COL_L4).Value = l
                     If l = 1 Then
-                        ws.Cells(tmpCurrentRow, cfg.COL_L4_TEXT).value = "階層4 テキスト"
+                        ws.Cells(tmpCurrentRow, cfg.COL_L4_TEXT).Value = "階層4 テキスト"
+                        ws.Cells(tmpCurrentRow, cfg.COL_TASK_WGT).Value = Int(3 * Rnd) + 1
                     End If
                     tmpCurrentRow = tmpCurrentRow + 1
                     ' 階層4のタスク行入力
@@ -248,20 +294,32 @@ Private Sub InputDammyData(ws As Worksheet)
                             Exit For
                         End If
                         ' 階層4タスクの行入力
-                        ws.Cells(tmpCurrentRow, cfg.COL_L1).value = i
-                        ws.Cells(tmpCurrentRow, cfg.COL_L2).value = j
-                        ws.Cells(tmpCurrentRow, cfg.COL_L3).value = k
-                        ws.Cells(tmpCurrentRow, cfg.COL_L4).value = l
-                        ws.Cells(tmpCurrentRow, cfg.COL_TASK).value = n
+                        ws.Cells(tmpCurrentRow, cfg.COL_L1).Value = i
+                        ws.Cells(tmpCurrentRow, cfg.COL_L2).Value = j
+                        ws.Cells(tmpCurrentRow, cfg.COL_L3).Value = k
+                        ws.Cells(tmpCurrentRow, cfg.COL_L4).Value = l
+                        ws.Cells(tmpCurrentRow, cfg.COL_TASK).Value = n
                         If n = 1 Then
-                            ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層4タスク テキスト1"
-                            ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = cfg.WBS_STATUS_COMPLETED
+                            ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層4タスク テキスト1"
+                            ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = cfg.WBS_STATUS_COMPLETED
+                            ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                            ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                            ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                            ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
                         ElseIf n = 2 Then
-                            ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層4タスク テキスト2"
-                            ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = cfg.WBS_STATUS_IN_PROGRESS
+                            ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層4タスク テキスト2"
+                            ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = cfg.WBS_STATUS_IN_PROGRESS
+                            ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                            ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                            ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                            ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
                         ElseIf n = 3 Then
-                            ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層4タスク テキスト3"
-                            ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = "-"
+                            ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層4タスク テキスト3"
+                            ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = "-"
+                            ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                            ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                            ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                            ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
                         End If
                         tmpCurrentRow = tmpCurrentRow + 1
                     Next n
@@ -273,13 +331,13 @@ Private Sub InputDammyData(ws As Worksheet)
                             Exit For
                         End If
                         ' 階層5の行入力
-                        ws.Cells(tmpCurrentRow, cfg.COL_L1).value = i
-                        ws.Cells(tmpCurrentRow, cfg.COL_L2).value = j
-                        ws.Cells(tmpCurrentRow, cfg.COL_L3).value = k
-                        ws.Cells(tmpCurrentRow, cfg.COL_L4).value = l
-                        ws.Cells(tmpCurrentRow, cfg.COL_L5).value = m
+                        ws.Cells(tmpCurrentRow, cfg.COL_L1).Value = i
+                        ws.Cells(tmpCurrentRow, cfg.COL_L2).Value = j
+                        ws.Cells(tmpCurrentRow, cfg.COL_L3).Value = k
+                        ws.Cells(tmpCurrentRow, cfg.COL_L4).Value = l
+                        ws.Cells(tmpCurrentRow, cfg.COL_L5).Value = m
                         If m = 1 Then
-                            ws.Cells(tmpCurrentRow, cfg.COL_L5_TEXT).value = "階層5 テキスト"
+                            ws.Cells(tmpCurrentRow, cfg.COL_L5_TEXT).Value = "階層5 テキスト"
                         End If
                         tmpCurrentRow = tmpCurrentRow + 1
                         ' 階層5のタスク行入力
@@ -290,20 +348,34 @@ Private Sub InputDammyData(ws As Worksheet)
                                 Exit For
                             End If
                             ' 階層5タスクの行入力
-                            ws.Cells(tmpCurrentRow, cfg.COL_L1).value = i
-                            ws.Cells(tmpCurrentRow, cfg.COL_L2).value = j
-                            ws.Cells(tmpCurrentRow, cfg.COL_L3).value = k
-                            ws.Cells(tmpCurrentRow, cfg.COL_L4).value = l
-                            ws.Cells(tmpCurrentRow, cfg.COL_L5).value = m
-                            ws.Cells(tmpCurrentRow, cfg.COL_TASK).value = n
+                            ws.Cells(tmpCurrentRow, cfg.COL_L1).Value = i
+                            ws.Cells(tmpCurrentRow, cfg.COL_L2).Value = j
+                            ws.Cells(tmpCurrentRow, cfg.COL_L3).Value = k
+                            ws.Cells(tmpCurrentRow, cfg.COL_L4).Value = l
+                            ws.Cells(tmpCurrentRow, cfg.COL_L5).Value = m
+                            ws.Cells(tmpCurrentRow, cfg.COL_TASK).Value = n
                             If n = 1 Then
-                                ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層5タスク テキスト1"
-                                ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = "-"
+                                ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層5タスク テキスト1"
+                                ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = "-"
+                                ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                                ws.Cells(tmpCurrentRow, cfg.COL_TASK_WGT).Value = Int(3 * Rnd) + 1
+                                ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                                ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                                ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
                             ElseIf n = 2 Then
-                                ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).value = "階層5タスク テキスト2"
-                                ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = "-"
+                                ws.Cells(tmpCurrentRow, cfg.COL_TASK_TEXT).Value = "階層5タスク テキスト2"
+                                ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = "-"
+                                ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                                ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                                ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                                ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
                             ElseIf n = 3 Then
-                                ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).value = "-"
+                                ws.Cells(tmpCurrentRow, cfg.COL_WBS_STATUS).Value = "-"
+                                ws.Cells(tmpCurrentRow, cfg.COL_TASK_PROG).Value = Int(11 * Rnd) / 10
+                                ws.Cells(tmpCurrentRow, cfg.COL_TASK_WGT).Value = Int(3 * Rnd) + 1
+                                ws.Cells(tmpCurrentRow, cfg.COL_PLANNED_EFF).Value = Int(6 * Rnd) / 2
+                                ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_REMAINING_EFF).Value = Int(6 * Rnd) / 2
+                                ws.Cells(tmpCurrentRow, cfg.COL_ACTUAL_COMPLETED_EFF).Value = Int(6 * Rnd) / 2
                             End If
                             tmpCurrentRow = tmpCurrentRow + 1
                         Next n
@@ -370,12 +442,12 @@ Public Sub InitSheetBaseDesign(ws As Worksheet)
     ws.Range("B2").IndentLevel = 1
     
     ' コントロール行入力
-    ws.Range(cfg.COL_OPT_LABEL & cfg.ROW_CTRL1).value = "全体："
-    ws.Range(cfg.COL_OPT_LABEL & cfg.ROW_CTRL2).value = "選択："
-    ws.Range(cfg.COL_WBS_STATUS_LABEL & cfg.ROW_CTRL1).value = "【選択候補定義】組織："
-    ws.Range(cfg.COL_WBS_STATUS_LABEL & cfg.ROW_CTRL2).value = "【選択候補定義】担当："
-    ws.Range(cfg.COL_CATEGORY1_LABEL & cfg.ROW_CTRL1).value = "【選択候補定義】カテゴリ1："
-    ws.Range(cfg.COL_CATEGORY1_LABEL & cfg.ROW_CTRL2).value = "【選択候補定義】カテゴリ2："
+    ws.Range(cfg.COL_OPT_LABEL & cfg.ROW_CTRL1).Value = "全体："
+    ws.Range(cfg.COL_OPT_LABEL & cfg.ROW_CTRL2).Value = "選択："
+    ws.Range(cfg.COL_WBS_STATUS_LABEL & cfg.ROW_CTRL1).Value = "【選択候補定義】組織："
+    ws.Range(cfg.COL_WBS_STATUS_LABEL & cfg.ROW_CTRL2).Value = "【選択候補定義】担当："
+    ws.Range(cfg.COL_CATEGORY1_LABEL & cfg.ROW_CTRL1).Value = "【選択候補定義】カテゴリ1："
+    ws.Range(cfg.COL_CATEGORY1_LABEL & cfg.ROW_CTRL2).Value = "【選択候補定義】カテゴリ2："
     
     ' コントロール行入力文字列の装飾
     ws.Range(cfg.COL_OPT_LABEL & cfg.ROW_CTRL1).HorizontalAlignment = xlRight
@@ -386,33 +458,33 @@ Public Sub InitSheetBaseDesign(ws As Worksheet)
     ws.Range(cfg.COL_CATEGORY1_LABEL & cfg.ROW_CTRL2).HorizontalAlignment = xlRight
     
     ' ヘッダー１文字列入力
-    ws.Range(cfg.COL_CHK_LABEL & cfg.ROW_HEADER1).value = "CHK"
-    ws.Range(cfg.COL_OPT_LABEL & cfg.ROW_HEADER1).value = "OPT"
-    ws.Range(cfg.COL_L1_LABEL & cfg.ROW_HEADER1).value = "L1"
-    ws.Range(cfg.COL_L2_LABEL & cfg.ROW_HEADER1).value = "L2"
-    ws.Range(cfg.COL_L3_LABEL & cfg.ROW_HEADER1).value = "L3"
-    ws.Range(cfg.COL_L4_LABEL & cfg.ROW_HEADER1).value = "L4"
-    ws.Range(cfg.COL_L5_LABEL & cfg.ROW_HEADER1).value = "L5"
-    ws.Range(cfg.COL_TASK_LABEL & cfg.ROW_HEADER1).value = "TASK"
-    ws.Range(cfg.COL_WBS_IDX_LABEL & cfg.ROW_HEADER1).value = "IDX"
-    ws.Range(cfg.COL_WBS_CNT_LABEL & cfg.ROW_HEADER1).value = "CNT"
-    ws.Range(cfg.COL_LEVEL_LABEL & cfg.ROW_HEADER1).value = "LV"
-    ws.Range(cfg.COL_FLG_T_LABEL & cfg.ROW_HEADER1).value = "T"
-    ws.Range(cfg.COL_FLG_IC_LABEL & cfg.ROW_HEADER1).value = "IC"
-    ws.Range(cfg.COL_FLG_PE_LABEL & cfg.ROW_HEADER1).value = "PE"
-    ws.Range(cfg.COL_FLG_CE_LABEL & cfg.ROW_HEADER1).value = "CE"
-    ws.Range(cfg.COL_WBS_ID_LABEL & cfg.ROW_HEADER1).value = "ID"
-    ws.Range(cfg.COL_L1_TEXT_LABEL & cfg.ROW_HEADER1).value = "L1"
-    ws.Range(cfg.COL_L2_TEXT_LABEL & cfg.ROW_HEADER1).value = "L2"
-    ws.Range(cfg.COL_L3_TEXT_LABEL & cfg.ROW_HEADER1).value = "L3"
-    ws.Range(cfg.COL_L4_TEXT_LABEL & cfg.ROW_HEADER1).value = "L4"
-    ws.Range(cfg.COL_L5_TEXT_LABEL & cfg.ROW_HEADER1).value = "L5"
-    ws.Range(cfg.COL_TASK_TEXT_LABEL & cfg.ROW_HEADER1).value = "TASK"
-    ws.Range(cfg.COL_TASK_COUNT_LABEL & cfg.ROW_HEADER1).value = "TASK集計"
-    ws.Range(cfg.COL_EFFORT_PROG_LABEL & cfg.ROW_HEADER1).value = "工数"
-    ws.Range(cfg.COL_TASK_PROG_LABEL & cfg.ROW_HEADER1).value = "項目"
-    ws.Range(cfg.COL_PLANNED_EFF_LABEL & cfg.ROW_HEADER1).value = "予定"
-    ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & cfg.ROW_HEADER1).value = "実績"
+    ws.Range(cfg.COL_CHK_LABEL & cfg.ROW_HEADER1).Value = "CHK"
+    ws.Range(cfg.COL_OPT_LABEL & cfg.ROW_HEADER1).Value = "OPT"
+    ws.Range(cfg.COL_L1_LABEL & cfg.ROW_HEADER1).Value = "L1"
+    ws.Range(cfg.COL_L2_LABEL & cfg.ROW_HEADER1).Value = "L2"
+    ws.Range(cfg.COL_L3_LABEL & cfg.ROW_HEADER1).Value = "L3"
+    ws.Range(cfg.COL_L4_LABEL & cfg.ROW_HEADER1).Value = "L4"
+    ws.Range(cfg.COL_L5_LABEL & cfg.ROW_HEADER1).Value = "L5"
+    ws.Range(cfg.COL_TASK_LABEL & cfg.ROW_HEADER1).Value = "TASK"
+    ws.Range(cfg.COL_WBS_IDX_LABEL & cfg.ROW_HEADER1).Value = "IDX"
+    ws.Range(cfg.COL_WBS_CNT_LABEL & cfg.ROW_HEADER1).Value = "CNT"
+    ws.Range(cfg.COL_LEVEL_LABEL & cfg.ROW_HEADER1).Value = "LV"
+    ws.Range(cfg.COL_FLG_T_LABEL & cfg.ROW_HEADER1).Value = "T"
+    ws.Range(cfg.COL_FLG_IC_LABEL & cfg.ROW_HEADER1).Value = "IC"
+    ws.Range(cfg.COL_FLG_PE_LABEL & cfg.ROW_HEADER1).Value = "PE"
+    ws.Range(cfg.COL_FLG_CE_LABEL & cfg.ROW_HEADER1).Value = "CE"
+    ws.Range(cfg.COL_WBS_ID_LABEL & cfg.ROW_HEADER1).Value = "ID"
+    ws.Range(cfg.COL_L1_TEXT_LABEL & cfg.ROW_HEADER1).Value = "L1"
+    ws.Range(cfg.COL_L2_TEXT_LABEL & cfg.ROW_HEADER1).Value = "L2"
+    ws.Range(cfg.COL_L3_TEXT_LABEL & cfg.ROW_HEADER1).Value = "L3"
+    ws.Range(cfg.COL_L4_TEXT_LABEL & cfg.ROW_HEADER1).Value = "L4"
+    ws.Range(cfg.COL_L5_TEXT_LABEL & cfg.ROW_HEADER1).Value = "L5"
+    ws.Range(cfg.COL_TASK_TEXT_LABEL & cfg.ROW_HEADER1).Value = "TASK"
+    ws.Range(cfg.COL_TASK_COUNT_LABEL & cfg.ROW_HEADER1).Value = "TASK集計"
+    ws.Range(cfg.COL_EFFORT_PROG_LABEL & cfg.ROW_HEADER1).Value = "工数"
+    ws.Range(cfg.COL_TASK_PROG_LABEL & cfg.ROW_HEADER1).Value = "項目"
+    ws.Range(cfg.COL_PLANNED_EFF_LABEL & cfg.ROW_HEADER1).Value = "予定"
+    ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & cfg.ROW_HEADER1).Value = "実績"
     
     ' ヘッダー１文字列の装飾
     ws.Range(cfg.COL_CHK_LABEL & cfg.ROW_HEADER1 & ":" & cfg.COL_LAST_LABEL & cfg.ROW_HEADER1).HorizontalAlignment = xlCenter
@@ -424,28 +496,28 @@ Public Sub InitSheetBaseDesign(ws As Worksheet)
     ws.Range(cfg.COL_CHK_LABEL & cfg.ROW_HEADER1 & ":" & cfg.COL_TASK_COMP_COUNT_LABEL & cfg.ROW_HEADER1).Font.Size = 7
     
     ' ヘッダー２文字列入力
-    ws.Range(cfg.COL_CHK_LABEL & cfg.ROW_HEADER2).value = "D-Click!"
-    ws.Range(cfg.COL_L1_LABEL & cfg.ROW_HEADER2).value = "階層番号"
-    ws.Range(cfg.COL_WBS_ID_LABEL & cfg.ROW_HEADER2).value = "WBS項目名"
-    ws.Range(cfg.COL_TASK_COUNT_LABEL & cfg.ROW_HEADER2).value = "合計"
-    ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & cfg.ROW_HEADER2).value = "完了"
-    ws.Range(cfg.COL_WBS_STATUS_LABEL & cfg.ROW_HEADER2).value = "ステータス"
-    ws.Range(cfg.COL_EFFORT_PROG_LABEL & cfg.ROW_HEADER2).value = "進捗率"
-    ws.Range(cfg.COL_TASK_PROG_LABEL & cfg.ROW_HEADER2).value = "消化率"
-    ws.Range(cfg.COL_TASK_WGT_LABEL & cfg.ROW_HEADER2).value = "加重"
-    ws.Range(cfg.COL_TEAM_SLCT_LABEL & cfg.ROW_HEADER2).value = "組織"
-    ws.Range(cfg.COL_PERSON_SLCT_LABEL & cfg.ROW_HEADER2).value = "担当"
-    ws.Range(cfg.COL_OUTPUT_LABEL & cfg.ROW_HEADER2).value = "成果物"
-    ws.Range(cfg.COL_PLANNED_EFF_LABEL & cfg.ROW_HEADER2).value = "工数(人日)"
-    ws.Range(cfg.COL_PLANNED_START_LABEL & cfg.ROW_HEADER2).value = "開始日"
-    ws.Range(cfg.COL_PLANNED_END_LABEL & cfg.ROW_HEADER2).value = "終了日"
-    ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & cfg.ROW_HEADER2).value = "残工数(人日)"
-    ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & cfg.ROW_HEADER2).value = "済工数(人日)"
-    ws.Range(cfg.COL_ACTUAL_START_LABEL & cfg.ROW_HEADER2).value = "開始日"
-    ws.Range(cfg.COL_ACTUAL_END_LABEL & cfg.ROW_HEADER2).value = "終了日"
-    ws.Range(cfg.COL_CATEGORY1_LABEL & cfg.ROW_HEADER2).value = "カテゴリ1"
-    ws.Range(cfg.COL_CATEGORY2_LABEL & cfg.ROW_HEADER2).value = "カテゴリ2"
-    ws.Range(cfg.COL_LAST_LABEL & cfg.ROW_HEADER2).value = "備考"
+    ws.Range(cfg.COL_CHK_LABEL & cfg.ROW_HEADER2).Value = "D-Click!"
+    ws.Range(cfg.COL_L1_LABEL & cfg.ROW_HEADER2).Value = "階層番号"
+    ws.Range(cfg.COL_WBS_ID_LABEL & cfg.ROW_HEADER2).Value = "WBS項目名"
+    ws.Range(cfg.COL_TASK_COUNT_LABEL & cfg.ROW_HEADER2).Value = "合計"
+    ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & cfg.ROW_HEADER2).Value = "完了"
+    ws.Range(cfg.COL_WBS_STATUS_LABEL & cfg.ROW_HEADER2).Value = "ステータス"
+    ws.Range(cfg.COL_EFFORT_PROG_LABEL & cfg.ROW_HEADER2).Value = "進捗率"
+    ws.Range(cfg.COL_TASK_PROG_LABEL & cfg.ROW_HEADER2).Value = "消化率"
+    ws.Range(cfg.COL_TASK_WGT_LABEL & cfg.ROW_HEADER2).Value = "加重"
+    ws.Range(cfg.COL_TEAM_SLCT_LABEL & cfg.ROW_HEADER2).Value = "組織"
+    ws.Range(cfg.COL_PERSON_SLCT_LABEL & cfg.ROW_HEADER2).Value = "担当"
+    ws.Range(cfg.COL_OUTPUT_LABEL & cfg.ROW_HEADER2).Value = "成果物"
+    ws.Range(cfg.COL_PLANNED_EFF_LABEL & cfg.ROW_HEADER2).Value = "工数(人日)"
+    ws.Range(cfg.COL_PLANNED_START_LABEL & cfg.ROW_HEADER2).Value = "開始日"
+    ws.Range(cfg.COL_PLANNED_END_LABEL & cfg.ROW_HEADER2).Value = "終了日"
+    ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & cfg.ROW_HEADER2).Value = "残工数(人日)"
+    ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & cfg.ROW_HEADER2).Value = "済工数(人日)"
+    ws.Range(cfg.COL_ACTUAL_START_LABEL & cfg.ROW_HEADER2).Value = "開始日"
+    ws.Range(cfg.COL_ACTUAL_END_LABEL & cfg.ROW_HEADER2).Value = "終了日"
+    ws.Range(cfg.COL_CATEGORY1_LABEL & cfg.ROW_HEADER2).Value = "カテゴリ1"
+    ws.Range(cfg.COL_CATEGORY2_LABEL & cfg.ROW_HEADER2).Value = "カテゴリ2"
+    ws.Range(cfg.COL_LAST_LABEL & cfg.ROW_HEADER2).Value = "備考"
     
     ' ヘッダー２文字列の装飾
     ws.Range(cfg.COL_CHK_LABEL & cfg.ROW_HEADER2 & ":" & cfg.COL_LAST_LABEL & cfg.ROW_HEADER2).HorizontalAlignment = xlCenter
@@ -454,38 +526,38 @@ Public Sub InitSheetBaseDesign(ws As Worksheet)
     ws.Range(cfg.COL_WBS_ID_LABEL & cfg.ROW_HEADER2 & ":" & cfg.COL_TEXT_LABEL & cfg.ROW_HEADER2).HorizontalAlignment = xlCenterAcrossSelection
     
     With ws.Range(cfg.COL_PLANNED_EFF_LABEL & cfg.ROW_HEADER2)
-        tmpCharLength = Len(.value)
+        tmpCharLength = Len(.Value)
         If tmpCharLength > 2 Then
             .Characters(Start:=3, Length:=tmpCharLength - 2).Font.Size = 6
         End If
     End With
     With ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & cfg.ROW_HEADER2)
-        tmpCharLength = Len(.value)
+        tmpCharLength = Len(.Value)
         If tmpCharLength > 3 Then
             .Characters(Start:=4, Length:=tmpCharLength - 3).Font.Size = 6
         End If
     End With
     With ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & cfg.ROW_HEADER2)
-        tmpCharLength = Len(.value)
+        tmpCharLength = Len(.Value)
         If tmpCharLength > 3 Then
             .Characters(Start:=4, Length:=tmpCharLength - 3).Font.Size = 6
         End If
     End With
     
     ' データ開始キー文字列入力
-    ws.Range(cfg.COL_KEY_LABEL & lngDataStartRow).value = "@"
+    ws.Range(cfg.COL_KEY_LABEL & lngDataStartRow).Value = "@"
     
     ' データ終了キー文字列入力
-    ws.Range(cfg.COL_KEY_LABEL & lngDataEndRow).value = "$"
+    ws.Range(cfg.COL_KEY_LABEL & lngDataEndRow).Value = "$"
     
     ' データ終了行文字列入力
-    ws.Range(cfg.COL_TASK_COUNT_LABEL & lngDataEndRow).value = "合計"
-    ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & lngDataEndRow).value = "合計"
-    ws.Range(cfg.COL_EFFORT_PROG_LABEL & lngDataEndRow).value = "全体%"
-    ws.Range(cfg.COL_TASK_PROG_LABEL & lngDataEndRow).value = "全体%"
-    ws.Range(cfg.COL_PLANNED_EFF_LABEL & lngDataEndRow).value = "合計人日"
-    ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngDataEndRow).value = "合計人日"
-    ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngDataEndRow).value = "合計人日"
+    ws.Range(cfg.COL_TASK_COUNT_LABEL & lngDataEndRow).Value = "合計"
+    ws.Range(cfg.COL_TASK_COMP_COUNT_LABEL & lngDataEndRow).Value = "合計"
+    ws.Range(cfg.COL_EFFORT_PROG_LABEL & lngDataEndRow).Value = "全体%"
+    ws.Range(cfg.COL_TASK_PROG_LABEL & lngDataEndRow).Value = "全体%"
+    ws.Range(cfg.COL_PLANNED_EFF_LABEL & lngDataEndRow).Value = "合計人日"
+    ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngDataEndRow).Value = "合計人日"
+    ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngDataEndRow).Value = "合計人日"
     
     ' データ終了行文字列の装飾
     With ws.Range(cfg.COL_CHK_LABEL & lngDataEndRow & ":" & cfg.COL_LAST_LABEL & lngDataEndRow)
@@ -493,31 +565,31 @@ Public Sub InitSheetBaseDesign(ws As Worksheet)
         .Font.Color = RGB(255, 255, 255)
     End With
     With ws.Range(cfg.COL_EFFORT_PROG_LABEL & lngDataEndRow)
-        tmpCharLength = Len(.value)
+        tmpCharLength = Len(.Value)
         If tmpCharLength > 2 Then
             .Characters(Start:=3, Length:=tmpCharLength - 2).Font.Size = 6
         End If
     End With
     With ws.Range(cfg.COL_TASK_PROG_LABEL & lngDataEndRow)
-        tmpCharLength = Len(.value)
+        tmpCharLength = Len(.Value)
         If tmpCharLength > 2 Then
             .Characters(Start:=3, Length:=tmpCharLength - 2).Font.Size = 6
         End If
     End With
     With ws.Range(cfg.COL_PLANNED_EFF_LABEL & lngDataEndRow)
-        tmpCharLength = Len(.value)
+        tmpCharLength = Len(.Value)
         If tmpCharLength > 2 Then
             .Characters(Start:=3, Length:=tmpCharLength - 2).Font.Size = 6
         End If
     End With
     With ws.Range(cfg.COL_ACTUAL_REMAINING_EFF_LABEL & lngDataEndRow)
-        tmpCharLength = Len(.value)
+        tmpCharLength = Len(.Value)
         If tmpCharLength > 2 Then
             .Characters(Start:=3, Length:=tmpCharLength - 2).Font.Size = 6
         End If
     End With
     With ws.Range(cfg.COL_ACTUAL_COMPLETED_EFF_LABEL & lngDataEndRow)
-        tmpCharLength = Len(.value)
+        tmpCharLength = Len(.Value)
         If tmpCharLength > 2 Then
             .Characters(Start:=3, Length:=tmpCharLength - 2).Font.Size = 6
         End If
@@ -986,7 +1058,7 @@ Public Sub ResetConditionalFormatting(ws As Worksheet)
         .StopIfTrue = False
         End With
     End With
-    With ws.Range(cfg.COL_WBS_ID_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
+    With ws.Range(cfg.COL_TASK_TEXT_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
         Set tmpFc = .FormatConditions.Add(Type:=xlExpression, Formula1:="=AND($" & _
                         cfg.COL_FLG_T_LABEL & lngStartRow & "=TRUE,$" & cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""" & cfg.WBS_STATUS_REJECTED & """)")
         With tmpFc
@@ -997,7 +1069,7 @@ Public Sub ResetConditionalFormatting(ws As Worksheet)
         .StopIfTrue = False
         End With
     End With
-    With ws.Range(cfg.COL_WBS_ID_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
+    With ws.Range(cfg.COL_TASK_TEXT_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
         Set tmpFc = .FormatConditions.Add(Type:=xlExpression, Formula1:="=AND($" & _
                         cfg.COL_FLG_T_LABEL & lngStartRow & "=TRUE,$" & cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""" & cfg.WBS_STATUS_SHELVED & """)")
         With tmpFc
@@ -1007,7 +1079,7 @@ Public Sub ResetConditionalFormatting(ws As Worksheet)
         .StopIfTrue = False
         End With
     End With
-    With ws.Range(cfg.COL_WBS_ID_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
+    With ws.Range(cfg.COL_TASK_TEXT_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
         Set tmpFc = .FormatConditions.Add(Type:=xlExpression, Formula1:="=AND($" & _
                         cfg.COL_FLG_T_LABEL & lngStartRow & "=TRUE,$" & cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""" & cfg.WBS_STATUS_TRANSFERRED & """)")
         With tmpFc
@@ -1018,7 +1090,7 @@ Public Sub ResetConditionalFormatting(ws As Worksheet)
         .StopIfTrue = False
         End With
     End With
-    With ws.Range(cfg.COL_WBS_ID_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
+    With ws.Range(cfg.COL_TASK_TEXT_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
         Set tmpFc = .FormatConditions.Add(Type:=xlExpression, Formula1:="=AND($" & _
                         cfg.COL_FLG_T_LABEL & lngStartRow & "=TRUE,$" & cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""" & cfg.WBS_STATUS_DELETED & """)")
         With tmpFc
@@ -1027,7 +1099,7 @@ Public Sub ResetConditionalFormatting(ws As Worksheet)
         .StopIfTrue = False
         End With
     End With
-    With ws.Range(cfg.COL_WBS_ID_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
+    With ws.Range(cfg.COL_TASK_TEXT_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
         Set tmpFc = .FormatConditions.Add(Type:=xlExpression, Formula1:="=AND($" & _
                         cfg.COL_FLG_T_LABEL & lngStartRow & "=TRUE,$" & cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""" & cfg.WBS_STATUS_COMPLETED & """)")
         With tmpFc
@@ -1035,7 +1107,7 @@ Public Sub ResetConditionalFormatting(ws As Worksheet)
         .StopIfTrue = False
         End With
     End With
-    With ws.Range(cfg.COL_WBS_ID_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
+    With ws.Range(cfg.COL_TASK_TEXT_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
         Set tmpFc = .FormatConditions.Add(Type:=xlExpression, Formula1:="=AND($" & _
                         cfg.COL_FLG_T_LABEL & lngStartRow & "=TRUE,$" & cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""" & cfg.WBS_STATUS_ON_HOLD & """)")
         With tmpFc
@@ -1043,7 +1115,7 @@ Public Sub ResetConditionalFormatting(ws As Worksheet)
         .StopIfTrue = False
         End With
     End With
-    With ws.Range(cfg.COL_WBS_ID_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
+    With ws.Range(cfg.COL_TASK_TEXT_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
         Set tmpFc = .FormatConditions.Add(Type:=xlExpression, Formula1:="=AND($" & _
                         cfg.COL_FLG_T_LABEL & lngStartRow & "=TRUE,$" & cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""" & cfg.WBS_STATUS_IN_PROGRESS & """)")
         With tmpFc
@@ -1051,7 +1123,7 @@ Public Sub ResetConditionalFormatting(ws As Worksheet)
         .StopIfTrue = False
         End With
     End With
-    With ws.Range(cfg.COL_WBS_ID_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
+    With ws.Range(cfg.COL_TASK_TEXT_LABEL & lngStartRow & ":" & cfg.COL_LAST_LABEL & lngEndRow)
         Set tmpFc = .FormatConditions.Add(Type:=xlExpression, Formula1:="=AND($" & _
                         cfg.COL_FLG_T_LABEL & lngStartRow & "=TRUE,$" & cfg.COL_WBS_STATUS_LABEL & lngStartRow & "=""" & cfg.WBS_STATUS_NOT_STARTED & """)")
         With tmpFc
@@ -1620,7 +1692,7 @@ Private Function CreateValidationListString(ws As Worksheet, defineRange As Rang
     Set colUniqueList = New Collection
 
     ' defineRange の文字列を処理
-    strDefine = Trim(defineRange.value)
+    strDefine = Trim(defineRange.Value)
     If Len(strDefine) > 0 Then
         tmpDefineArray = Split(strDefine, ",")
         For i = LBound(tmpDefineArray) To UBound(tmpDefineArray)
@@ -1635,7 +1707,7 @@ Private Function CreateValidationListString(ws As Worksheet, defineRange As Rang
     End If
 
     ' dataRange のセル値を配列として一括取得・処理
-    tmpDataArray = dataRange.value
+    tmpDataArray = dataRange.Value
     If IsArray(tmpDataArray) Then
         For r = LBound(tmpDataArray, 1) To UBound(tmpDataArray, 1)
             For c = LBound(tmpDataArray, 2) To UBound(tmpDataArray, 2)
@@ -1937,8 +2009,8 @@ Public Sub ResetExecuteForm(ws As Worksheet, Optional blnShouldClearOptMemory As
     Next r
     
     ' 結果を書き込み
-    ws.Range(ws.Cells(lngStartRow, cfg.COL_CHK), ws.Cells(lngEndRow, cfg.COL_CHK)).value = varChkArray
-    ws.Range(ws.Cells(lngStartRow, cfg.COL_OPT), ws.Cells(lngEndRow, cfg.COL_OPT)).value = varOptArray
+    ws.Range(ws.Cells(lngStartRow, cfg.COL_CHK), ws.Cells(lngEndRow, cfg.COL_CHK)).Value = varChkArray
+    ws.Range(ws.Cells(lngStartRow, cfg.COL_OPT), ws.Cells(lngEndRow, cfg.COL_OPT)).Value = varOptArray
     
     ' 引数の指定でOPTのメモリセルをクリアする必要がある場合
     If blnShouldClearOptMemory = True Then
@@ -1946,12 +2018,12 @@ Public Sub ResetExecuteForm(ws As Worksheet, Optional blnShouldClearOptMemory As
     End If
     
     ' 最後に選択したOPTを反映
-    tmpVar = ws.Cells(cfg.ROW_DATA_START, cfg.COL_OPT).value
+    tmpVar = ws.Cells(cfg.ROW_DATA_START, cfg.COL_OPT).Value
     If tmpVar <> "" And _
             IsNumeric(tmpVar) And _
             tmpVar >= lngStartRow And _
             tmpVar <= lngEndRow Then
-        ws.Cells(tmpVar, cfg.COL_OPT).value = cfg.OPT_MARK_T
+        ws.Cells(tmpVar, cfg.COL_OPT).Value = cfg.OPT_MARK_T
         
     End If
 
@@ -1970,7 +2042,7 @@ Public Sub ResetTitleRow(ws As Worksheet)
     ws.Rows(cfg.ROW_TITLE).ClearContents
 
     ' シート名をセット
-    ws.Range(cfg.COL_ERR_LABEL & cfg.ROW_TITLE).value = ws.Name
+    ws.Range(cfg.COL_ERR_LABEL & cfg.ROW_TITLE).Value = ws.Name
     
     ' 対象のセルを設定
     Set rngTargetCell = ws.Range(cfg.COL_LAST_LABEL & cfg.ROW_TITLE)
@@ -1979,7 +2051,7 @@ Public Sub ResetTitleRow(ws As Worksheet)
     strGitHubURL = "https://github.com/H16K148/wbs-template-xlsm"
 
     ' セルに文字列を入力
-    rngTargetCell.value = strGitHubURL
+    rngTargetCell.Value = strGitHubURL
 
     ' ハイパーリンクを設定
     ws.Hyperlinks.Add Anchor:=rngTargetCell, Address:=strGitHubURL, TextToDisplay:=strGitHubURL
@@ -2045,21 +2117,30 @@ End Sub
 ' ■ 集計数式のリセット
 Public Sub ResetAggregateFormulas(ws As Worksheet)
 
-    wbslib.SetFormulaForPlannedEffort ws
-    wbslib.SetFormulaForActualCompletedEffort ws
-    wbslib.SetFormulaForActualRemainingEffort ws
-    wbslib.SetFormulaForTaskProgressRate ws
-    wbslib.SetFormulaForEffortProgressRate ws
-    wbslib.SetFormulaForTaskCount ws
-    wbslib.SetFormulaForTaskCompCount ws
+    ' （集計の最適化以前のコード）
+    ' wbslib.SetFormulaForTaskCount ws
+    ' wbslib.SetFormulaForTaskCompCount ws
+    ' wbslib.SetFormulaForPlannedEffort ws
+    ' wbslib.SetFormulaForActualRemainingEffort ws
+    ' wbslib.SetFormulaForActualCompletedEffort ws
+    ' wbslib.SetFormulaForEffortProgressRate ws
+    ' wbslib.SetFormulaForTaskProgressRate ws
+    
+    wbslib.SetValueForTaskCount ws
+    wbslib.SetValueForTaskCompCount ws
+    wbslib.SetValueForPlannedEffort ws
+    wbslib.SetValueForActualCompletedEffort ws
+    wbslib.SetValueForActualRemainingEffort ws
+    wbslib.SetValueForEffortProgressRate ws
+    wbslib.SetValueForTaskProgressRate ws
     
     ' 式の更新時、一時的自動計算を行う
-    If Application.Calculation = xlCalculationManual Then
-        Application.Calculation = xlCalculationAutomatic
-        Application.Calculation = xlCalculationManual
-    End If
+    ' If Application.Calculation = xlCalculationManual Then
+    '     Application.Calculation = xlCalculationAutomatic
+    '     Application.Calculation = xlCalculationManual
+    ' End If
     
-    wbslib.ExecConvertAggregateFormulasToValues ws
+    ' wbslib.ExecConvertAggregateFormulasToValues ws
 
 End Sub
 
@@ -2106,63 +2187,63 @@ Public Sub SetInitialValue(ws As Worksheet)
     
     ' WBSステータス行
     Set tmpRngTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_WBS_STATUS), ws.Cells(lngEndRow, cfg.COL_WBS_STATUS))
-    tmpVarTarget = tmpRngTarget.value
+    tmpVarTarget = tmpRngTarget.Value
     For i = LBound(tmpVarTarget, 1) To UBound(tmpVarTarget, 1)
       If IsEmpty(tmpVarTarget(i, 1)) Then
         tmpVarTarget(i, 1) = "-"
       End If
     Next i
-    tmpRngTarget.value = tmpVarTarget
+    tmpRngTarget.Value = tmpVarTarget
     
     ' 項目加重行
     Set tmpRngTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_TASK_WGT), ws.Cells(lngEndRow, cfg.COL_TASK_WGT))
-    tmpVarTarget = tmpRngTarget.value
+    tmpVarTarget = tmpRngTarget.Value
     For i = LBound(tmpVarTarget, 1) To UBound(tmpVarTarget, 1)
       If IsEmpty(tmpVarTarget(i, 1)) Then
         tmpVarTarget(i, 1) = 1
       End If
     Next i
-    tmpRngTarget.value = tmpVarTarget
+    tmpRngTarget.Value = tmpVarTarget
 
     ' 組織行
     Set tmpRngTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_TEAM_SLCT), ws.Cells(lngEndRow, cfg.COL_TEAM_SLCT))
-    tmpVarTarget = tmpRngTarget.value
+    tmpVarTarget = tmpRngTarget.Value
     For i = LBound(tmpVarTarget, 1) To UBound(tmpVarTarget, 1)
       If IsEmpty(tmpVarTarget(i, 1)) Then
         tmpVarTarget(i, 1) = "-"
       End If
     Next i
-    tmpRngTarget.value = tmpVarTarget
+    tmpRngTarget.Value = tmpVarTarget
 
     ' 担当行
     Set tmpRngTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_PERSON_SLCT), ws.Cells(lngEndRow, cfg.COL_PERSON_SLCT))
-    tmpVarTarget = tmpRngTarget.value
+    tmpVarTarget = tmpRngTarget.Value
     For i = LBound(tmpVarTarget, 1) To UBound(tmpVarTarget, 1)
       If IsEmpty(tmpVarTarget(i, 1)) Then
         tmpVarTarget(i, 1) = "-"
       End If
     Next i
-    tmpRngTarget.value = tmpVarTarget
+    tmpRngTarget.Value = tmpVarTarget
 
     ' カテゴリ1行
     Set tmpRngTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_CATEGORY1), ws.Cells(lngEndRow, cfg.COL_CATEGORY1))
-    tmpVarTarget = tmpRngTarget.value
+    tmpVarTarget = tmpRngTarget.Value
     For i = LBound(tmpVarTarget, 1) To UBound(tmpVarTarget, 1)
       If IsEmpty(tmpVarTarget(i, 1)) Then
         tmpVarTarget(i, 1) = "-"
       End If
     Next i
-    tmpRngTarget.value = tmpVarTarget
+    tmpRngTarget.Value = tmpVarTarget
 
     ' カテゴリ2行
     Set tmpRngTarget = ws.Range(ws.Cells(lngStartRow, cfg.COL_CATEGORY2), ws.Cells(lngEndRow, cfg.COL_CATEGORY2))
-    tmpVarTarget = tmpRngTarget.value
+    tmpVarTarget = tmpRngTarget.Value
     For i = LBound(tmpVarTarget, 1) To UBound(tmpVarTarget, 1)
       If IsEmpty(tmpVarTarget(i, 1)) Then
         tmpVarTarget(i, 1) = "-"
       End If
     Next i
-    tmpRngTarget.value = tmpVarTarget
+    tmpRngTarget.Value = tmpVarTarget
 
 End Sub
 
@@ -2436,9 +2517,6 @@ Public Sub Exe2ButtonClick()
                 Application.Calculation = xlCalculationManual
             End If
             
-            ' 集計数式リセット
-            wbsui.ResetAggregateFormulas ws
-            
             ' エラーチェック
             Call wbslib.ExecCheckWbsHasErrors(ws)
             
@@ -2477,9 +2555,6 @@ Public Sub Exe2ButtonClick()
                 Application.Calculation = xlCalculationAutomatic
                 Application.Calculation = xlCalculationManual
             End If
-            
-            ' 集計数式リセット
-            wbsui.ResetAggregateFormulas ws
             
             ' エラーチェック
             Call wbslib.ExecCheckWbsHasErrors(ws)
@@ -2520,9 +2595,6 @@ Public Sub Exe2ButtonClick()
                 Application.Calculation = xlCalculationManual
             End If
             
-            ' 集計数式リセット
-            wbsui.ResetAggregateFormulas ws
-            
             ' エラーチェック
             Call wbslib.ExecCheckWbsHasErrors(ws)
             
@@ -2562,9 +2634,6 @@ Public Sub Exe2ButtonClick()
                 Application.Calculation = xlCalculationManual
             End If
             
-            ' 集計数式リセット
-            wbsui.ResetAggregateFormulas ws
-            
             ' エラーチェック
             Call wbslib.ExecCheckWbsHasErrors(ws)
             
@@ -2603,9 +2672,6 @@ Public Sub Exe2ButtonClick()
                 Application.Calculation = xlCalculationAutomatic
                 Application.Calculation = xlCalculationManual
             End If
-            
-            ' 集計数式リセット
-            wbsui.ResetAggregateFormulas ws
             
             ' エラーチェック
             Call wbslib.ExecCheckWbsHasErrors(ws)
@@ -2820,6 +2886,7 @@ Public Sub ExecBeforeSave(ws As Worksheet)
     wbsui.ResetAutoFilter ws
     ' エラーチェック
     Call wbslib.ExecCheckWbsHasErrors(ws)
+    
     ' 保護を再セット
     wbsui.SetSheetProtect ws
     
