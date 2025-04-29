@@ -2330,7 +2330,11 @@ Private Sub SetValueRecursiveForEffortProgressRate(ws As Worksheet, _
             
         Next tmpVarChildIdx
         
-        varValues(lngTargetIdx, 1) = dblSumProgressRate / intSumCount
+        If intSumCount = 0 Then
+            varValues(lngTargetIdx, 1) = 0
+        Else
+            varValues(lngTargetIdx, 1) = dblSumProgressRate / intSumCount
+        End If
         varValues(lngTargetIdx, 2) = intTargetLevel
         
     End If
